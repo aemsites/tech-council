@@ -1,8 +1,9 @@
 // create a string containing head tags from h1 to h5
 import { defaultErrorMessages } from './constant.js';
+import { externalize } from './rules/functions.js';
 
 const headings = Array.from({ length: 6 }, (_, i) => `<h${i + 1}>`).join('');
-const allowedTags = `${headings}<a><b><p><i><em><strong><ul><li><ol>`;
+const allowedTags = `${headings}<a><b><p><i><em><strong><ul><li><ol><br><hr><u><sup><sub><s>`;
 
 export function stripTags(input, allowd = allowedTags) {
   if (typeof input !== 'string') {
@@ -236,11 +237,6 @@ export function checkValidation(fieldElement) {
     removeInvalidMsg(fieldElement);
     return;
   }
-  // for decimal inputs don't display stepMismatch error message
-  if (wrapper?.dataset?.type === 'number' && fieldElement.validity?.stepMismatch) {
-    removeInvalidMsg(fieldElement);
-    return;
-  }
 
   const message = getValidationMessage(fieldElement, wrapper);
   updateOrCreateInvalidMsg(fieldElement, message);
@@ -292,6 +288,9 @@ export function setPlaceholder(element, fd) {
 export function createInput(fd) {
   const input = document.createElement('input');
   input.type = getHTMLRenderType(fd);
+  if (fd.fieldType === 'number-input' && fd.type === 'number') {
+    input.setAttribute('step', 'any');
+  }
   setPlaceholder(input, fd);
   setConstraints(input, fd);
   return input;
@@ -426,5 +425,18 @@ export function createDropdownUsingEnum(fd, wrapper) {
 
   if (ph && optionSelected === false) {
     ph.setAttribute('selected', '');
+  }
+}
+
+export async function fetchData(id, search = '') {
+  try {
+    const url = externalize(`/adobe/forms/af/data/${id}${search}`);
+    const response = await fetch(url);
+    const json = await response.json();
+    const { data: prefillData } = json;
+    const { data: { afData: { afBoundData: { data = {} } = {} } = {} } = {} } = json;
+    return Object.keys(data).length > 0 ? data : (prefillData || json);
+  } catch (ex) {
+    return null;
   }
 }

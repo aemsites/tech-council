@@ -1,3 +1,4 @@
+/* eslint-disable one-var */
 /** ***********************************************************************
  * ADOBE CONFIDENTIAL
  * ___________________
@@ -25,13 +26,15 @@ import {
   getCheckboxGroupValue,
   createDropdownUsingEnum,
   createRadioOrCheckboxUsingEnum,
+  fetchData,
 } from '../util.js';
 import registerCustomFunctions from './functionRegistration.js';
-import { externalize } from './functions.js';
-import initializeRuleEngineWorker from './worker.js';
+import { LOG_LEVEL } from '../constant.js';
 import { createOptimizedPicture } from '../../../scripts/aem.js';
 
 const formSubscriptions = {};
+const formModels = {};
+const renderPromises = {};
 
 function disableElement(el, value) {
   el.toggleAttribute('disabled', value === true);
@@ -65,10 +68,21 @@ async function fieldChanged(payload, form, generateFormRendition) {
   const { changes, field: fieldModel } = payload;
   const {
     id, name, fieldType, ':type': componentType, readOnly, type, displayValue, displayFormat, displayValueExpression,
-    activeChild,
+    activeChild, qualifiedName,
   } = fieldModel;
   const field = form.querySelector(`#${id}`);
   if (!field) {
+    // Check if there's a pending render promise where qualifiedName is a substring
+    if (qualifiedName) {
+      const matchingKey = Object.keys(renderPromises).find((key) => qualifiedName.includes(key));
+      if (matchingKey) {
+        await renderPromises[matchingKey];
+        // Clear the promise after it's resolved
+        delete renderPromises[matchingKey];
+        // Retry field changed after the render is complete
+        await fieldChanged(payload, form, generateFormRendition);
+      }
+    }
     return;
   }
   const fieldWrapper = field?.closest('.field-wrapper');
@@ -86,35 +100,39 @@ async function fieldChanged(payload, form, generateFormRendition) {
         {
           const { validity } = payload.field;
           if (field.setCustomValidity
-          && (validity?.expressionMismatch || validity?.customConstraint)) {
+            && (validity?.expressionMismatch || validity?.customConstraint)) {
             field.setCustomValidity(currentValue);
             updateOrCreateInvalidMsg(field, currentValue);
           }
         }
         break;
       case 'value':
+        // Handle undefined currentValue to prevent "undefined" appearing in form fields
+        // eslint-disable-next-line no-case-declarations
+        const valueToSet = currentValue === undefined ? '' : currentValue;
+
         if (['number', 'date', 'text', 'email'].includes(field.type) && (displayFormat || displayValueExpression)) {
-          field.setAttribute('edit-value', currentValue);
+          field.setAttribute('edit-value', valueToSet);
           field.setAttribute('display-value', displayValue);
           if (document.activeElement !== field) {
             field.value = displayValue;
           }
         } else if (fieldType === 'radio-group' || fieldType === 'checkbox-group') {
           field.querySelectorAll(`input[name=${name}]`).forEach((el) => {
-            const exists = (Array.isArray(currentValue)
-              && currentValue.some((x) => compare(x, el.value, type.replace('[]', ''))))
-              || compare(currentValue, el.value, type);
+            const exists = (Array.isArray(valueToSet)
+              && valueToSet.some((x) => compare(x, el.value, type.replace('[]', ''))))
+              || compare(valueToSet, el.value, type);
             el.checked = exists;
           });
         } else if (fieldType === 'checkbox') {
-          field.checked = compare(currentValue, field.value, type);
+          field.checked = compare(valueToSet, field.value, type);
         } else if (fieldType === 'plain-text') {
-          field.innerHTML = currentValue;
+          field.innerHTML = valueToSet;
         } else if (fieldType === 'image') {
           const altText = field?.querySelector('img')?.alt || '';
-          field.querySelector('picture')?.replaceWith(createOptimizedPicture(field, currentValue, altText));
+          field.querySelector('picture')?.replaceWith(createOptimizedPicture(valueToSet, altText));
         } else if (field.type !== 'file') {
-          field.value = currentValue;
+          field.value = valueToSet;
         }
         break;
       case 'visible':
@@ -195,7 +213,8 @@ async function fieldChanged(payload, form, generateFormRendition) {
           const removeId = prevValue.id;
           field?.querySelector(`#${removeId}`)?.remove();
         } else {
-          generateFormRendition({ items: [currentValue] }, field?.querySelector('.repeat-wrapper'));
+          const promise = generateFormRendition({ items: [currentValue] }, field?.querySelector('.repeat-wrapper'), form.dataset?.id);
+          renderPromises[currentValue?.qualifiedName] = promise;
         }
         break;
       case 'activeChild': handleActiveChild(activeChild, form);
@@ -294,14 +313,14 @@ export async function loadRuleEngine(formDef, htmlForm, captcha, genFormRenditio
   const ruleEngine = await import('./model/afb-runtime.js');
   const form = ruleEngine.restoreFormInstance(formDef, data);
   window.myForm = form;
+  formModels[htmlForm.dataset?.id] = form;
   const subscriptions = formSubscriptions[htmlForm.dataset?.id];
-  if (subscriptions) {
-    subscriptions.forEach((subscription, id) => {
-      const { callback, fieldDiv } = subscription;
-      const model = form.getElement(id);
-      callback(fieldDiv, model, 'register');
-    });
-  }
+  subscriptions?.forEach((subscription, id) => {
+    const { callback, fieldDiv } = subscription;
+    const model = form.getElement(id);
+    callback(fieldDiv, model, 'register');
+  });
+
   form.subscribe((e) => {
     handleRuleEngineEvent(e, htmlForm, genFormRendition);
   }, 'fieldChanged');
@@ -324,28 +343,63 @@ export async function loadRuleEngine(formDef, htmlForm, captcha, genFormRenditio
   applyRuleEngine(htmlForm, form, captcha);
 }
 
-async function fetchData({ id }) {
-  try {
-    const { search = '' } = window.location;
-    const url = externalize(`/adobe/forms/af/data/${id}${search}`);
-    const response = await fetch(url);
-    const json = await response.json();
-    const { data: prefillData } = json;
-    const { data: { afData: { afBoundData: { data = {} } = {} } = {} } = {} } = json;
-    return Object.keys(data).length > 0 ? data : (prefillData || json);
-  } catch (ex) {
-    return null;
+async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
+  if (typeof Worker === 'undefined') {
+    const data = await fetchData(formDef?.id, window.location.search || '');
+    const ruleEngine = await import('./model/afb-runtime.js');
+    const form = ruleEngine.createFormInstance({ ...formDef, data }, undefined, LOG_LEVEL);
+    return renderHTMLForm(form.getState(true), data);
   }
+  const myWorker = new Worker(`${window.hlx.codeBasePath}/blocks/form/rules/RuleEngineWorker.js`, { type: 'module' });
+  // Trigger the worker to start form initialization
+  myWorker.postMessage({
+    name: 'init',
+    payload: {
+      ...formDef,
+      search: window.location.search || '',
+    },
+  });
+
+  return new Promise((resolve) => {
+    let form,
+      captcha,
+      data,
+      generateFormRendition;
+    myWorker.addEventListener('message', async (e) => {
+      // main thread starts html rendering
+      if (e.data.name === 'init') {
+        const response = await renderHTMLForm(e.data.payload);
+        form = response.form;
+        captcha = response.captcha;
+        data = response.data;
+        generateFormRendition = response.generateFormRendition;
+        form?.classList.add('loading');
+        // informing the worker that html form rendition is complete
+        myWorker.postMessage({
+          name: 'decorated',
+        });
+        resolve(response);
+      }
+
+      if (e.data.name === 'restore') {
+        loadRuleEngine(e.data.payload, form, captcha, generateFormRendition, data);
+      }
+
+      if (e.data.name === 'fieldChanged') {
+        await fieldChanged(e.data.payload, form, generateFormRendition);
+      }
+
+      if (e.data.name === 'sync-complete') {
+        form?.classList.remove('loading');
+      }
+    });
+  });
 }
 
 export async function initAdaptiveForm(formDef, createForm) {
-  const data = await fetchData(formDef);
   await registerCustomFunctions();
-  const form = await initializeRuleEngineWorker({
-    ...formDef,
-    data,
-  }, createForm);
-  return form;
+  const response = await initializeRuleEngineWorker(formDef, createForm);
+  return response?.form;
 }
 
 /**
@@ -361,6 +415,12 @@ export function subscribe(fieldDiv, formId, callback) {
     if (!subscriptions) {
       subscriptions = new Map();
       formSubscriptions[formId] = subscriptions;
+    }
+    // In case of custom components inside repeatable panels,
+    //  the subscribe callback is triggered after form is initialised
+    if (formModels[formId]) {
+      const form = formModels[formId];
+      callback(fieldDiv, form.getElement(fieldDiv?.dataset?.id), 'register');
     }
     // Add the new subscription to the existing map
     subscriptions.set(fieldDiv?.dataset?.id, { callback, fieldDiv });
