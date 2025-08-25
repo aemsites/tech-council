@@ -1,0 +1,120 @@
+/* Events Block Styles - derived from cards */
+
+.events > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.events > ul > li {
+  background-color: var(--background-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.events > ul > li:hover,
+.events > ul > li:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.events .events-card-body {
+  padding: 20px 16px 24px;
+}
+
+.events .events-card-image {
+  line-height: 0;
+}
+
+.events > ul > li img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.events .events-card-image img {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+
+
+/* Two-column layout inside each event card */
+.events > ul > li {
+  display: flex;
+  flex-direction: row;
+}
+
+.events .events-card-image {
+  flex: 0 0 40%;
+}
+
+.events .events-card-body {
+  flex: 1 1 60%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Title styling */
+.events .events-card-title {
+  font-weight: 300;
+  color: #6a38ff;
+  font-size: var(--heading-font-size-l);
+  margin: 0 0 4px;
+}
+
+/* Date styling */
+.events .events-card-date {
+  font-weight: 600;
+  color: #4f4f4f; /* Dark grey */
+  margin: 0 0 2px;
+}
+
+/* Location styling */
+.events .events-card-location {
+  font-size: var(--body-font-size-s);
+  color: #7d7d7d; /* Light grey */
+  margin: 0;
+}
+
+/* Reset layout to card-style grid */
+.events > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
+  grid-gap: 24px;
+}
+
+/* Ensure each event card stacks image on top, text underneath */
+.events > ul > li {
+  display: block;
+}
+
+.events .events-card-image,
+.events .events-card-body {
+  flex: initial;
+  width: auto;
+}
+
+/* Remove responsive flex overrides */
+@media (max-width: 600px) {
+  .events > ul {
+    grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
+  }
+} 
+
+/* Icon spacing */
+.events .events-card-date span.icon,
+.events .events-card-location span.icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+} 

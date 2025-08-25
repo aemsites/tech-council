@@ -1,0 +1,140 @@
+.icon-cards > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-m);
+}
+
+.icon-cards > ul > li {
+  border: 1px solid #dadada;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-m) var(--space-s) var(--space-l);
+  text-align: center;
+}
+
+/* icon container */
+.icon-cards .icon-cards-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-s);
+}
+
+.icon-cards .icon-cards-card-icon span.icon,
+.icon-cards .icon-cards-card-icon svg,
+.icon-cards .icon-cards-card-icon img {
+  width: 64px;
+  height: 64px;
+  fill: var(--color-primary);
+}
+
+/* body */
+.icon-cards .icon-cards-card-body {
+  flex: 1;
+}
+
+.icon-cards .icon-cards-card-body h3 {
+  margin: var(--space-xs) 0;
+  font-size: var(--heading-font-size-m);
+}
+
+.icon-cards .icon-cards-card-body p {
+  font-size: var(--body-font-size-s);
+} 
+
+/* --- Carousel Styles for icon-cards --- */
+
+.icon-cards-carousel {
+  position: relative;
+}
+
+.icon-cards-carousel > ul {
+  display: flex;
+  gap: var(--space-m);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 var(--space-m);
+  scroll-snap-type: x mandatory;
+}
+
+.icon-cards-carousel > ul::-webkit-scrollbar {
+  display: none;
+}
+
+.icon-cards-carousel > ul > li {
+  flex: 0 0 calc((100% - (var(--space-m) * 3)) / 4);
+  scroll-snap-align: start;
+  /* Card styling */
+  border: 1px solid #dadada;
+  border-radius: 12px;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-m) var(--space-s) var(--space-l);
+  text-align: center;
+}
+
+.icon-cards-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgb(19 19 19 / 25%);
+  cursor: pointer;
+  z-index: 1;
+}
+
+.icon-cards-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.icon-cards-prev {
+  left: -24px; /* move outside card area */
+}
+
+.icon-cards-next {
+  right: -24px;
+}
+
+.icon-cards-nav::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-bottom: 0;
+  border-left: 0;
+  transform: translate(-50%, -50%) rotate(-135deg);
+}
+
+.icon-cards-next::after {
+  transform: translate(-50%, -50%) rotate(45deg);
+} 
+
+ @media (width <= 900px) {
+   .icon-cards-carousel > ul > li {
+     flex: 0 0 calc((100% - var(--space-m)) / 2);
+   }
+   .icon-cards-prev { left: -20px; }
+   .icon-cards-next { right: -20px; }
+ }
+
+ @media (width <= 600px) {
+   .icon-cards-carousel > ul > li {
+     flex: 0 0 100%;
+   }
+   .icon-cards-prev { left: -16px; }
+   .icon-cards-next { right: -16px; }
+ } 

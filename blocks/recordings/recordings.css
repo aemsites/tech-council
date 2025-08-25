@@ -1,0 +1,71 @@
+/* Recordings Block */
+
+.recordings > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.recordings > ul > li {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-m);
+  border: 1px solid #dadada;
+  border-radius: 12px;
+  background-color: var(--background-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  padding: 20px 16px;
+}
+
+.recordings > ul > li:hover,
+.recordings > ul > li:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.recordings .recordings-card-image {
+  flex: 0 0 30%;
+  line-height: 0;
+}
+
+.recordings .recordings-card-image img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.recordings .recordings-card-body {
+  flex: 1 1 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.recordings .recordings-card-body h1,
+.recordings .recordings-card-body h2,
+.recordings .recordings-card-body h3,
+.recordings .recordings-card-body h4,
+.recordings .recordings-card-body h5,
+.recordings .recordings-card-body h6 {
+  font-weight: 700;
+  color: var(--link-color);
+  margin: 0 0 var(--space-xs);
+}
+
+@media (width <= 600px) {
+  .recordings > ul > li {
+    flex-direction: column;
+  }
+
+  .recordings .recordings-card-image,
+  .recordings .recordings-card-body {
+    flex: unset;
+    width: 100%;
+  }
+} 

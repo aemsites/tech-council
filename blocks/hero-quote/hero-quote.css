@@ -1,0 +1,49 @@
+.hero-quote blockquote {
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-m);
+  max-width: 1200px;
+  text-align: left;
+}
+
+@media (width >= 900px) {
+  .hero-quote blockquote {
+    padding: var(--space-xl) var(--space-l);
+  }
+}
+
+.hero-quote-quotation {
+  font-size: var(--heading-font-size-xl);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 var(--space-m) 0;
+}
+
+.hero-quote-attribution {
+  font-size: var(--body-font-size-s);
+  font-weight: 500;
+  text-align: left;
+}
+
+.hero-quote-carousel {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-quote-slides {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.hero-quote-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.6s ease-in-out;
+}
+
+.hero-quote-slide.active {
+  position: relative;
+  opacity: 1;
+} 

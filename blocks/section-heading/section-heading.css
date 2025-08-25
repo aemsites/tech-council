@@ -1,0 +1,17 @@
+.section-heading {
+  text-align: left;
+  margin: var(--space-xl) 0 var(--space-m) 0;
+}
+
+.section-heading h2 {
+  margin: 0 0 var(--space-s) 0;
+  font-size: var(--heading-font-size-xl);
+  font-family: var(--heading-font-family);
+}
+
+.section-heading p {
+  margin: 0;
+  max-width: 800px;
+  font-size: var(--body-font-size-xs);
+  color: var(--text-color);
+} 

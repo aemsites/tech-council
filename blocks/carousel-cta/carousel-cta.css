@@ -1,0 +1,17 @@
+/* Carousel CTA Block */
+
+.carousel-cta .carousel-cta-title {
+  font-weight: 700;
+  color: var(--link-color);
+  margin-bottom: var(--space-xs);
+  font-size: var(--heading-font-size-xl);
+}
+
+.carousel-cta .carousel-cta-description {
+  font-size: var(--body-font-size-s);
+  margin-bottom: var(--space-s);
+}
+
+.carousel-cta .carousel-cta-button {
+  align-self: flex-start;
+} 
