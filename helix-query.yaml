@@ -39,8 +39,7 @@ indices:
   docpages:
     target: /docpages-index
     include:
-      - /docs/**
-      - /developer/**
+      - /**
     properties:
       title:
         select: head > meta[property="og:title"]
