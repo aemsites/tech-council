@@ -162,7 +162,18 @@ function loadSearch(input, docs, resultsContainer, isHomepage) {
  */
 function buildResult(match, terms, isHomepage) {
   if (!match) return null; // eject if no match
-  const result = createTag('a', { href: match.path });
+  // build URL with highlight param while preserving hash and existing params
+  let href = match.path || '';
+  try {
+    const url = new URL(href, window.location.origin);
+    if (Array.isArray(terms) && terms.length) {
+      url.searchParams.set('highlight', terms.join(' '));
+    }
+    href = `${url.pathname}${url.search}${url.hash}`;
+  } catch (e) {
+    // fallback to original path on URL errors
+  }
+  const result = createTag('a', { href });
 
   // write title and description
   const truncate = (text, maxLength = 150) => {
