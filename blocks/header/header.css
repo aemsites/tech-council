@@ -4,6 +4,9 @@ header .nav-wrapper {
   width: 100%;
   z-index: 2;
   position: fixed;
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
 }
 
 header nav {
@@ -53,6 +56,8 @@ header nav p {
 header nav a:any-link {
   color: currentcolor;
   font-weight: 600;
+  text-decoration: none;
+  transition: color 120ms ease, border-color 120ms ease, background-color 120ms ease;
 }
 
 /* hamburger */
@@ -148,6 +153,49 @@ header .nav-brand {
 header nav .nav-brand img {
   width: 128px;
   height: auto;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
+}
+
+/* highlight brand link/logo with subtle pill + gradient underline */
+header .nav-brand a:any-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  position: relative;
+}
+
+header .nav-brand a:any-link::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 2px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-gradient-purple));
+  opacity: 0.35;
+  transition: opacity 160ms ease, transform 160ms ease;
+  transform: translateY(3px);
+}
+
+header .nav-brand a:hover,
+header .nav-brand a:focus-visible {
+  background-color: var(--light-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+  border-color: var(--link-color);
+  outline: none;
+}
+
+header .nav-brand a:hover::after,
+header .nav-brand a:focus-visible::after {
+  opacity: 0.8;
+  transform: translateY(0);
 }
 
 /* sections */
@@ -221,13 +269,28 @@ header nav .nav-sections ul > li > ul > li {
 
   header nav .nav-sections ul {
     display: flex;
-    gap: 24px;
+    gap: 32px;
     margin: 0;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li {
     flex: 0 1 auto;
     position: relative;
+  }
+
+  /* top-level links: larger hit area + active/hover underline */
+  header nav .nav-sections .default-content-wrapper > ul > li > a {
+    display: inline-block;
+    padding: 10px 2px;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > a:hover,
+  header nav .nav-sections .default-content-wrapper > ul > li > a:focus-visible {
+    color: var(--link-color);
+    border-bottom-color: var(--link-color);
+    outline: none;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul {
@@ -239,31 +302,66 @@ header nav .nav-sections ul > li > ul > li {
     display: block;
     position: absolute;
     left: -24px;
-    width: 200px;
+    width: 240px;
     top: 150%;
-    padding: 16px;
-    background-color: var(--light-color);
+    padding: 12px;
+    background-color: var(--background-color);
     white-space: initial;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
     content: '';
     position: absolute;
     top: -8px;
-    left: 16px;
+    left: 18px;
     width: 0;
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 8px solid var(--light-color);
+    border-bottom: 8px solid var(--background-color);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul > li {
-    padding: 8px 0;
+    padding: 4px 0;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > ul a {
+    display: block;
+    padding: 10px 8px;
+    border-radius: 8px;
+    color: var(--text-color);
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > ul a:hover,
+  header nav .nav-sections .default-content-wrapper > ul > li > ul a:focus-visible {
+    background: var(--light-color);
+    color: inherit;
+    outline: none;
   }
 }
 
 /* tools */
 header nav .nav-tools {
   grid-area: tools;
+}
+
+/* mobile menu styles: larger tap targets and separators */
+header nav[aria-expanded='true'] .nav-sections ul > li {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+header nav[aria-expanded='true'] .nav-sections a {
+  display: block;
+  padding: 12px 8px;
+}
+
+/* focus visibility for all nav links */
+header nav a:any-link:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
