@@ -1,50 +1,107 @@
 /* Recordings Block */
 
 .recordings > ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-m);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
 }
 
 .recordings > ul > li {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: var(--space-m);
-  border: 1px solid #dadada;
-  border-radius: 12px;
-  background-color: var(--background-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  padding: 20px 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+    background: linear-gradient(145deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(248, 250, 252, 0.9) 100%);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 20px;
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.recordings > ul > li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg,
+    var(--link-color) 0%,
+    rgba(106, 56, 255, 0.6) 50%,
+    rgba(106, 56, 255, 0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .recordings > ul > li:hover,
 .recordings > ul > li:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-6px);
+    box-shadow:
+        0 12px 24px -4px rgba(0, 0, 0, 0.08),
+        0 6px 12px -2px rgba(0, 0, 0, 0.05);
+    border-color: rgba(106, 56, 255, 0.2);
+}
+
+.recordings > ul > li:hover::before,
+.recordings > ul > li:focus-within::before {
+    opacity: 1;
 }
 
 .recordings .recordings-card-image {
-  flex: 0 0 30%;
-  line-height: 0;
+    flex: 0 0 280px;
+    line-height: 0;
+    position: relative;
+}
+
+.recordings .recordings-card-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+    rgba(106, 56, 255, 0.1) 0%,
+    transparent 50%);
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.recordings > ul > li:hover .recordings-card-image::after {
+    opacity: 1;
 }
 
 .recordings .recordings-card-image img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  border-radius: 8px;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.recordings > ul > li:hover .recordings-card-image img {
+    transform: scale(1.02);
 }
 
 .recordings .recordings-card-body {
-  flex: 1 1 70%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
 }
 
 .recordings .recordings-card-body h1,
@@ -53,19 +110,112 @@
 .recordings .recordings-card-body h4,
 .recordings .recordings-card-body h5,
 .recordings .recordings-card-body h6 {
-  font-weight: 700;
-  color: var(--link-color);
-  margin: 0 0 var(--space-xs);
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    font-size: var(--heading-font-size-l);
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+    transition: color 0.2s ease;
 }
 
-@media (width <= 600px) {
-  .recordings > ul > li {
-    flex-direction: column;
-  }
+.recordings > ul > li:hover .recordings-card-body h1,
+.recordings > ul > li:hover .recordings-card-body h2,
+.recordings > ul > li:hover .recordings-card-body h3,
+.recordings > ul > li:hover .recordings-card-body h4,
+.recordings > ul > li:hover .recordings-card-body h5,
+.recordings > ul > li:hover .recordings-card-body h6 {
+    color: var(--link-color);
+}
 
-  .recordings .recordings-card-image,
-  .recordings .recordings-card-body {
-    flex: unset;
-    width: 100%;
-  }
+.recordings .recordings-card-body p {
+    margin: 0;
+    color: #64748b;
+    line-height: 1.6;
+    font-size: var(--body-font-size-s);
+}
+
+.recordings .recordings-card-body p:first-of-type {
+    color: var(--text-color);
+    font-size: var(--body-font-size-m);
+    margin-bottom: 8px;
+}
+
+/* Author styling */
+.recordings .recordings-card-body p:last-of-type {
+    font-size: var(--body-font-size-xs);
+    color: #94a3b8;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+/* Button styling within recordings */
+.recordings .recordings-card-body .button-container {
+    margin-top: 16px;
+}
+
+.recordings .recordings-card-body a.button {
+    background: linear-gradient(135deg, var(--link-color), rgba(106, 56, 255, 0.8));
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: var(--body-font-size-xs);
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 12px rgba(106, 56, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.recordings .recordings-card-body a.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(106, 56, 255, 0.4);
+    background: linear-gradient(135deg, var(--link-hover-color), var(--link-color));
+}
+
+/* Enhanced responsive design */
+@media (width <= 768px) {
+    .recordings > ul {
+        gap: 24px;
+    }
+
+    .recordings > ul > li {
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px 20px;
+    }
+
+    .recordings .recordings-card-image {
+        flex: unset;
+        width: 100%;
+    }
+
+    .recordings .recordings-card-image img {
+        height: 180px;
+    }
+
+    .recordings .recordings-card-body {
+        flex: unset;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .recordings .recordings-card-body h1,
+    .recordings .recordings-card-body h2,
+    .recordings .recordings-card-body h3,
+    .recordings .recordings-card-body h4,
+    .recordings .recordings-card-body h5,
+    .recordings .recordings-card-body h6 {
+        font-size: var(--heading-font-size-m);
+    }
+}
+
+@media (width <= 480px) {
+    .recordings > ul > li {
+        margin: 0 -8px;
+        border-radius: 16px;
+    }
+
+    .recordings .recordings-card-image img {
+        height: 160px;
+    }
 } 
