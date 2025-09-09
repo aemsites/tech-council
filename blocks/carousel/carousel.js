@@ -26,6 +26,10 @@ function updateActiveSlide(slide) {
       indicator.querySelector('button').setAttribute('disabled', 'true');
     }
   });
+
+  // Update edge classes for decorative fades and button states
+  block.classList.toggle('at-start', slideIndex === 0);
+  block.classList.toggle('at-end', slideIndex === slides.length - 1);
 }
 
 function showSlide(block, slideIndex = 0) {
@@ -68,6 +72,51 @@ function bindEvents(block) {
   block.querySelectorAll('.carousel-slide').forEach((slide) => {
     slideObserver.observe(slide);
   });
+
+  // Keyboard navigation
+  block.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      showSlide(block, parseInt(block.dataset.activeSlide, 10) - 1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
+    }
+  });
+
+  // Autoplay with pause on hover/focus
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const AUTOPLAY_MS = 6000;
+  if (!prefersReducedMotion) {
+    const startAutoplay = () => {
+      stopAutoplay();
+      const id = window.setInterval(() => {
+        showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
+      }, AUTOPLAY_MS);
+      block.dataset.autoplayId = String(id);
+    };
+    const stopAutoplay = () => {
+      if (block.dataset.autoplayId) {
+        window.clearInterval(parseInt(block.dataset.autoplayId, 10));
+        delete block.dataset.autoplayId;
+      }
+    };
+
+    // start autoplay after first paint
+    startAutoplay();
+
+    const pause = () => stopAutoplay();
+    const resume = () => startAutoplay();
+
+    block.addEventListener('mouseenter', pause);
+    block.addEventListener('mouseleave', resume);
+    block.addEventListener('focusin', pause);
+    block.addEventListener('focusout', resume);
+    block.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('pointerdown', pause);
+      btn.addEventListener('click', resume);
+    });
+  }
 }
 
 function createSlide(row, slideIndex, carouselId) {

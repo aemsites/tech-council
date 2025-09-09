@@ -32,10 +32,19 @@
     border: 1px solid;
     border-color: rgb(202 202 202);
     border-radius: 4px;
-    padding: 0 0 0 30px;
+    /* reserve space on the right for the clear button */
+    padding: 0 36px 0 30px;
     font: inherit;
     font-size: 14px;
     transition: border-color 130ms ease-in-out, box-shadow 130ms ease-in-out;
+  }
+
+  /* hide native cancel icon to avoid double "x" (Safari/WebKit) */
+  .doc-search form input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 0;
+    width: 0;
   }
   
   .doc-search.homepage form input {
@@ -61,23 +70,37 @@
     outline: none;
     border: none;
     border-radius: 3px;
-    padding: 7px 12px;
-    background: white;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    background: transparent;
+    color: rgb(110 110 110);
     transition: color 130ms ease-in-out;
     cursor: inherit;
     -webkit-tap-highlight-color: transparent;
+    align-items: center;
+    justify-content: center;
   }
   
-  .doc-search form input:hover + button {
-    display: block;
-    color: white;
+  .doc-search form input:hover + button,
+  .doc-search form input:focus + button {
+    display: flex;
+    color: rgb(110 110 110);
   }
   
   .doc-search form input:not(:placeholder-shown) + button {
-    display: block;
+    display: flex;
     pointer-events: auto;
     color: unset;
     cursor: pointer;
+  }
+
+  /* neutralize global button hover styles for the clear control */
+  .doc-search form button:hover,
+  .doc-search form button:focus {
+    background: transparent;
+    color: rgb(110 110 110);
   }
   
   .doc-search [aria-hidden='true'] {
