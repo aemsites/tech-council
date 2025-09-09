@@ -1,5 +1,5 @@
-# Your Project's Title...
-Your project's description...
+# Adobe Tech Council
+A platform for technical collaboration and knowledge sharing within Adobe, built on AEM Edge Delivery Services.
 
 ## Environments
 - Preview: https://main--tech-council--aemsites.aem.page/
