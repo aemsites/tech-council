@@ -38,6 +38,10 @@ indices:
           attribute(el, 'content')
   docpages:
     target: /docpages-index
+    exclude:
+      - /fragments/**
+      - /drafts/**
+      - /test/**
     properties:
       title:
         select: head > meta[property="og:title"]
