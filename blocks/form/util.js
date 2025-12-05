@@ -356,7 +356,7 @@ export function createRadioOrCheckboxUsingEnum(fd, wrapper) {
     const input = field.querySelector('input');
     input.id = id;
     input.dataset.fieldType = fd.fieldType;
-    input.name = fd.name;
+    input.name = `${fd?.id}_${fd?.name}`; // since id is unique across radio/checkbox group
     input.checked = Array.isArray(fd.value) ? fd.value.includes(value) : value === fd.value;
     if ((index === 0 && type === 'radio') || type === 'checkbox') {
       input.required = fd.required;
@@ -387,7 +387,7 @@ export function createDropdownUsingEnum(fd, wrapper) {
   const addOption = (label, value) => {
     const option = document.createElement('option');
     option.textContent = label instanceof Object ? label?.value?.trim() : label?.trim();
-    option.value = value?.trim() || label?.trim();
+    option.value = String(value)?.trim() || String(label)?.trim();
     if (fd.value === option.value || (Array.isArray(fd.value) && fd.value.includes(option.value))) {
       option.setAttribute('selected', '');
       optionSelected = true;

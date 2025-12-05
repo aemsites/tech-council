@@ -118,7 +118,7 @@ async function fieldChanged(payload, form, generateFormRendition) {
             field.value = displayValue;
           }
         } else if (fieldType === 'radio-group' || fieldType === 'checkbox-group') {
-          field.querySelectorAll(`input[name=${name}]`).forEach((el) => {
+          field.querySelectorAll(`input[name=${id}_${name}]`).forEach((el) => {
             const exists = (Array.isArray(valueToSet)
               && valueToSet.some((x) => compare(x, el.value, type.replace('[]', ''))))
               || compare(valueToSet, el.value, type);
@@ -148,7 +148,7 @@ async function fieldChanged(payload, form, generateFormRendition) {
         // If checkboxgroup/radiogroup/drop-down is readOnly then it should remain disabled.
         if (fieldType === 'radio-group' || fieldType === 'checkbox-group') {
           if (readOnly === false) {
-            field.querySelectorAll(`input[name=${name}]`).forEach((el) => {
+            field.querySelectorAll(`input[name=${id}_${name}]`).forEach((el) => {
               disableElement(el, !currentValue);
             });
           }
@@ -166,7 +166,7 @@ async function fieldChanged(payload, form, generateFormRendition) {
         break;
       case 'readOnly':
         if (fieldType === 'radio-group' || fieldType === 'checkbox-group') {
-          field.querySelectorAll(`input[name=${name}]`).forEach((el) => {
+          field.querySelectorAll(`input[name=${id}_${name}]`).forEach((el) => {
             disableElement(el, currentValue);
           });
         } else if (fieldType === 'drop-down') {
@@ -222,6 +222,9 @@ async function fieldChanged(payload, form, generateFormRendition) {
       case 'valid':
         if (currentValue === true) {
           updateOrCreateInvalidMsg(field, '');
+          if (field.validity?.customError) {
+            field?.setCustomValidity('');
+          }
         }
         break;
       case 'enum':
@@ -358,6 +361,7 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
       ...formDef,
       search: window.location.search || '',
     },
+    codeBasePath: window.hlx.codeBasePath,
   });
 
   return new Promise((resolve) => {
@@ -397,7 +401,7 @@ async function initializeRuleEngineWorker(formDef, renderHTMLForm) {
 }
 
 export async function initAdaptiveForm(formDef, createForm) {
-  await registerCustomFunctions();
+  await registerCustomFunctions(formDef?.properties?.customFunctionsPath || '/blocks/form/functions.js', window.hlx?.codeBasePath);
   const response = await initializeRuleEngineWorker(formDef, createForm);
   return response?.form;
 }
