@@ -79,7 +79,7 @@ async function prepareRequest(form) {
   const headers = {
     'Content-Type': 'application/json',
     // eslint-disable-next-line comma-dangle
-    'x-adobe-form-hostname': window?.location?.hostname
+    'x-adobe-form-hostname': "main--tech-council--aemsites.aem.live"
   };
   const body = { data: payload };
   let url;
