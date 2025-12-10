@@ -41,6 +41,7 @@
 .events .events-card-image img {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+  transition: transform 0.35s ease;
 }
 
 
@@ -96,6 +97,10 @@
   display: block;
 }
 
+.events > ul > li:hover .events-card-image img {
+  transform: scale(1.03);
+}
+
 .events .events-card-image,
 .events .events-card-body {
   flex: initial;
@@ -118,3 +123,69 @@
   margin-right: 6px;
   vertical-align: middle;
 } 
+
+/* Card reveal animation */
+@keyframes events-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.events > ul > li:not(.see-more-item) {
+  animation: events-fade-up 0.5s ease calc(var(--i, 0) * 60ms) both;
+  will-change: transform, opacity;
+}
+
+.events > ul > li.reveal {
+  animation: events-fade-up 0.45s ease calc(var(--reveal-i, 0) * 60ms) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .events > ul > li:not(.see-more-item),
+  .events > ul > li.reveal {
+    animation: none;
+  }
+}
+
+/* Inline See More tile */
+.events > ul > li.see-more-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  min-height: 120px;
+}
+.events > ul > li.see-more-item:hover,
+.events > ul > li.see-more-item:focus-within {
+  transform: none;
+  box-shadow: none;
+}
+.events > ul > li.see-more-item img {
+  display: none;
+}
+
+.events .see-more-button {
+  appearance: none;
+  border: none;
+  background: #fff;
+  color: #6a38ff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, background-color 0.2s ease;
+}
+
+.events .see-more-button:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  background-color: #faf8ff;
+}
+
+.events .see-more-button:active {
+  transform: translateY(1px);
+}

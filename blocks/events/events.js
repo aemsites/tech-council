@@ -10,7 +10,9 @@ export default function decorate(block) {
   try {
     const ul = document.createElement('ul');
 
-    [...block.children].forEach((row) => {
+    // build list items from rows in reverse order
+    const rows = [...block.children].reverse();
+    rows.forEach((row) => {
       const li = document.createElement('li');
 
       // Move all children of the current row into the list item
@@ -96,6 +98,38 @@ export default function decorate(block) {
     // Replace block content with the generated list
     block.textContent = '';
     block.append(ul);
+
+    // Show only initial set and provide See More button
+    const items = [...ul.children];
+    // set stagger variable for initial cards
+    items.forEach((li, idx) => {
+      li.style.setProperty('--i', String(idx));
+    });
+    const initialVisibleCount = 5;
+    if (items.length > initialVisibleCount) {
+      const hidden = items.slice(initialVisibleCount);
+      hidden.forEach((li) => { li.style.display = 'none'; });
+
+      // Add inline "See more" tile as part of the grid
+      const seeMoreItem = document.createElement('li');
+      seeMoreItem.className = 'see-more-item';
+      const seeMoreButton = document.createElement('button');
+      seeMoreButton.type = 'button';
+      seeMoreButton.className = 'see-more-button';
+      seeMoreButton.textContent = 'See more';
+      seeMoreButton.setAttribute('aria-label', 'See more events');
+      seeMoreButton.addEventListener('click', () => {
+        hidden.forEach((li, idx) => {
+          li.style.display = '';
+          // animate reveal with stagger
+          li.classList.add('reveal');
+          li.style.setProperty('--reveal-i', String(idx));
+        });
+        seeMoreItem.remove();
+      });
+      seeMoreItem.append(seeMoreButton);
+      ul.append(seeMoreItem);
+    }
   } catch (error) {
     // Log any errors to the console for easier debugging
     // eslint-disable-next-line no-console
