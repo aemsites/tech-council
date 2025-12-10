@@ -26,6 +26,31 @@
     padding: 28px 24px;
     position: relative;
     overflow: hidden;
+    /* entry animation */
+    animation: recordings-fade-up 0.5s ease calc(var(--i, 0) * 60ms) both;
+    will-change: transform, opacity;
+}
+
+.recordings > ul > li.reveal {
+    animation: recordings-fade-up 0.45s ease both;
+}
+
+@keyframes recordings-fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .recordings > ul > li,
+    .recordings > ul > li.reveal {
+        animation: none !important;
+    }
 }
 
 .recordings > ul > li::before {

@@ -8,7 +8,9 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 export default function decorate(block) {
   const ul = document.createElement('ul');
 
-  [...block.children].forEach((row) => {
+  // build list items from rows in reverse order (latest first)
+  const rows = [...block.children].reverse();
+  rows.forEach((row, rowIdx) => {
     const li = document.createElement('li');
     while (row.firstElementChild) li.append(row.firstElementChild);
 
@@ -20,6 +22,8 @@ export default function decorate(block) {
       }
     });
 
+    // expose index for CSS animation staggering
+    li.style.setProperty('--i', String(rowIdx));
     ul.append(li);
   });
 
