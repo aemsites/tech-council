@@ -92,13 +92,7 @@
     justify-content: center;
   }
   
-  .doc-search form input:hover + button,
-  .doc-search form input:focus + button {
-    display: flex;
-    color: rgb(110 110 110);
-  }
-  
-  .doc-search form input:not(:placeholder-shown) + button {
+  .doc-search form button.has-input {
     display: flex;
     pointer-events: auto;
     color: unset;

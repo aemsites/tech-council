@@ -140,7 +140,20 @@ function highlightTerms(terms, els) {
   });
 }
 
-function loadSearch(input, docs, resultsContainer, isHomepage) {
+/**
+ * Toggles the clear button visibility based on input value.
+ * @param {HTMLInputElement} input - Search input element.
+ * @param {HTMLButtonElement} clearButton - Clear button element.
+ */
+function toggleClearButton(input, clearButton) {
+  if (input.value.trim()) {
+    clearButton.classList.add('has-input');
+  } else {
+    clearButton.classList.remove('has-input');
+  }
+}
+
+function loadSearch(input, docs, resultsContainer, isHomepage, clearButton) {
   let searchTerm;
   if (/[?&]q=/.test(window.location.search)) {
     const searchParams = new URLSearchParams(window.location.search);
@@ -149,6 +162,7 @@ function loadSearch(input, docs, resultsContainer, isHomepage) {
 
   if (searchTerm) {
     input.value = searchTerm;
+    toggleClearButton(input, clearButton);
     // eslint-disable-next-line no-use-before-define
     searchQuery(searchTerm, docs, resultsContainer, isHomepage);
   }
@@ -619,6 +633,8 @@ export default async function decorate(block) {
     }
   });
   clear.addEventListener('click', () => {
+    search.value = '';
+    toggleClearButton(search, clear);
     search.focus();
     fadeOut(results);
   });
@@ -640,6 +656,9 @@ export default async function decorate(block) {
         );
       }, 1200);
     }
+  });
+  search.addEventListener('input', () => {
+    toggleClearButton(search, clear);
   });
   search.addEventListener('keyup', (e) => {
     const { key } = e;
@@ -671,7 +690,7 @@ export default async function decorate(block) {
         search.addEventListener('input', debounce(() => {
           searchQuery(search.value, docs, results, isHomepage);
         }, 200));
-        if (!isHomepage) loadSearch(search, docs, results, isHomepage);
+        if (!isHomepage) loadSearch(search, docs, results, isHomepage, clear);
       });
     }
   });
