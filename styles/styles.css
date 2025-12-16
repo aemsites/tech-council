@@ -273,3 +273,153 @@ main .section.highlight {
   margin: 0;
   padding: 40px 0;
 }
+
+/* Thank You Page Styles */
+body.thankyou-page,
+body[data-path="/thankyou"] {
+  background: linear-gradient(185deg, var(--color-gradient-purple) 0, var(--color-brand-pure-white) 300px);
+  background-attachment: fixed;
+}
+
+body.thankyou-page main,
+body[data-path="/thankyou"] main {
+  min-height: calc(100vh - var(--nav-height) - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+body.thankyou-page footer,
+body[data-path="/thankyou"] footer {
+  display: none;
+}
+
+body.thankyou-page main > div,
+body[data-path="/thankyou"] main > div {
+  text-align: center;
+  max-width: 700px;
+  animation: thankYouFadeIn 0.8s ease-out;
+}
+
+@keyframes thankYouFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.thankyou-page main p,
+body[data-path="/thankyou"] main p {
+  position: relative;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1.5;
+  margin: 60px auto;
+  padding-top: 180px;
+}
+
+body.thankyou-page main p::before,
+body[data-path="/thankyou"] main p::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #6a38ff 0%, #9d6fff 100%);
+  border-radius: 50%;
+  box-shadow: 0 15px 50px rgba(106, 56, 255, 0.4);
+  animation: thankYouIconScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+body.thankyou-page main p::after,
+body[data-path="/thankyou"] main p::after {
+  content: '✓';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  color: white;
+  font-size: 70px;
+  font-weight: bold;
+  line-height: 120px;
+  text-align: center;
+  animation: thankYouCheckmark 0.5s ease-out 0.6s both;
+}
+
+@keyframes thankYouIconScale {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@keyframes thankYouCheckmark {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+body.thankyou-page main .button-container,
+body[data-path="/thankyou"] main .button-container {
+  margin-top: 50px;
+}
+
+body.thankyou-page main .button,
+body[data-path="/thankyou"] main .button {
+  font-size: 18px;
+  padding: 0.8em 2.5em;
+  min-width: 200px;
+  box-shadow: 0 8px 25px rgba(106, 56, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+body.thankyou-page main .button:hover,
+body[data-path="/thankyou"] main .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(106, 56, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+  body.thankyou-page main p,
+  body[data-path="/thankyou"] main p {
+    font-size: 22px;
+    padding-top: 140px;
+    margin: 40px 20px;
+  }
+
+  body.thankyou-page main p::before,
+  body[data-path="/thankyou"] main p::before,
+  body.thankyou-page main p::after,
+  body[data-path="/thankyou"] main p::after {
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    font-size: 58px;
+  }
+
+  body.thankyou-page main .button,
+  body[data-path="/thankyou"] main .button {
+    font-size: 16px;
+    width: 100%;
+    max-width: 280px;
+  }
+}
