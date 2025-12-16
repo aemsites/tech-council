@@ -162,10 +162,12 @@ async function loadEager(doc) {
   decorateTemplateAndTheme();
   // Set page path as data attribute for styling
   const pathname = window.location.pathname;
-  document.body.dataset.path = pathname;
+  // Normalize pathname by removing trailing slash for consistency
+  const normalizedPath = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
+  document.body.dataset.path = normalizedPath;
   
   // Add specific class for thank you page
-  if (pathname === '/thankyou' || pathname === '/thankyou/') {
+  if (normalizedPath === '/thankyou') {
     document.body.classList.add('thankyou-page');
   }
   
