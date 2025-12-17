@@ -354,6 +354,7 @@ header nav .nav-sections ul > li > ul > li {
     background: var(--link-color);
     height: 3px;
     opacity: 1;
+    bottom: 0;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > a.active:hover {
