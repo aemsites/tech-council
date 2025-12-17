@@ -104,10 +104,82 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 /**
+ * Highlights the active navigation item based on current page
+ * @param {Element} nav The nav element
+ */
+function highlightActiveNav(nav) {
+  const currentPath = window.location.pathname;
+  const navLinks = nav.querySelectorAll('.nav-sections a');
+  
+  navLinks.forEach((link) => {
+    const linkPath = new URL(link.href).pathname;
+    // Remove trailing slashes for comparison
+    const normalizedCurrent = currentPath.replace(/\/$/, '') || '/';
+    const normalizedLink = linkPath.replace(/\/$/, '') || '/';
+    
+    if (normalizedCurrent === normalizedLink) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
+  });
+}
+
+/**
+ * Adds scroll behavior to header
+ * @param {Element} navWrapper The nav wrapper element
+ */
+function handleScrollBehavior(navWrapper) {
+  let lastScroll = 0;
+  const scrollThreshold = 100;
+
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    
+    // Add shadow when scrolled
+    if (currentScroll > 10) {
+      navWrapper.classList.add('scrolled');
+    } else {
+      navWrapper.classList.remove('scrolled');
+    }
+
+    // Hide/show header on scroll (optional - can be enabled if desired)
+    // Uncomment below for auto-hide behavior
+    /*
+    if (currentScroll > scrollThreshold) {
+      if (currentScroll > lastScroll && !navWrapper.classList.contains('scroll-down')) {
+        navWrapper.classList.add('scroll-down');
+        navWrapper.classList.remove('scroll-up');
+      } else if (currentScroll < lastScroll && navWrapper.classList.contains('scroll-down')) {
+        navWrapper.classList.remove('scroll-down');
+        navWrapper.classList.add('scroll-up');
+      }
+    }
+    */
+    
+    lastScroll = currentScroll;
+  });
+}
+
+/**
+ * Adds skip to main content link for accessibility
+ * @param {Element} block The header block element
+ */
+function addSkipLink(block) {
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main';
+  skipLink.className = 'skip-link';
+  skipLink.textContent = 'Skip to main content';
+  block.prepend(skipLink);
+}
+
+/**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  // Add skip link for accessibility
+  addSkipLink(block);
+
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
@@ -117,6 +189,8 @@ export default async function decorate(block) {
   block.textContent = '';
   const nav = document.createElement('nav');
   nav.id = 'nav';
+  nav.setAttribute('role', 'navigation');
+  nav.setAttribute('aria-label', 'Main navigation');
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
   const classes = ['brand', 'sections', 'tools'];
@@ -163,4 +237,10 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+
+  // Highlight active navigation item
+  highlightActiveNav(nav);
+
+  // Add scroll behavior
+  handleScrollBehavior(navWrapper);
 }
