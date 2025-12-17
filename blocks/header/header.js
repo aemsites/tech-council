@@ -113,10 +113,11 @@ function highlightActiveNav(nav) {
   
   navLinks.forEach((link) => {
     const linkPath = new URL(link.href).pathname;
-    // Remove trailing slashes for comparison
-    const normalizedCurrent = currentPath.replace(/\/$/, '') || '/';
-    const normalizedLink = linkPath.replace(/\/$/, '') || '/';
+    // Remove trailing slashes for comparison, but keep root as '/'
+    const normalizedCurrent = currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
+    const normalizedLink = linkPath === '/' ? '/' : linkPath.replace(/\/$/, '');
     
+    // Exact match for current page
     if (normalizedCurrent === normalizedLink) {
       link.classList.add('active');
       link.setAttribute('aria-current', 'page');
