@@ -7,14 +7,11 @@ import { fetchPlaceholders } from '../../scripts/placeholders.js';
  */
 function parseEventDate(dateText) {
   if (!dateText) return null;
-  
   try {
     // Remove icon elements and extra whitespace
     const cleanText = dateText.replace(/<[^>]*>/g, '').trim();
-    
     // Try to parse the date
     const date = new Date(cleanText);
-    
     // Check if date is valid
     if (!isNaN(date.getTime())) {
       return date;
