@@ -185,6 +185,7 @@ header .nav-brand {
   font-size: var(--heading-font-size-l);
   font-weight: 500;
   line-height: 1.2;
+  margin-left: -10px;
 }
 
 header nav .nav-brand img {
@@ -338,6 +339,7 @@ header nav .nav-sections ul > li > ul > li {
   header nav .nav-sections .default-content-wrapper > ul > li > a.active {
     color: var(--link-color);
     font-weight: 700;
+    background-color: transparent;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > a.active::after {
@@ -345,6 +347,10 @@ header nav .nav-sections ul > li > ul > li {
     background: var(--link-color);
     height: 3px;
     opacity: 1;
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > a.active:hover {
+    background-color: transparent;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul {
@@ -442,17 +448,17 @@ header nav[aria-expanded='true'] .nav-sections a:active {
   transform: translateX(4px);
 }
 
-/* Active link styling for mobile */
+/* Active link styling for mobile - underline only */
 header nav[aria-expanded='true'] .nav-sections a.active {
-  background-color: var(--link-color);
-  color: white;
+  color: var(--link-color);
   font-weight: 700;
-  border-left: 4px solid rgba(255, 255, 255, 0.9);
+  border-bottom: 3px solid var(--link-color);
+  background-color: transparent;
 }
 
 header nav[aria-expanded='true'] .nav-sections a.active:hover {
-  background-color: var(--link-hover-color, var(--link-color));
   transform: translateX(4px);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* focus visibility for all nav links - enhanced */
