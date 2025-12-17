@@ -1,0 +1,137 @@
+/* Thank You Block Styles */
+.thankyou-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 0 20px;
+}
+
+.thankyou {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  animation: thankYouFadeIn 0.8s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-5%);
+}
+
+@keyframes thankYouFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hide the default table structure */
+.thankyou > div {
+  display: contents;
+}
+
+.thankyou > div > div {
+  display: contents;
+}
+
+/* Icon styling */
+.thankyou-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 40px;
+  background: linear-gradient(135deg, #6a38ff 0%, #9d6fff 100%);
+  border-radius: 50%;
+  box-shadow: 0 15px 50px rgba(106, 56, 255, 0.4);
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  animation: thankYouIconScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+  position: relative;
+}
+
+@keyframes thankYouIconScale {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.thankyou-icon::after {
+  content: '✓';
+  color: white;
+  font-size: 70px;
+  font-weight: bold;
+  line-height: 1;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: thankYouCheckmark 0.5s ease-out 0.6s both;
+}
+
+@keyframes thankYouCheckmark {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Hide the SharePoint icon */
+.thankyou .icon {
+  display: none;
+}
+
+/* Message styling */
+.thankyou-message {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--text-color);
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.thankyou-message p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .thankyou-container {
+    padding: 0 20px;
+  }
+
+  .thankyou {
+    transform: translateY(-8%);
+  }
+
+  .thankyou-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 30px;
+  }
+
+  .thankyou-icon::after {
+    font-size: 58px;
+  }
+
+  .thankyou-message {
+    font-size: 22px;
+    margin: 0 auto;
+  }
+}
+
