@@ -160,17 +160,6 @@ export function decorateMain(main) {
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
-  // Set page path as data attribute for styling
-  const pathname = window.location.pathname;
-  // Normalize pathname by removing trailing slash for consistency
-  const normalizedPath = pathname === '/' ? '/' : pathname.replace(/\/$/, '');
-  document.body.dataset.path = normalizedPath;
-  
-  // Add specific class for thank you page
-  if (normalizedPath === '/thankyou') {
-    document.body.classList.add('thankyou-page');
-  }
-  
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
