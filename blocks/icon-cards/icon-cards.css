@@ -1,3 +1,4 @@
+/* Icon Cards Base Styles (non-carousel fallback) */
 .icon-cards > ul {
   list-style: none;
   margin: 0;
@@ -47,94 +48,310 @@
   font-size: var(--body-font-size-s);
 } 
 
-/* --- Carousel Styles for icon-cards --- */
+/* --- Improved Carousel Styles --- */
 
-.icon-cards-carousel {
+.icon-cards {
   position: relative;
+  padding: 0;
+  overflow: hidden;
 }
 
-.icon-cards-carousel > ul {
+.icon-cards-carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.icon-cards-carousel-container {
+  position: relative;
+  padding: 0 60px;
+}
+
+@media (min-width: 600px) {
+  .icon-cards-carousel-container {
+    padding: 0 70px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .icon-cards-carousel-container {
+    padding: 0 74px;
+  }
+}
+
+.icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
   display: flex;
-  gap: var(--space-m);
+  gap: 20px;
   overflow-x: auto;
   scroll-behavior: smooth;
-  padding: 0 var(--space-m);
   scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 4px;
+  margin: 0;
+  list-style: none;
 }
 
-.icon-cards-carousel > ul::-webkit-scrollbar {
-  display: none;
+.icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
-.icon-cards-carousel > ul > li {
-  flex: 0 0 calc((100% - (var(--space-m) * 3)) / 4);
-  scroll-snap-align: start;
-  /* Card styling */
-  border: 1px solid #dadada;
-  border-radius: 12px;
-  background-color: var(--background-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: var(--space-m) var(--space-s) var(--space-l);
-  text-align: center;
-}
-
-.icon-cards-nav {
+/* Decorative gradient edges to hint overflow - matching events carousel */
+.icon-cards:not(.at-start) .icon-cards-carousel-container::before,
+.icon-cards:not(.at-end) .icon-cards-carousel-container::after {
+  content: '';
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
-  background-color: rgb(19 19 19 / 25%);
-  cursor: pointer;
+  top: 0;
+  bottom: 0;
+  width: 64px;
+  pointer-events: none;
   z-index: 1;
 }
 
-.icon-cards-nav:disabled {
-  opacity: 0.3;
-  cursor: default;
+.icon-cards:not(.at-start) .icon-cards-carousel-container::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
 }
 
-.icon-cards-prev {
-  left: -24px; /* move outside card area */
+.icon-cards:not(.at-end) .icon-cards-carousel-container::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
 }
 
-.icon-cards-next {
-  right: -24px;
+/* Card styling in carousel */
+.icon-cards-carousel-wrapper .icon-cards-card {
+  flex: 0 0 auto;
+  width: calc((100% - (3 * 20px)) / 4);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  list-style: none;
+  background-color: var(--background-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 32px;
+  text-align: center;
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.icon-cards-nav::after {
+.icon-cards-carousel-wrapper .icon-cards-card::before {
   content: '';
   position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6a38ff, #9d6fff);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:hover,
+.icon-cards-carousel-wrapper .icon-cards-card:focus-within {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(106, 56, 255, 0.15);
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* Carousel Navigation - matching events style */
+.icon-cards-carousel-nav {
+  position: absolute;
   top: 50%;
-  left: 50%;
-  width: 12px;
-  height: 12px;
-  border: 2px solid #fff;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show navigation only when scrolling is needed */
+.icon-cards.has-scroll .icon-cards-carousel-nav {
+  opacity: 1;
+  visibility: visible;
+}
+
+.icon-cards-nav-prev,
+.icon-cards-nav-next {
+  appearance: none;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background-color: rgb(19 19 19 / 25%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  pointer-events: auto;
+  color: white;
+}
+
+/* Hide the text span */
+.icon-cards-nav-prev span,
+.icon-cards-nav-next span {
+  display: none;
+}
+
+/* Create chevron arrows with CSS */
+.icon-cards-nav-prev::after,
+.icon-cards-nav-next::after {
+  content: '';
+  display: block;
+  border: 2px solid white;
   border-bottom: 0;
   border-left: 0;
+  height: 12px;
+  width: 12px;
+  position: absolute;
+  top: 50%;
+  transition: border-color 0.3s ease;
+}
+
+/* Previous button - left arrow */
+.icon-cards-nav-prev::after {
+  left: calc(50% + 2px);
   transform: translate(-50%, -50%) rotate(-135deg);
 }
 
-.icon-cards-next::after {
+/* Next button - right arrow */
+.icon-cards-nav-next::after {
+  left: calc(50% - 2px);
   transform: translate(-50%, -50%) rotate(45deg);
-} 
+}
 
- @media (width <= 900px) {
-   .icon-cards-carousel > ul > li {
-     flex: 0 0 calc((100% - var(--space-m)) / 2);
-   }
-   .icon-cards-prev { left: -20px; }
-   .icon-cards-next { right: -20px; }
- }
+.icon-cards-nav-prev:hover,
+.icon-cards-nav-next:hover,
+.icon-cards-nav-prev:focus-visible,
+.icon-cards-nav-next:focus-visible {
+  background-color: rgb(19 19 19 / 75%);
+}
 
- @media (width <= 600px) {
-   .icon-cards-carousel > ul > li {
-     flex: 0 0 100%;
-   }
-   .icon-cards-prev { left: -16px; }
-   .icon-cards-next { right: -16px; }
- } 
+.icon-cards-nav-prev:focus-visible,
+.icon-cards-nav-next:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 3px;
+}
+
+/* Responsive breakpoints */
+
+/* Mobile - 1 card */
+@media (max-width: 600px) {
+  .icon-cards-carousel-wrapper .icon-cards-card {
+    width: 100%;
+  }
+  
+  .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
+    gap: 16px;
+  }
+}
+
+/* Tablet - 2 cards */
+@media (min-width: 601px) and (max-width: 900px) {
+  .icon-cards-carousel-wrapper .icon-cards-card {
+    width: calc((100% - 20px) / 2);
+  }
+  
+  .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
+    gap: 20px;
+  }
+}
+
+/* Small desktop - 3 cards */
+@media (min-width: 901px) and (max-width: 1199px) {
+  .icon-cards-carousel-wrapper .icon-cards-card {
+    width: calc((100% - (2 * 20px)) / 3);
+  }
+  
+  .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
+    gap: 20px;
+  }
+}
+
+/* Large desktop - 4 cards */
+@media (min-width: 1200px) {
+  .icon-cards-carousel-wrapper .icon-cards-card {
+    width: calc((100% - (3 * 24px)) / 4);
+  }
+  
+  .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
+    gap: 24px;
+  }
+}
+
+/* Animation */
+@keyframes icon-cards-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card {
+  animation: icon-cards-fade-in-up 0.5s ease both;
+}
+
+/* Stagger animation for cards */
+.icon-cards-carousel-wrapper .icon-cards-card:nth-child(1) {
+  animation: icon-cards-fade-in-up 0.4s ease 0.1s both;
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:nth-child(2) {
+  animation: icon-cards-fade-in-up 0.4s ease 0.15s both;
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:nth-child(3) {
+  animation: icon-cards-fade-in-up 0.4s ease 0.2s both;
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:nth-child(4) {
+  animation: icon-cards-fade-in-up 0.4s ease 0.25s both;
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:nth-child(5) {
+  animation: icon-cards-fade-in-up 0.4s ease 0.3s both;
+}
+
+.icon-cards-carousel-wrapper .icon-cards-card:nth-child(6) {
+  animation: icon-cards-fade-in-up 0.4s ease 0.35s both;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .icon-cards-carousel-wrapper .icon-cards-card {
+    animation: none;
+  }
+  
+  .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
+    scroll-behavior: auto;
+  }
+  
+  .icon-cards-carousel-wrapper .icon-cards-card,
+  .icon-cards-nav-prev,
+  .icon-cards-nav-next {
+    transition: none;
+  }
+}
