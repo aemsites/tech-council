@@ -343,10 +343,11 @@ header nav .nav-sections ul > li > ul > li {
     outline: none;
   }
 
-  /* Active page indicator - just show the underline */
+  /* Active page indicator - single clean underline only */
   header nav .nav-sections .default-content-wrapper > ul > li > a.active {
     color: var(--link-color);
     font-weight: 700;
+    border-bottom: none;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > a.active::after {
