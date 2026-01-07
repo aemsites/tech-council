@@ -1,5 +1,15 @@
 /* Carousel CTA Block */
 
+/* Remove underlines from all links */
+.carousel-cta a:any-link,
+.carousel-cta a,
+.carousel-cta a:hover,
+.carousel-cta a:visited,
+.carousel-cta a:focus {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
 /* Remove gradient fading edges */
 .carousel-cta .carousel-slides-container::before,
 .carousel-cta .carousel-slides-container::after {
@@ -42,6 +52,8 @@
   padding: 12px 32px;
   font-weight: 600;
   transition: all 0.3s ease;
+  text-decoration: none !important;
+  border-bottom: none !important;
 }
 
 .carousel-cta .carousel-cta-button:hover {

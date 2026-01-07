@@ -180,21 +180,21 @@
 }
 
 .recordings .recordings-card-body a.button {
-    background: linear-gradient(135deg, var(--link-color), rgba(106, 56, 255, 0.8));
+    background: linear-gradient(135deg, rgba(106, 56, 255, 0.85), rgba(106, 56, 255, 0.75));
     border-radius: 10px;
     padding: 12px 24px;
     font-size: var(--body-font-size-xs);
     font-weight: 600;
     letter-spacing: 0.025em;
     text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(106, 56, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(106, 56, 255, 0.2);
     transition: all 0.2s ease;
 }
 
 .recordings .recordings-card-body a.button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(106, 56, 255, 0.4);
-    background: linear-gradient(135deg, var(--link-hover-color), var(--link-color));
+    box-shadow: 0 6px 20px rgba(106, 56, 255, 0.3);
+    background: linear-gradient(135deg, rgba(106, 56, 255, 0.95), rgba(106, 56, 255, 0.85));
 }
 
 /* Enhanced responsive design */
