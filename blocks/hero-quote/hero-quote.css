@@ -1,29 +1,80 @@
-.hero-quote blockquote {
-  margin: 0 auto;
-  padding: var(--space-xl) var(--space-m);
-  max-width: 1200px;
-  text-align: left;
+/* Hero Quote Block - Improved Typography & Spacing */
+
+/* Override default block spacing */
+main > .hero-quote-container {
+  margin-bottom: 0 !important;
 }
 
-@media (width >= 900px) {
-  .hero-quote blockquote {
-    padding: var(--space-xl) var(--space-l);
-  }
+.hero-quote {
+  padding: 48px 0 24px 0;
+}
+
+.hero-quote blockquote {
+  margin: 0 auto;
+  padding: 0 24px;
+  max-width: 1000px;
+  text-align: left;
 }
 
 .hero-quote-quotation {
-  font-size: var(--heading-font-size-xl);
+  font-size: 32px;
   font-weight: 700;
-  line-height: 1.2;
-  margin: 0 0 var(--space-m) 0;
+  line-height: 1.25;
+  margin: 0 0 20px 0;
+  color: var(--text-color);
+  letter-spacing: -0.02em;
 }
 
 .hero-quote-attribution {
-  font-size: var(--body-font-size-s);
-  font-weight: 500;
+  font-size: 14.58px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--text-color);
   text-align: left;
+  opacity: 0.85;
 }
 
+@media (width >= 600px) {
+  .hero-quote {
+    padding: 56px 0 28px 0;
+  }
+
+  .hero-quote blockquote {
+    padding: 0 40px;
+  }
+
+  .hero-quote-quotation {
+    font-size: 40px;
+    margin-bottom: 24px;
+  }
+
+  .hero-quote-attribution {
+    font-size: 16.2px;
+    line-height: 1.8;
+  }
+}
+
+@media (width >= 900px) {
+  .hero-quote {
+    padding: 64px 0 32px 0;
+  }
+
+  .hero-quote blockquote {
+    padding: 0 60px;
+  }
+
+  .hero-quote-quotation {
+    font-size: 48px;
+    margin-bottom: 28px;
+  }
+
+  .hero-quote-attribution {
+    font-size: 17.82px;
+    line-height: 1.85;
+  }
+}
+
+/* Carousel Container */
 .hero-quote-carousel {
   position: relative;
   overflow: hidden;
