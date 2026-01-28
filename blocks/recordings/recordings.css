@@ -123,10 +123,12 @@
 
 .recordings .recordings-card-body {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-auto-flow: row dense;
+    align-content: center;
+    gap: 10px;
+    column-gap: 16px;
 }
 
 .recordings .recordings-card-body h1,
@@ -158,6 +160,7 @@
     color: #64748b;
     line-height: 1.6;
     font-size: var(--body-font-size-s);
+    grid-column: 1 / -1;
 }
 
 .recordings .recordings-card-body p:first-of-type {
@@ -166,34 +169,48 @@
     margin-bottom: 8px;
 }
 
-/* Author styling */
-.recordings .recordings-card-body p:last-of-type {
+/* Author styling - exclude button containers */
+.recordings .recordings-card-body p:not(.button-container) em {
     font-size: var(--body-font-size-xs);
     color: #94a3b8;
     font-weight: 500;
+}
+
+.recordings .recordings-card-body p:not(.button-container):has(em) {
     margin-top: 4px;
 }
 
 /* Button styling within recordings */
 .recordings .recordings-card-body .button-container {
-    margin-top: 16px;
+    margin: 0;
+    display: contents;
+}
+
+.recordings .recordings-card-body .button-container a.button {
+    width: fit-content;
+    grid-column: auto;
+    justify-self: start;
+}
+
+.recordings .recordings-card-body .button-container:first-of-type a.button {
+    margin-top: 20px;
 }
 
 .recordings .recordings-card-body a.button {
     background: linear-gradient(135deg, rgba(106, 56, 255, 0.85), rgba(106, 56, 255, 0.75));
-    border-radius: 10px;
-    padding: 12px 24px;
-    font-size: var(--body-font-size-xs);
+    border-radius: 9px;
+    padding: 10px 20px;
+    font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.025em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(106, 56, 255, 0.2);
+    box-shadow: 0 3px 11px rgba(106, 56, 255, 0.2);
     transition: all 0.2s ease;
 }
 
 .recordings .recordings-card-body a.button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(106, 56, 255, 0.3);
+    box-shadow: 0 5px 18px rgba(106, 56, 255, 0.3);
     background: linear-gradient(135deg, rgba(106, 56, 255, 0.95), rgba(106, 56, 255, 0.85));
 }
 
@@ -221,7 +238,9 @@
     .recordings .recordings-card-body {
         flex: unset;
         width: 100%;
-        gap: 8px;
+        gap: 12px;
+        grid-template-columns: 1fr;
+        column-gap: 0;
     }
 
     .recordings .recordings-card-body h1,
@@ -231,6 +250,17 @@
     .recordings .recordings-card-body h5,
     .recordings .recordings-card-body h6 {
         font-size: var(--heading-font-size-m);
+    }
+
+    /* Stack buttons vertically on mobile */
+    .recordings .recordings-card-body .button-container:first-of-type a.button {
+        margin-top: 16px;
+    }
+
+    .recordings .recordings-card-body .button-container a.button {
+        grid-column: 1;
+        width: 100%;
+        text-align: center;
     }
 }
 
