@@ -131,22 +131,24 @@ function buildRecordingsCard(row, rowIdx) {
   const recordingLink = (row.recordingLink || '').trim();
   const presentationLink = (row.presentationLink || '').trim();
 
-  if (title) {
-    const h = document.createElement('h3');
-    h.textContent = title;
-    body.append(h);
-  }
-  if (speaker) {
-    const p = document.createElement('p');
-    p.textContent = speaker;
-    body.append(p);
-  }
-  if (dateStr) {
-    const p = document.createElement('p');
-    p.className = 'recordings-date';
-    p.textContent = dateStr;
-    body.append(p);
-  }
+  /* Fixed structure: title → speaker → date → buttons (same order every time for alignment) */
+  const titleEl = document.createElement('h3');
+  titleEl.className = 'recordings-title';
+  titleEl.textContent = title || '';
+  if (!title) titleEl.classList.add('is-empty');
+  body.append(titleEl);
+
+  const speakerEl = document.createElement('p');
+  speakerEl.className = 'recordings-speaker';
+  speakerEl.textContent = speaker || '';
+  if (!speaker) speakerEl.classList.add('is-empty');
+  body.append(speakerEl);
+
+  const dateEl = document.createElement('p');
+  dateEl.className = 'recordings-date';
+  dateEl.textContent = dateStr || '';
+  if (!dateStr) dateEl.classList.add('is-empty');
+  body.append(dateEl);
 
   const btnContainer = document.createElement('div');
   btnContainer.className = 'button-container';
@@ -168,7 +170,8 @@ function buildRecordingsCard(row, rowIdx) {
     a.setAttribute('rel', 'noopener');
     btnContainer.append(a);
   }
-  if (btnContainer.children.length) body.append(btnContainer);
+  body.append(btnContainer);
+  if (!btnContainer.children.length) btnContainer.classList.add('is-empty');
 
   li.append(body);
   return li;

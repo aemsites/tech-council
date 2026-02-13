@@ -191,68 +191,62 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 12px;
+    min-height: 0;
+    gap: 0;
+}
+
+/* Fixed structure: title → speaker → date → buttons; empty slots hidden so button aligns at bottom */
+.recordings .recordings-card-body .recordings-title,
+.recordings .recordings-card-body .recordings-speaker,
+.recordings .recordings-card-body .recordings-date {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.recordings .recordings-card-body .recordings-title.is-empty,
+.recordings .recordings-card-body .recordings-speaker.is-empty,
+.recordings .recordings-card-body .recordings-date.is-empty {
+    display: none;
+}
+
+.recordings .recordings-card-body .recordings-title {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: var(--heading-font-size-l);
+    line-height: 1.3;
+    letter-spacing: -0.025em;
+    margin-bottom: 6px;
+    transition: color 0.2s ease;
+}
+
+.recordings-list > li:hover .recordings-card-body .recordings-title {
+    color: var(--link-color);
+}
+
+.recordings .recordings-card-body .recordings-speaker {
+    font-size: var(--body-font-size-m);
+    color: var(--text-color);
+    margin-bottom: 4px;
 }
 
 .recordings .recordings-card-body .recordings-date {
     font-size: var(--body-font-size-xs);
     color: #94a3b8;
     font-weight: 500;
-    margin-top: 0;
+    margin-bottom: 0;
 }
 
-.recordings .recordings-card-body h1,
-.recordings .recordings-card-body h2,
-.recordings .recordings-card-body h3,
-.recordings .recordings-card-body h4,
-.recordings .recordings-card-body h5,
-.recordings .recordings-card-body h6 {
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-    font-size: var(--heading-font-size-l);
-    line-height: 1.3;
-    letter-spacing: -0.025em;
-    transition: color 0.2s ease;
-}
-
-.recordings-list > li:hover .recordings-card-body h1,
-.recordings-list > li:hover .recordings-card-body h2,
-.recordings-list > li:hover .recordings-card-body h3,
-.recordings-list > li:hover .recordings-card-body h4,
-.recordings-list > li:hover .recordings-card-body h5,
-.recordings-list > li:hover .recordings-card-body h6 {
-    color: var(--link-color);
-}
-
-.recordings .recordings-card-body p {
-    margin: 0;
-    color: #64748b;
-    line-height: 1.6;
-    font-size: var(--body-font-size-s);
-}
-
-.recordings .recordings-card-body p:first-of-type {
-    color: var(--text-color);
-    font-size: var(--body-font-size-m);
-    margin-bottom: 8px;
-}
-
-/* Author styling */
-.recordings .recordings-card-body p:last-of-type {
-    font-size: var(--body-font-size-xs);
-    color: #94a3b8;
-    font-weight: 500;
-    margin-top: 4px;
-}
-
-/* Button styling within recordings */
+/* Push button container to bottom of card for consistent alignment */
 .recordings .recordings-card-body .button-container {
-    margin-top: 16px;
+    margin-top: auto;
+    padding-top: 16px;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+}
+
+.recordings .recordings-card-body .button-container.is-empty {
+    display: none;
 }
 
 .recordings .recordings-card-body a.button {
@@ -322,12 +316,7 @@
         height: 56px;
     }
 
-    .recordings .recordings-card-body h1,
-    .recordings .recordings-card-body h2,
-    .recordings .recordings-card-body h3,
-    .recordings .recordings-card-body h4,
-    .recordings .recordings-card-body h5,
-    .recordings .recordings-card-body h6 {
+    .recordings .recordings-card-body .recordings-title {
         font-size: var(--heading-font-size-m);
     }
 }
