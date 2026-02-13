@@ -17,20 +17,19 @@ const RECORDINGS_SHEET_PATH = '/forms/recording-form/recordings-data.json?sheet=
 const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
 
 /**
- * Resolves the recordings sheet URL so that:
- * - On localhost: use relative path so the request goes through the local proxy (aem up), which forwards to EDS with auth and avoids 403.
- * - On EDS host: use same-origin URL.
- * - Otherwise: use full EDS URL (may 403 if server rejects cross-origin).
+ * Resolves the recordings sheet URL so the request is always same-origin (avoids 403 on production).
+ * - On EDS host (aem.page): full same-origin URL.
+ * - On localhost: relative path (proxy forwards to EDS with auth).
+ * - On production/custom domain (e.g. techcouncilindia.corp.adobe.com): relative path so the
+ *   request goes to the current origin; the backend serving that domain must serve the sheet.
  */
 function getRecordingsSheetUrl() {
   const { origin } = window.location;
   if (origin === RECORDINGS_SHEET_ORIGIN) {
     return `${origin}${RECORDINGS_SHEET_PATH}`;
   }
-  if (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')) {
-    return RECORDINGS_SHEET_PATH;
-  }
-  return `${RECORDINGS_SHEET_ORIGIN}${RECORDINGS_SHEET_PATH}`;
+  /* Use relative path for localhost and any other origin (e.g. production) so no cross-origin request */
+  return RECORDINGS_SHEET_PATH;
 }
 
 /**
