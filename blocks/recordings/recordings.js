@@ -16,9 +16,6 @@ function formatSheetDate(value) {
 const RECORDINGS_SHEET_PATH = '/forms/recording-form/recordings-data.json?sheet=recordings';
 const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
 
-/** Path to recording submission form (relative so it works on any host). */
-const RECORDING_SUBMISSION_PATH = '/recordingsubmission';
-
 /**
  * Resolves the recordings sheet URL so the request is always same-origin (avoids 403 on production).
  * - On EDS host (aem.page): full same-origin URL.
@@ -261,16 +258,6 @@ function renderFromSheet(block, data) {
   block.recordingsSortBy = 'date-desc';
 
   block.textContent = '';
-
-  const ctaWrap = document.createElement('div');
-  ctaWrap.className = 'recordings-cta';
-  const ctaLink = document.createElement('a');
-  ctaLink.href = RECORDING_SUBMISSION_PATH;
-  ctaLink.className = 'button secondary recordings-submit-cta';
-  ctaLink.textContent = 'Submit a recording';
-  ctaLink.setAttribute('rel', 'noopener');
-  ctaWrap.append(ctaLink);
-  block.append(ctaWrap);
 
   const toolbar = createToolbar(block);
   block.append(toolbar);
