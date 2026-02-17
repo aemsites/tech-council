@@ -51,3 +51,56 @@
   font-weight: 700;
   color: var(--link-color);
 }
+
+/* =========================================
+   Objectives variant
+   Usage: <div class="cards objectives block">...</div>
+   This variant hides images and presents compact text cards.
+   ========================================= */
+.cards.objectives > ul {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 24px;
+}
+
+.cards.objectives .cards-card-image {
+  display: none; /* objectives cards are text-only */
+}
+
+.cards.objectives > ul > li {
+  /* a subtle border + softer shadow */
+  background-color: #ffffff;
+  border: 1px solid var(--border-color, rgba(17, 24, 39, 0.08));
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.04);
+  transition: box-shadow 0.25s ease;
+}
+
+.cards.objectives .cards-card-body {
+  padding: 24px;
+}
+
+.cards.objectives .cards-card-body h1,
+.cards.objectives .cards-card-body h2,
+.cards.objectives .cards-card-body h3,
+.cards.objectives .cards-card-body h4,
+.cards.objectives .cards-card-body h5,
+.cards.objectives .cards-card-body h6 {
+  margin: 0 0 8px;
+  color: var(--text-color, #111827); /* override link color for headings */
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.cards.objectives .cards-card-body p {
+  margin: 0;
+  color: var(--body-text-color, #6b7280);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.cards.objectives > ul > li:hover,
+.cards.objectives > ul > li:focus-within {
+  transform: none;
+  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.08);
+}
