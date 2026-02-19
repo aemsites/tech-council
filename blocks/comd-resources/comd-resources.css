@@ -1,0 +1,100 @@
+.comd-resources {
+  margin-bottom: 48px;
+}
+
+.comd-resources .comd-resources-heading {
+  margin: 0 0 20px;
+  font-family: var(--heading-font-family);
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-resources .comd-resources-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.comd-resources .comd-resources-card {
+  border: 1px solid #e8ecf1;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  padding: 24px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 165px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.comd-resources .comd-resources-card:hover {
+  border-color: #e0e5eb;
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+}
+
+.comd-resources .comd-resources-card h3 {
+  margin: 0 0 8px;
+  font-family: var(--heading-font-family);
+  font-size: 1.2rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-resources .comd-resources-description {
+  margin: 0 0 10px;
+  font-family: var(--body-font-family);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.comd-resources .comd-resources-link {
+  margin-top: auto;
+  font-family: var(--body-font-family);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #5b35db;
+  text-decoration: none;
+}
+
+.comd-resources .comd-resources-link:hover {
+  text-decoration: underline;
+}
+
+.comd-resources .comd-resources-link.is-disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.comd-resources .comd-resources-error {
+  margin: 0;
+  color: #6b7280;
+}
+
+@media (width <= 900px) {
+  .comd-resources .comd-resources-heading {
+    font-size: 1.45rem;
+  }
+
+  .comd-resources .comd-resources-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .comd-resources .comd-resources-card {
+    padding: 20px 18px 18px;
+  }
+
+  .comd-resources .comd-resources-card h3 {
+    font-size: 1.05rem;
+  }
+
+  .comd-resources .comd-resources-description,
+  .comd-resources .comd-resources-link {
+    font-size: 0.9rem;
+  }
+}

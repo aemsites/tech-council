@@ -1,0 +1,97 @@
+.comd-roles {
+  margin-bottom: 48px;
+}
+
+.comd-roles .comd-roles-heading {
+  margin: 0 0 20px;
+  font-family: var(--heading-font-family);
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-roles .comd-roles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.comd-roles .comd-roles-card {
+  border: 1px solid #e8ecf1;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  padding: 24px 20px 20px;
+  text-align: center;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.comd-roles .comd-roles-card:hover {
+  border-color: #e0e5eb;
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+}
+
+.comd-roles .comd-roles-avatar {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #f5f6f8;
+  display: grid;
+  place-items: center;
+}
+
+.comd-roles .comd-roles-avatar svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: #6b7280;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.comd-roles .comd-roles-role {
+  margin: 0 0 6px;
+  font-family: var(--body-font-family);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5b35db;
+}
+
+.comd-roles .comd-roles-name {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 1.15rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-roles .comd-roles-error {
+  margin: 0;
+  color: #6b7280;
+}
+
+@media (width <= 900px) {
+  .comd-roles .comd-roles-heading {
+    font-size: 1.45rem;
+  }
+
+  .comd-roles .comd-roles-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .comd-roles .comd-roles-card {
+    padding: 20px 18px 18px;
+  }
+
+  .comd-roles .comd-roles-name {
+    font-size: 1.1rem;
+  }
+}

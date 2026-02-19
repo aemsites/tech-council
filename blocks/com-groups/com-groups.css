@@ -1,0 +1,172 @@
+.com-groups > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.com-groups .com-groups-card {
+  position: relative;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.05);
+  overflow: hidden;
+  padding: 86px 18px 16px;
+  min-height: 196px;
+}
+
+.com-groups .com-groups-card.is-clickable {
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.com-groups .com-groups-card.is-clickable:hover,
+.com-groups .com-groups-card.is-clickable:focus-visible {
+  border-color: #d5d9e0;
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.1);
+}
+
+.com-groups .com-groups-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 68px;
+  background: #f3f4f6;
+  border-bottom: 1px solid #eceff3;
+}
+
+.com-groups .com-groups-card::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 30px;
+  height: 30px;
+  transform: translateX(-50%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.com-groups .com-groups-card.icon-link::after {
+  background-image: url('/icons/community-link.svg');
+}
+
+.com-groups .com-groups-card.icon-agent::after {
+  background-image: url('/icons/community-agent.svg');
+}
+
+.com-groups .com-groups-card.icon-code::after {
+  background-image: url('/icons/community-code.svg');
+}
+
+.com-groups .com-groups-card.icon-rag::after {
+  background-image: url('/icons/community-rag.svg');
+}
+
+.com-groups .com-groups-title {
+  margin: 0 0 6px;
+}
+
+.com-groups .com-groups-title h1,
+.com-groups .com-groups-title h2,
+.com-groups .com-groups-title h3,
+.com-groups .com-groups-title h4,
+.com-groups .com-groups-title h5,
+.com-groups .com-groups-title h6 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-size: 1.12rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.com-groups .com-groups-title strong {
+  font-weight: inherit;
+}
+
+.com-groups .com-groups-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.com-groups .com-groups-title a:hover {
+  text-decoration: underline;
+}
+
+.com-groups .com-groups-description {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.com-groups .com-groups-description a {
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  border-radius: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.com-groups .com-groups-description h1,
+.com-groups .com-groups-description h2,
+.com-groups .com-groups-description h3,
+.com-groups .com-groups-description h4,
+.com-groups .com-groups-description h5,
+.com-groups .com-groups-description h6 {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: 400;
+}
+
+.com-groups .com-groups-add-card::after {
+  display: none;
+}
+
+.com-groups .com-groups-add-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.com-groups .com-groups-add-card .com-groups-add-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.com-groups .com-groups-add-card p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.99rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+@media (width <= 900px) {
+  .com-groups > ul {
+    grid-template-columns: 1fr;
+  }
+
+  .com-groups .com-groups-card {
+    min-height: 0;
+  }
+}

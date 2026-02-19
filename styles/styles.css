@@ -97,6 +97,10 @@ body {
   min-height: 100vh;
 }
 
+body.communities-page {
+  background: var(--color-brand-pure-white);
+}
+
 body.appear {
   display: block;
 }
@@ -249,6 +253,10 @@ main img {
 /* sections */
 main > .section {
   margin: 100px 0;
+}
+
+main > .section.fragment-container {
+  margin: 50px 24px;
 }
 
 main > .section > div {

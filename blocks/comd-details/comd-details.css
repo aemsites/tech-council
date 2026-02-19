@@ -1,0 +1,81 @@
+.comd-details {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 6px 0 20px;
+  margin-bottom: 48px;
+  margin-top: 54px;
+}
+
+.comd-details .comd-details-item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: center;
+  gap: 20px;
+}
+
+.comd-details .comd-details-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  display: grid;
+  place-items: center;
+}
+
+.comd-details .comd-details-icon-wrap .icon {
+  width: 28px;
+  height: 28px;
+}
+
+.comd-details .comd-details-icon-wrap .icon img {
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+}
+
+.comd-details .comd-details-content h2 {
+  margin: 0 0 6px;
+  font-family: var(--heading-font-family);
+  font-size: 1.85rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-details .comd-details-content p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: #4b5563;
+}
+
+.comd-details .comd-details-error {
+  margin: 0;
+  color: #6b7280;
+}
+
+@media (width <= 900px) {
+  .comd-details .comd-details-item {
+    grid-template-columns: 44px 1fr;
+    gap: 12px;
+  }
+
+  .comd-details .comd-details-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+
+  .comd-details .comd-details-icon-wrap .icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .comd-details .comd-details-content h2 {
+    font-size: 1.2rem;
+  }
+
+  .comd-details .comd-details-content p {
+    font-size: 0.88rem;
+  }
+}

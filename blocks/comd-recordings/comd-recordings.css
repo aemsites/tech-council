@@ -1,0 +1,133 @@
+.comd-recordings {
+  margin-bottom: 48px;
+}
+
+.comd-recordings .comd-recordings-heading {
+  margin: 0 0 20px;
+  font-family: var(--heading-font-family);
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-recordings .comd-recordings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.comd-recordings .comd-recordings-card {
+  border: 1px solid #e8ecf1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.comd-recordings .comd-recordings-card:hover {
+  border-color: #e0e5eb;
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+}
+
+.comd-recordings .comd-recordings-card-top {
+  height: 100px;
+  background: #f5f6f8;
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid #eceff3;
+}
+
+.comd-recordings .comd-recordings-card-top svg {
+  width: 38px;
+  height: 38px;
+  stroke: #6b7280;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.comd-recordings .comd-recordings-card-top svg path {
+  fill: #6b7280;
+  stroke: none;
+}
+
+.comd-recordings .comd-recordings-card-body {
+  padding: 20px 22px 22px;
+}
+
+.comd-recordings .comd-recordings-card-body h3 {
+  margin: 0 0 8px;
+  font-family: var(--heading-font-family);
+  font-size: 1.2rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.comd-recordings .comd-recordings-date {
+  margin: 0 0 6px;
+  font-family: var(--body-font-family);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: #6b7280;
+}
+
+.comd-recordings .comd-recordings-description {
+  margin: 0 0 8px;
+  font-family: var(--body-font-family);
+  font-size: 0.98rem;
+  line-height: 1.42;
+  color: #6b7280;
+}
+
+.comd-recordings .comd-recordings-link {
+  font-family: var(--body-font-family);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5b35db;
+  text-decoration: none;
+}
+
+.comd-recordings .comd-recordings-link:hover {
+  text-decoration: underline;
+}
+
+.comd-recordings .comd-recordings-error {
+  margin: 0;
+  color: #6b7280;
+}
+
+@media (width <= 900px) {
+  .comd-recordings .comd-recordings-heading {
+    font-size: 1.45rem;
+  }
+
+  .comd-recordings .comd-recordings-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .comd-recordings .comd-recordings-card-body {
+    padding: 18px 18px 20px;
+  }
+
+  .comd-recordings .comd-recordings-card-top {
+    height: 82px;
+  }
+
+  .comd-recordings .comd-recordings-card-top svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .comd-recordings .comd-recordings-card-body h3 {
+    font-size: 1.05rem;
+  }
+
+  .comd-recordings .comd-recordings-date,
+  .comd-recordings .comd-recordings-description,
+  .comd-recordings .comd-recordings-link {
+    font-size: 0.9rem;
+  }
+}
