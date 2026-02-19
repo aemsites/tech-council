@@ -7,6 +7,10 @@ indices:
       - /fragments/**
       - /drafts/**
       - /test/**
+      - /nav/**
+      - /nav-index/**
+      - /thankyou
+
     properties:
       title:
         select: head > meta[property="og:title"]
