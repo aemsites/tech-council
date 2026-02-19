@@ -3,6 +3,10 @@ version: 1
 indices:
   default:
     target: /query-index
+    exclude:
+      - /fragments/**
+      - /drafts/**
+      - /test/**
     properties:
       title:
         select: head > meta[property="og:title"]
