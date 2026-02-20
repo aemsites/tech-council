@@ -3,6 +3,7 @@ import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 900px)');
+const DEFAULT_BRAND_LOGO = '/icons/tc-logo.png';
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -107,22 +108,86 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  * Highlights the active navigation item based on current page
  * @param {Element} nav The nav element
  */
+function normalizePath(pathname) {
+  if (!pathname) return '/';
+  return pathname === '/' ? '/' : pathname.replace(/\/$/, '');
+}
+
 function highlightActiveNav(nav) {
-  const currentPath = window.location.pathname;
+  const currentPath = normalizePath(window.location.pathname);
   const navLinks = nav.querySelectorAll('.nav-sections a');
-  
+  let bestMatch = null;
+
   navLinks.forEach((link) => {
     const linkPath = new URL(link.href).pathname;
-    // Remove trailing slashes for comparison, but keep root as '/'
-    const normalizedCurrent = currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
-    const normalizedLink = linkPath === '/' ? '/' : linkPath.replace(/\/$/, '');
-    
-    // Exact match for current page
-    if (normalizedCurrent === normalizedLink) {
-      link.classList.add('active');
-      link.setAttribute('aria-current', 'page');
+    const normalizedLink = normalizePath(linkPath);
+    const isExact = currentPath === normalizedLink;
+    const isSectionMatch = normalizedLink !== '/' && currentPath.startsWith(`${normalizedLink}/`);
+    if (!isExact && !isSectionMatch) return;
+    if (!bestMatch || normalizedLink.length > bestMatch.path.length) {
+      bestMatch = { link, path: normalizedLink };
     }
   });
+
+  if (bestMatch?.link) {
+    bestMatch.link.classList.add('active');
+    bestMatch.link.setAttribute('aria-current', 'page');
+  }
+}
+
+function decorateBrand(nav) {
+  const navBrand = nav.querySelector('.nav-brand');
+  if (!navBrand) return;
+
+  const brandLink = navBrand.querySelector('a:any-link');
+  if (!brandLink) return;
+
+  brandLink.classList.remove('button', 'primary', 'secondary');
+  const buttonContainer = brandLink.closest('.button-container');
+  if (buttonContainer) buttonContainer.classList.remove('button-container');
+
+  const logoSrc = getMetadata('nav-logo') || DEFAULT_BRAND_LOGO;
+  let logo = brandLink.querySelector('img');
+  if (!logo) {
+    logo = document.createElement('img');
+    logo.src = logoSrc;
+    logo.alt = 'Tech Council';
+    logo.loading = 'lazy';
+    logo.width = 28;
+    logo.height = 28;
+    logo.className = 'nav-brand-logo';
+    brandLink.prepend(logo);
+  } else {
+    logo.classList.add('nav-brand-logo');
+  }
+
+  const textNodes = [...brandLink.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  const text = textNodes.length
+    ? textNodes.map((node) => node.textContent.trim()).join(' ')
+    : brandLink.textContent.trim() || 'Tech Council';
+  textNodes.forEach((node) => node.remove());
+  if (!brandLink.querySelector('.nav-brand-text')) {
+    brandLink.textContent = '';
+    brandLink.append(logo, createBrandTextSpan(text));
+  }
+}
+
+function createBrandTextSpan(text) {
+  const wrapper = document.createElement('span');
+  wrapper.className = 'nav-brand-text';
+  const normalized = text.trim();
+  if (normalized.toLowerCase() === 'tech council') {
+    const tech = document.createElement('span');
+    tech.className = 'nav-brand-text-tech';
+    tech.textContent = 'Tech';
+    const council = document.createElement('span');
+    council.className = 'nav-brand-text-council';
+    council.textContent = ' Council';
+    wrapper.append(tech, council);
+  } else {
+    wrapper.textContent = text;
+  }
+  return wrapper;
 }
 
 /**
@@ -200,12 +265,7 @@ export default async function decorate(block) {
     if (section) section.classList.add(`nav-${c}`);
   });
 
-  const navBrand = nav.querySelector('.nav-brand');
-  const brandLink = navBrand.querySelector('.button');
-  if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
-  }
+  decorateBrand(nav);
 
   const navSections = nav.querySelector('.nav-sections');
   if (navSections) {

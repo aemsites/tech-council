@@ -59,8 +59,8 @@
   --heading-font-size-s: clamp(20px, 1.9vw, 24px);
   --heading-font-size-xs: clamp(17px, 1.6vw, 20px);
 
-  /* nav height */
-  --nav-height: 72px;
+  /* nav height - compact like Adobe AEM / Helix */
+  --nav-height: 56px;
   --container-max-width: 1240px;
   --radius-m: 12px;
   --radius-l: 18px;
