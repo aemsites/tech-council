@@ -89,7 +89,6 @@
 body {
   display: none;
   margin: 0;
-  /* Gradient from top until search bar area (~550px), then solid white */
   background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFFFFF 550px, #FFFFFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
