@@ -6,32 +6,33 @@
 
 .comd-details .comd-details-item {
   display: grid;
-  grid-template-columns: 64px 1fr;
-  align-items: flex-start;
-  gap: 24px;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 28px;
 }
 
 .comd-details .comd-details-icon-wrap {
-  width: 64px;
-  height: 64px;
+  width: 96px;
+  height: 96px;
   flex-shrink: 0;
-  border-radius: var(--radius-m);
-  background: linear-gradient(135deg, var(--surface-muted) 0%, #ede9fe 100%);
+  border-radius: var(--radius-l);
+  background: linear-gradient(145deg, var(--surface-muted) 0%, #f5f3ff 50%, #ede9fe 100%);
   border: 1px solid var(--border-subtle);
   display: grid;
   place-items: center;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), 0 2px 8px rgb(99 102 241 / 8%);
 }
 
 .comd-details .comd-details-icon-wrap .icon {
-  width: 30px;
-  height: 30px;
+  width: 52px;
+  height: 52px;
 }
 
 .comd-details .comd-details-icon-wrap .icon img {
   width: 100%;
   height: 100%;
-  opacity: 0.95;
+  object-fit: contain;
+  opacity: 0.9;
 }
 
 .comd-details .comd-details-content {
@@ -64,19 +65,19 @@
 
 @media (width <= 900px) {
   .comd-details .comd-details-item {
-    grid-template-columns: 52px 1fr;
-    gap: 18px;
+    grid-template-columns: 72px 1fr;
+    gap: 20px;
   }
 
   .comd-details .comd-details-icon-wrap {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-m);
   }
 
   .comd-details .comd-details-icon-wrap .icon {
-    width: 26px;
-    height: 26px;
+    width: 40px;
+    height: 40px;
   }
 
   .comd-details .comd-details-content h2 {
