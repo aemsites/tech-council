@@ -78,6 +78,7 @@ main .section.lottie-animation-v7-container {
     position: relative;
     overflow: visible;
     box-sizing: border-box;
+    background: transparent;
   }
   
   .lottie-animation-v7 .lottie-container .lottie-inner {
@@ -88,6 +89,7 @@ main .section.lottie-animation-v7-container {
     aspect-ratio: 610 / 352;
     box-sizing: border-box;
     position: relative;
+    background: transparent;
   }
   
   .lottie-animation-v7 .lottie-container lottie-player {
@@ -105,6 +107,7 @@ main .section.lottie-animation-v7-container {
     min-height: 352px;
     display: block;
     object-fit: contain;
+    background: transparent;
   }
   
   @media (width >= 600px) {

@@ -1,11 +1,10 @@
-function getCommunityIconClass(name = '', index = 0) {
-  const value = String(name).toLowerCase();
-  if (value.includes('agent')) return 'icon-agent';
-  if (value.includes('coding') || value.includes('code') || value.includes('ide')) return 'icon-code';
-  if (value.includes('rag')) return 'icon-rag';
-  if (value.includes('mcp') || value.includes('link')) return 'icon-link';
-  const iconClasses = ['icon-link', 'icon-agent', 'icon-code', 'icon-rag'];
-  return iconClasses[index % iconClasses.length];
+function normalizeIconName(name = '') {
+  const value = String(name)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return value || 'community-link';
 }
 
 function makeCardInteractive(li, destination, label = 'community') {
@@ -31,8 +30,21 @@ function createCardFromData(item, index) {
   const descriptionText = String(item?.description || '').trim();
   if (!name || !titleText) return null;
 
+  const iconName = normalizeIconName(name);
+  const basePath = window.hlx?.codeBasePath || '';
+  const iconSrc = `${basePath}/icons/${iconName}.svg`;
+
   const li = document.createElement('li');
-  li.classList.add('com-groups-card', getCommunityIconClass(name, index));
+  li.classList.add('com-groups-card');
+
+  const iconImg = document.createElement('img');
+  iconImg.className = 'com-groups-icon';
+  iconImg.src = iconSrc;
+  iconImg.alt = '';
+  iconImg.loading = 'lazy';
+  iconImg.width = 30;
+  iconImg.height = 30;
+  iconImg.onerror = () => { iconImg.src = `${basePath}/icons/community-link.svg`; };
 
   const title = document.createElement('div');
   title.className = 'com-groups-title';
@@ -44,7 +56,7 @@ function createCardFromData(item, index) {
   description.className = 'com-groups-description';
   description.textContent = descriptionText;
 
-  li.append(title, description);
+  li.append(iconImg, title, description);
 
   const destination = `/communities/details?name=${encodeURIComponent(name)}`;
   makeCardInteractive(li, destination, titleText);

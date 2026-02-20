@@ -38,33 +38,14 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.com-groups .com-groups-card::after {
-  content: '';
+.com-groups .com-groups-card .com-groups-icon {
   position: absolute;
   top: 18px;
   left: 50%;
   width: 30px;
   height: 30px;
   transform: translateX(-50%);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
-}
-
-.com-groups .com-groups-card.icon-link::after {
-  background-image: url('/icons/community-link.svg');
-}
-
-.com-groups .com-groups-card.icon-agent::after {
-  background-image: url('/icons/community-agent.svg');
-}
-
-.com-groups .com-groups-card.icon-code::after {
-  background-image: url('/icons/community-code.svg');
-}
-
-.com-groups .com-groups-card.icon-rag::after {
-  background-image: url('/icons/community-rag.svg');
+  object-fit: contain;
 }
 
 .com-groups .com-groups-title {

@@ -28,13 +28,9 @@ function normalizeKey(value) {
 }
 
 function resolveIconName(record) {
-  const seed = `${record?.name || ''} ${record?.title || ''}`.toLowerCase();
-
-  if (seed.includes('mcp')) return 'community-link';
-  if (seed.includes('agent')) return 'community-agent';
-  if (seed.includes('coding') || seed.includes('ide')) return 'community-code';
-  if (seed.includes('rag')) return 'community-rag';
-  return 'users';
+  const name = String(record?.name || '').trim();
+  if (!name) return 'community-link';
+  return normalizeKey(name) || 'community-link';
 }
 
 function pickCommunity(records, queryName) {

@@ -122,6 +122,45 @@ function stripRemainingExpressions(obj, seen = new Set()) {
   Object.values(obj).forEach((v) => stripRemainingExpressions(v, seen));
 }
 
+function isWhiteFill(shape) {
+  if (shape?.ty !== 'fl' || !shape.c) return false;
+  const k = shape.c.k;
+  const vals = Array.isArray(k) ? k : (k?.a === 0 && Array.isArray(k.k) ? k.k : null);
+  if (!vals || vals.length < 3) return false;
+  const [r, g, b] = vals;
+  return r >= 0.99 && g >= 0.99 && b >= 0.99;
+}
+
+function layerHasWhiteBackground(layer) {
+  const shapes = layer?.shapes;
+  if (!Array.isArray(shapes)) return false;
+  return shapes.some((s) => {
+    if (s.ty === 'gr' && Array.isArray(s.it)) {
+      return s.it.some((it) => isWhiteFill(it));
+    }
+    return isWhiteFill(s);
+  });
+}
+
+function stripWhiteBackgroundLayers(data) {
+  const processLayers = (layers) => {
+    if (!Array.isArray(layers)) return;
+    layers.forEach((layer) => {
+      if (layerHasWhiteBackground(layer)) {
+        if (!layer.ks) layer.ks = {};
+        if (!layer.ks.o) layer.ks.o = { a: 0, k: 100, ix: 11 };
+        layer.ks.o = { a: 0, k: 0, ix: 11 };
+        log('stripped white background layer:', layer.nm);
+      }
+      if (layer.layers) processLayers(layer.layers);
+    });
+  };
+  processLayers(data?.layers);
+  if (Array.isArray(data?.assets)) {
+    data.assets.forEach((a) => processLayers(a.layers));
+  }
+}
+
 function loadLottieIntoContainer(container) {
   const jsonUrl = container.getAttribute('data-jsonsrc');
   if (!jsonUrl) {
@@ -175,6 +214,7 @@ function loadLottieIntoContainer(container) {
       log('JSON loaded, frames/layers:', animationData?.op != null ? 'yes' : 'no');
       expandTmCycles(animationData);
       stripRemainingExpressions(animationData);
+      stripWhiteBackgroundLayers(animationData);
       const { lottie } = window;
       if (!lottie || typeof lottie.loadAnimation !== 'function') {
         throw new Error('lottie-web not available');
@@ -256,13 +296,24 @@ function initLottieWhenVisible(container) {
   }, 500);
 }
 
+function getCommunityNameFromUrl() {
+  if (typeof window === 'undefined' || !window.location?.pathname) return null;
+  const path = window.location.pathname;
+  if (!path.includes('communities/details')) return null;
+  const name = new URL(window.location.href).searchParams.get('name');
+  if (!name || !name.trim()) return null;
+  return String(name).trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || null;
+}
+
 function getDefaultJsonUrl() {
+  const communityName = getCommunityNameFromUrl();
+  const jsonFile = communityName ? `${communityName}.json` : 'panels.json';
   const base = (typeof window !== 'undefined' && window.hlx?.codeBasePath) ? window.hlx.codeBasePath.replace(/\/$/, '') : '';
-  const path = `${base}/blocks/lottie-animation-v7/panels.json`;
+  const path = `${base ? `/${base}` : ''}/blocks/lottie-animation-v7/${jsonFile}`.replace(/\/+/g, '/');
   try {
     return new URL(path, typeof window !== 'undefined' ? window.location.origin : '').href;
   } catch {
-    return '/blocks/lottie-animation-v7/panels.json';
+    return `/blocks/lottie-animation-v7/${jsonFile}`;
   }
 }
 
