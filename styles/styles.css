@@ -89,7 +89,7 @@
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(180deg, var(--color-gradient-purple) 0, var(--color-brand-pure-white) 400px);
+  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFFFFF 550px, #FFFFFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
