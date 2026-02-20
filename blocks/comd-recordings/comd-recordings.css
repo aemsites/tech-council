@@ -8,7 +8,7 @@
   font-size: 1.9rem;
   line-height: 1.2;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .comd-recordings .comd-recordings-grid {
@@ -18,37 +18,37 @@
 }
 
 .comd-recordings .comd-recordings-card {
-  border: 1px solid #e8ecf1;
-  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  background: var(--background-color);
+  box-shadow: var(--shadow-sm);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .comd-recordings .comd-recordings-card:hover {
-  border-color: #e0e5eb;
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md);
 }
 
 .comd-recordings .comd-recordings-card-top {
   height: 100px;
-  background: #f5f6f8;
+  background: var(--surface-muted);
   display: grid;
   place-items: center;
-  border-bottom: 1px solid #eceff3;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .comd-recordings .comd-recordings-card-top svg {
   width: 38px;
   height: 38px;
-  stroke: #6b7280;
+  stroke: var(--text-soft);
   fill: none;
   stroke-width: 1.8;
 }
 
 .comd-recordings .comd-recordings-card-top svg path {
-  fill: #6b7280;
+  fill: var(--text-soft);
   stroke: none;
 }
 
@@ -62,7 +62,7 @@
   font-size: 1.2rem;
   line-height: 1.3;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .comd-recordings .comd-recordings-date {
@@ -70,7 +70,7 @@
   font-family: var(--body-font-family);
   font-size: 0.9rem;
   line-height: 1.35;
-  color: #6b7280;
+  color: var(--text-soft);
 }
 
 .comd-recordings .comd-recordings-description {
@@ -78,14 +78,14 @@
   font-family: var(--body-font-family);
   font-size: 0.98rem;
   line-height: 1.42;
-  color: #6b7280;
+  color: var(--text-soft);
 }
 
 .comd-recordings .comd-recordings-link {
   font-family: var(--body-font-family);
   font-size: 1rem;
   font-weight: 700;
-  color: #5b35db;
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -99,7 +99,7 @@
   font-family: var(--body-font-family);
   font-size: 0.98rem;
   line-height: 1.45;
-  color: #6b7280;
+  color: var(--text-soft);
 }
 
 @media (width <= 900px) {

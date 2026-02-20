@@ -31,7 +31,7 @@
 
 .carousel-cta .carousel-cta-title {
   font-weight: 700;
-  color: #ffffff;
+  color: var(--background-color);
   margin-bottom: 16px;
   font-size: var(--heading-font-size-xl);
   line-height: 1.2;
@@ -40,14 +40,14 @@
 .carousel-cta .carousel-cta-description {
   font-size: var(--body-font-size-s);
   margin-bottom: 24px;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--white-95);
   line-height: 1.5;
 }
 
 .carousel-cta .carousel-cta-button {
   align-self: center;
   background-color: var(--link-color);
-  color: white;
+  color: var(--background-color);
   border-color: var(--link-color);
   padding: 12px 32px;
   font-weight: 600;
@@ -60,5 +60,5 @@
   background-color: var(--link-hover-color);
   border-color: var(--link-hover-color);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(106, 56, 255, 0.3);
+  box-shadow: var(--shadow-md);
 } 

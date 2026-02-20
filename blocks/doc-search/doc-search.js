@@ -2,6 +2,8 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import createTag from '../../utils/tag.js';
 
 const CURSOR_BLINK = 580; // in milliseconds
+const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json?sheet=recordings';
+const DEFAULT_IMAGE = '/icons/genai-doc.svg';
 
 /**
  * Debounces a function by given delay.
@@ -24,6 +26,8 @@ function debounce(func, delay = 300) {
  * @returns {number} New random index within range NOT equal to prevIndex.
  */
 function generateIndex(prevIndex, range) {
+  if (!Number.isFinite(range) || range <= 0) return -1;
+  if (range === 1) return 0;
   let newIndex;
   do {
     newIndex = Math.floor(Math.random() * range);
@@ -60,6 +64,11 @@ export async function fetchSourceData(index, faq = '') {
       const faqResp = await fetchSourceDataHTML(faq);
       window.docs.push(...faqResp);
     }
+    // eslint-disable-next-line no-use-before-define
+    const recordings = await fetchRecordingsData(RECORDINGS_SOURCE);
+    if (recordings.length) {
+      window.docs.push(...recordings);
+    }
     return window.docs;
   } catch (error) {
     return [];
@@ -83,6 +92,49 @@ export async function fetchSourceDataHTML(index) {
     const image = doc.querySelector('meta[property="og:image"]')?.content || '';
     window.faqImage = image;
     return sections;
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Converts a recordings feed row into a searchable doc entry.
+ * @param {Object} row - Recording row from JSON feed.
+ * @returns {Object|null} Search doc entry.
+ */
+function mapRecordingToSearchDoc(row) {
+  if (!row || typeof row !== 'object') return null;
+  const title = String(row.title || '').trim();
+  if (!title) return null;
+  const speaker = String(row.speaker || '').trim();
+  const date = String(row.date || '').trim();
+  const tag = String(row.tag || '').trim();
+  const recordingLink = String(row.recordingLink || '').trim();
+  const presentationLink = String(row.presentationLink || '').trim();
+  const description = [speaker, tag].filter(Boolean).join(' | ') || 'Recording';
+  // Keep destination on /recordings while making each entry unique for de-dupe.
+  const path = `/recordings`;
+  return {
+    title,
+    description,
+    path,
+    image: DEFAULT_IMAGE,
+    content: `${title} ${speaker} ${date} ${tag} ${recordingLink} ${presentationLink}`.toLowerCase(),
+    source: 'recordings',
+  };
+}
+
+/**
+ * Fetches recordings index and maps it into search docs.
+ * @param {string} index - Relative recordings JSON endpoint.
+ * @returns {Array} Searchable recordings entries.
+ */
+export async function fetchRecordingsData(index) {
+  try {
+    const resp = await fetch(index);
+    const json = await resp.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    return rows.map(mapRecordingToSearchDoc).filter(Boolean);
   } catch (error) {
     return [];
   }
@@ -194,13 +246,22 @@ function buildResult(match, terms, isHomepage) {
     if (!text) return '';
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
+  const getSafeImageSrc = (image) => {
+    if (typeof image !== 'string') return DEFAULT_IMAGE;
+    const trimmed = image.trim();
+    if (!trimmed || trimmed.toLowerCase() === 'null' || trimmed.toLowerCase() === 'undefined') {
+      return DEFAULT_IMAGE;
+    }
+    return trimmed;
+  };
 
   const title = createTag('p', {}, truncate(match.title));
   const desc = createTag('p', {}, truncate(match.description));
   highlightTerms(terms, [title, desc]);
+  const imageSrc = getSafeImageSrc(match.image);
 
   if (isHomepage) {
-    const image = createOptimizedPicture(match.image, null, false, [{ width: '20' }]);
+    const image = createOptimizedPicture(imageSrc, '', false, [{ width: '20' }]);
     result.append(image, title, desc);
     const li = createTag('li', { class: 'doc-search-result' });
     li.append(result);
@@ -208,7 +269,7 @@ function buildResult(match, terms, isHomepage) {
   }
 
   // default result layout
-  const image = createOptimizedPicture(match.image, null, false, [{ width: '750' }]);
+  const image = createOptimizedPicture(imageSrc, '', false, [{ width: '750' }]);
   result.classList.add('article-card');
   const cardImage = createTag('div', { class: 'article-card-image' }, image);
   const cardBody = createTag('div', { class: 'article-card-body' });
@@ -296,7 +357,7 @@ function createSearchResultObject(doc, terms, source) {
     title: doc.querySelector('h3')?.textContent || '',
     description: doc.querySelector('p')?.textContent || '',
     path: `/docs/faq#${id}` || '',
-    image: window.faqImage || '/default-meta-image.jpg',
+    image: window.faqImage || DEFAULT_IMAGE,
     content: doc.innerHTML,
     terms,
     source,
@@ -494,6 +555,11 @@ function blink(input, cb, maxBlinks = 5) {
  * @param {boolean} isHomepage - Whether the block is a homepage variant.
  */
 function type(placeholder, input, results, cb, isHomepage) {
+  // Skip animation when placeholder content is missing.
+  if (typeof placeholder !== 'string' || !placeholder.length) {
+    cb();
+    return;
+  }
   let i = 0;
   // calculate midpoint in type animation
   const midpoint = Math.floor(placeholder.length / 2);
@@ -546,11 +612,24 @@ function backspace(input, results, cb) {
  * @param {boolean} isHomepage - Whether the block is a homepage variant.
  */
 function rotatePlaceholder(currIndex, input, results, placeholders, isHomepage) {
+  if (!Array.isArray(placeholders) || !placeholders.length) {
+    forceStop(input);
+    return;
+  }
   if (!isRotating(input)) {
     forceStop(input);
     return;
   }
   const ph = placeholders[currIndex];
+  if (typeof ph !== 'string' || !ph.length) {
+    const nextIndex = generateIndex(currIndex, placeholders.length);
+    if (nextIndex < 0) {
+      forceStop(input);
+      return;
+    }
+    rotatePlaceholder(nextIndex, input, results, placeholders, isHomepage);
+    return;
+  }
   type(ph, input, results, () => { // simulate typing
     if (!isRotating(input)) {
       forceStop(input);
@@ -591,7 +670,9 @@ export default async function decorate(block) {
   const index = identifySource(block.querySelector('a[href]'));
   const faq = identifySource(block.querySelectorAll('a[href]')[1]) || '';
   // window.docs = [];
-  const placeholders = [...block.querySelectorAll('li')].map((li) => li.textContent);
+  const placeholders = [...block.querySelectorAll('li')]
+    .map((li) => li.textContent?.trim())
+    .filter(Boolean);
   const isHomepage = block.classList.contains('homepage');
   // clear config
   const row = block.firstElementChild;
@@ -644,7 +725,7 @@ export default async function decorate(block) {
     search.placeholder = 'Search the documentation';
   });
   search.addEventListener('blur', () => {
-    if (search.value === '' && isHomepage) {
+    if (search.value === '' && isHomepage && placeholders.length > 0) {
       setTimeout(() => {
         search.dataset.rotate = true;
         rotatePlaceholder(
@@ -674,16 +755,18 @@ export default async function decorate(block) {
       observer.disconnect();
       if (isHomepage) {
         // start placeholder rotation
-        search.dataset.rotate = true;
-        setTimeout(() => {
-          rotatePlaceholder(
-            generateIndex(-1, placeholders.length),
-            search,
-            results,
-            placeholders,
-            isHomepage,
-          );
-        }, 600);
+        if (placeholders.length > 0) {
+          search.dataset.rotate = true;
+          setTimeout(() => {
+            rotatePlaceholder(
+              generateIndex(-1, placeholders.length),
+              search,
+              results,
+              placeholders,
+              isHomepage,
+            );
+          }, 600);
+        }
       }
       fetchSourceData(index, faq).then((docs) => {
         // enable search only after docs are available

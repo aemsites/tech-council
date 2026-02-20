@@ -8,7 +8,7 @@
   font-size: 1.9rem;
   line-height: 1.2;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .comd-roles .comd-roles-grid {
@@ -18,18 +18,18 @@
 }
 
 .comd-roles .comd-roles-card {
-  border: 1px solid #e8ecf1;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  background: var(--background-color);
+  box-shadow: var(--shadow-sm);
   padding: 24px 20px 20px;
   text-align: center;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .comd-roles .comd-roles-card:hover {
-  border-color: #e0e5eb;
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md);
 }
 
 .comd-roles .comd-roles-avatar {
@@ -37,7 +37,7 @@
   height: 48px;
   margin: 0 auto 12px;
   border-radius: 50%;
-  background: #f5f6f8;
+  background: var(--surface-muted);
   display: grid;
   place-items: center;
 }
@@ -46,7 +46,7 @@
   width: 22px;
   height: 22px;
   fill: none;
-  stroke: #6b7280;
+  stroke: var(--text-soft);
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -60,7 +60,7 @@
   line-height: 1.2;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #5b35db;
+  color: var(--link-color);
 }
 
 .comd-roles .comd-roles-name {
@@ -69,7 +69,7 @@
   font-size: 1.15rem;
   line-height: 1.3;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .comd-roles .comd-roles-empty,
@@ -78,7 +78,7 @@
   font-family: var(--body-font-family);
   font-size: 0.98rem;
   line-height: 1.45;
-  color: #6b7280;
+  color: var(--text-soft);
 }
 
 @media (width <= 900px) {

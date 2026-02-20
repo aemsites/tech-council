@@ -45,9 +45,9 @@
   width: 120px;
   height: 120px;
   margin: 0 auto 40px;
-  background: linear-gradient(135deg, #6a38ff 0%, #9d6fff 100%);
+  background: linear-gradient(135deg, var(--link-color) 0%, color-mix(in srgb, var(--link-color) 65%, white) 100%);
   border-radius: 50%;
-  box-shadow: 0 15px 50px rgba(106, 56, 255, 0.4);
+  box-shadow: var(--shadow-lg);
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -68,7 +68,7 @@
 
 .thankyou-icon::after {
   content: '✓';
-  color: white;
+  color: var(--background-color);
   font-size: 70px;
   font-weight: bold;
   line-height: 1;

@@ -12,21 +12,28 @@
 
 :root {
   /* colors */
-  --background-color: #ffffff;
-  --light-color: #f3f3f3;
+  --background-color: #fff;
+  --light-color: #f2f6fb;
   --dark-color: #001d26;
-  --text-color: #1d1d1d;
-  --link-color: #6a38ff; /* Purple */
-  --link-hover-color: #4b2cdc;
+  --text-color: #17252f;
+  --text-muted: #445666;
+  --text-soft: #607181;
+  --link-color: #0b63de;
+  --link-hover-color: #0849a8;
+  --surface-muted: #f6f9fc;
+  --border-subtle: rgb(0 29 38 / 10%);
+  --overlay-dark: rgb(19 19 19 / 80%);
+  --overlay-dark-soft: rgb(19 19 19 / 25%);
+  --overlay-dark-strong: rgb(19 19 19 / 75%);
+  --white-95: rgb(255 255 255 / 95%);
 
   /* brand palette */
-  --color-primary: #ec0f1a;
-  --color-primary-dark: #b30b13;
+  --color-primary: #0b63de;
+  --color-primary-dark: #0849a8;
   --color-secondary: #001d26;
-  --color-surface: #ffffff;
-  /* gradient colors */
-  --color-gradient-purple: #6a38ff;
-  --color-brand-pure-white: #ffffff;
+  --color-surface: #fff;
+  --color-gradient-accent: #0b63de;
+  --color-brand-pure-white: #fff;
 
   /* spacing scale */
   --space-xs: 4px;
@@ -36,24 +43,31 @@
   --space-xl: 64px;
 
   /* fonts */
-  --body-font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --heading-font-family: var(--body-font-family);
+  --body-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
+  --heading-font-family: roboto-condensed, roboto-condensed-fallback, roboto, sans-serif;
 
   /* body sizes */
-  --body-font-size-m: 22px;
-  --body-font-size-s: 19px;
-  --body-font-size-xs: 17px;
+  --body-font-size-m: clamp(17px, 1.2vw, 19px);
+  --body-font-size-s: clamp(15px, 1vw, 17px);
+  --body-font-size-xs: 14px;
 
   /* heading sizes */
-  --heading-font-size-xxl: 55px;
-  --heading-font-size-xl: 44px;
-  --heading-font-size-l: 34px;
-  --heading-font-size-m: 27px;
-  --heading-font-size-s: 24px;
-  --heading-font-size-xs: 22px;
+  --heading-font-size-xxl: clamp(42px, 6vw, 64px);
+  --heading-font-size-xl: clamp(34px, 4.6vw, 48px);
+  --heading-font-size-l: clamp(27px, 3.1vw, 36px);
+  --heading-font-size-m: clamp(23px, 2.4vw, 30px);
+  --heading-font-size-s: clamp(20px, 1.9vw, 24px);
+  --heading-font-size-xs: clamp(17px, 1.6vw, 20px);
 
   /* nav height */
-  --nav-height: 64px;
+  --nav-height: 72px;
+  --container-max-width: 1240px;
+  --radius-m: 12px;
+  --radius-l: 18px;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 8%);
+  --shadow-md: 0 10px 28px rgb(0 29 38 / 12%);
+  --shadow-lg: 0 18px 44px rgb(0 29 38 / 16%);
+  --focus-ring: 0 0 0 3px rgb(11 99 222 / 28%);
 }
 
 /* fallback fonts */
@@ -71,38 +85,35 @@
 
 @media (width >= 900px) {
   :root {
-    /* body sizes */
-    --body-font-size-m: 18px;
-    --body-font-size-s: 16px;
-    --body-font-size-xs: 14px;
-
-    /* heading sizes */
-    --heading-font-size-xxl: 35px;
-    --heading-font-size-xl: 26px;
-    --heading-font-size-l: 18px;
-    --heading-font-size-m: 12px;
-    --heading-font-size-s: 10px;
-    --heading-font-size-xs: 8px;
+    --body-font-size-m: clamp(18px, 1.1vw, 20px);
+    --body-font-size-s: clamp(16px, 0.95vw, 18px);
   }
 }
 
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(180deg, var(--color-gradient-purple) 0, var(--color-brand-pure-white) 400px);
+  background:
+    radial-gradient(circle at 8% 0%, rgb(11 99 222 / 12%), transparent 36%),
+    radial-gradient(circle at 100% 28%, rgb(0 29 38 / 8%), transparent 42%),
+    linear-gradient(180deg, #f5f9ff 0, var(--color-brand-pure-white) 420px);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
-  line-height: 1.6;
+  line-height: 1.65;
   min-height: 100vh;
+  text-rendering: optimizelegibility;
 }
 
-body.communities-page {
-  background: var(--color-brand-pure-white);
-}
 
 body.appear {
   display: block;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 header {
@@ -126,10 +137,11 @@ h4,
 h5,
 h6 {
   margin-top: 0.8em;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.35em;
   font-family: var(--heading-font-family);
-  font-weight: 400;
-  line-height: 1.25;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
   scroll-margin: 40px;
 
 }
@@ -147,8 +159,8 @@ ol,
 ul,
 pre,
 blockquote {
-  margin-top: 0.8em;
-  margin-bottom: 0.25em;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
 }
 
 code,
@@ -175,17 +187,24 @@ button {
   font: inherit;
 }
 
+::selection {
+  color: #fff;
+  background: color-mix(in srgb, var(--link-color) 72%, #001d26);
+}
+
 /* links */
 a:any-link {
   color: var(--link-color);
-  text-decoration: none;
+  text-decoration-color: color-mix(in srgb, var(--link-color) 45%, transparent);
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.12em;
   overflow-wrap: break-word;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
 a:hover {
   color: var(--link-hover-color);
-
-  
+  text-decoration-color: currentcolor;
 }
 
 /* buttons */
@@ -196,20 +215,22 @@ button {
   max-width: 100%;
   margin: 12px 0;
   border: 2px solid transparent;
-  border-radius: 2.4em;
-  padding: 0.5em 1.2em;
+  border-radius: 999px;
+  padding: 0.58em 1.25em;
   font-family: var(--body-font-family);
   font-style: normal;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
-  background-color: var(--link-color);
+  background-color: var(--color-primary);
   color: var(--background-color);
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 a.button:hover,
@@ -218,11 +239,15 @@ button:hover,
 button:focus {
   background-color: var(--link-hover-color);
   cursor: pointer;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 button:disabled,
 button:disabled:hover {
   background-color: var(--light-color);
+  transform: none;
+  box-shadow: none;
   cursor: unset;
 }
 
@@ -252,7 +277,7 @@ main img {
 
 /* sections */
 main > .section {
-  margin: 100px 0;
+  margin: clamp(72px, 8vw, 112px) 0;
 }
 
 main > .section.fragment-container {
@@ -260,9 +285,9 @@ main > .section.fragment-container {
 }
 
 main > .section > div {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: auto;
-  padding: 0 24px;
+  padding: 0 clamp(18px, 3.2vw, 36px);
 }
 
 main > .section:first-of-type {
@@ -271,7 +296,7 @@ main > .section:first-of-type {
 
 @media (width >= 900px) {
   main > .section > div {
-    padding: 0 32px;
+    padding: 0 clamp(24px, 2.2vw, 40px);
   }
 }
 
@@ -280,5 +305,20 @@ main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
   margin: 0;
-  padding: 40px 0;
+  padding: clamp(48px, 6vw, 84px) 0;
+}
+
+:is(a, button, input, select, textarea):focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

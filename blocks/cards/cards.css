@@ -9,20 +9,21 @@
 
 .cards > ul > li {
   background-color: var(--background-color);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .cards > ul > li:hover,
 .cards > ul > li:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
 }
 
 .cards .cards-card-body {
-  padding: 20px 16px 24px;
+  padding: 20px 18px 24px;
 }
 
 .cards .cards-card-image {
@@ -37,8 +38,8 @@
 }
 
 .cards .cards-card-image img {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  border-top-left-radius: var(--radius-m);
+  border-top-right-radius: var(--radius-m);
 }
 
 /* Card heading styling */
@@ -67,11 +68,10 @@
 }
 
 .cards.objectives > ul > li {
-  /* a subtle border + softer shadow */
-  background-color: #ffffff;
-  border: 1px solid var(--border-color, rgba(17, 24, 39, 0.08));
-  border-radius: 12px;
-  box-shadow: 0 1px 2px rgba(2, 6, 23, 0.04);
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sm);
   transition: box-shadow 0.25s ease;
 }
 
@@ -86,7 +86,7 @@
 .cards.objectives .cards-card-body h5,
 .cards.objectives .cards-card-body h6 {
   margin: 0 0 8px;
-  color: var(--text-color, #111827); /* override link color for headings */
+  color: var(--text-color); /* override link color for headings */
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: -0.01em;
@@ -94,7 +94,7 @@
 
 .cards.objectives .cards-card-body p {
   margin: 0;
-  color: var(--body-text-color, #6b7280);
+  color: var(--text-soft);
   line-height: 1.6;
   font-size: 0.95rem;
 }
@@ -102,5 +102,5 @@
 .cards.objectives > ul > li:hover,
 .cards.objectives > ul > li:focus-within {
   transform: none;
-  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.08);
+  box-shadow: var(--shadow-md);
 }

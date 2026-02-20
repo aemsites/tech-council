@@ -343,11 +343,6 @@ function decorateTemplateAndTheme() {
   if (template) addClasses(document.body, template);
   const theme = getMetadata('theme');
   if (theme) addClasses(document.body, theme);
-
-  const { pathname } = window.location;
-  if (pathname.startsWith('/communities')) {
-    document.body.classList.add('communities-page');
-  }
 }
 
 /**

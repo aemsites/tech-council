@@ -1,12 +1,12 @@
 footer {
-  background-color: #000;
-  color: #ffffff;
+  background-color: var(--dark-color);
+  color: var(--background-color);
   font-size: var(--body-font-size-xs);
 }
 
 footer .footer > div {
   margin: auto;
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   padding: 200px 24px 24px;
 }
 
@@ -22,5 +22,5 @@ footer .footer p {
 
 /* ensure links in footer are white */
 footer a:any-link {
-  color: #ffffff;
+  color: var(--background-color);
 }

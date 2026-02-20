@@ -8,7 +8,7 @@
   font-size: 1.9rem;
   line-height: 1.2;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .comd-resources .comd-resources-grid {
@@ -18,10 +18,10 @@
 }
 
 .comd-resources .comd-resources-card {
-  border: 1px solid #e8ecf1;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  background: var(--background-color);
+  box-shadow: var(--shadow-sm);
   padding: 24px 22px 20px;
   display: flex;
   flex-direction: column;
@@ -30,8 +30,8 @@
 }
 
 .comd-resources .comd-resources-card:hover {
-  border-color: #e0e5eb;
-  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.06);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md);
 }
 
 .comd-resources .comd-resources-card h3 {
@@ -40,7 +40,7 @@
   font-size: 1.2rem;
   line-height: 1.3;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .comd-resources .comd-resources-description {
@@ -48,7 +48,7 @@
   font-family: var(--body-font-family);
   font-size: 0.95rem;
   line-height: 1.45;
-  color: #4b5563;
+  color: var(--text-muted);
 }
 
 .comd-resources .comd-resources-link {
@@ -57,7 +57,7 @@
   font-size: 0.95rem;
   line-height: 1.3;
   font-weight: 700;
-  color: #5b35db;
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -76,7 +76,7 @@
   font-family: var(--body-font-family);
   font-size: 0.98rem;
   line-height: 1.45;
-  color: #6b7280;
+  color: var(--text-soft);
 }
 
 @media (width <= 900px) {

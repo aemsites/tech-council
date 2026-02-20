@@ -21,7 +21,7 @@
     right: 52px;
     width: 22px;
     height: 22px;
-    fill: #6b7280;
+    fill: var(--text-soft);
     transition: fill 0.2s ease;
     pointer-events: none;
     z-index: 1;
@@ -29,7 +29,7 @@
   }
 
   .doc-search form:focus-within svg {
-    fill: #3b82f6;
+    fill: var(--link-color);
   }
 
 .doc-search form input {
@@ -39,8 +39,8 @@
     width: 100%;
     margin: 0;
     outline: none;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
+    border: 2px solid var(--border-subtle);
+    border-radius: var(--radius-m);
     background-color: var(--background-color);
     color: var(--text-color);
     /* reserve space: right for icon and clear button */
@@ -48,7 +48,7 @@
     font: inherit;
     font-size: 16px;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
     line-height: 1.5;
 }
 
@@ -66,18 +66,18 @@
   }
   
   .doc-search form input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-color: var(--link-color);
+    box-shadow: var(--focus-ring), var(--shadow-sm);
   }
   
   .doc-search form input::placeholder {
-    color: #9ca3af;
+    color: var(--text-soft);
     font-style: normal;
   }
 
   .doc-search form input:hover {
-    border-color: #d1d5db;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border-color: var(--border-subtle);
+    box-shadow: var(--shadow-md);
   }
   
   .doc-search form button { 
@@ -95,8 +95,8 @@
     width: 28px;
     height: 28px;
     line-height: 1;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--light-color);
+    color: var(--text-soft);
     transition: all 0.2s ease;
     cursor: inherit;
     -webkit-tap-highlight-color: transparent;
@@ -115,8 +115,8 @@
   /* neutralize global button hover styles for the clear control */
   .doc-search form button:hover,
   .doc-search form button:focus {
-    background: #e5e7eb;
-    color: #374151;
+    background: var(--border-subtle);
+    color: var(--text-muted);
     box-shadow: none;
     transform: scale(1.05);
   }
@@ -135,17 +135,17 @@
   }
 
   .doc-search .doc-search-results.open::-webkit-scrollbar-track {
-    background: #f9fafb;
+    background: var(--light-color);
     border-radius: 0 12px 12px 0;
   }
 
   .doc-search .doc-search-results.open::-webkit-scrollbar-thumb {
-    background: #d1d5db;
+    background: var(--border-subtle);
     border-radius: 4px;
   }
 
   .doc-search .doc-search-results.open::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
+    background: var(--text-soft);
   }
 
   /* Responsive adjustments */
@@ -180,13 +180,13 @@
     top: calc(50% + 15px);
     margin-top: 0;
     padding: 0;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
+    border: 2px solid var(--border-subtle);
+    border-radius: var(--radius-m);
     background-color: var(--background-color);
     opacity: 0;
     animation: fade-in 580ms ease forwards;
     z-index: 1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
   }
 
   /* When results are open, place them in normal flow so they don't overlay content */
@@ -201,7 +201,7 @@
     z-index: 0;
     max-height: min(60vh, 420px);
     overflow: auto;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-lg);
   }
   
   .doc-search .doc-search-results.fade-out {
@@ -249,17 +249,17 @@
   }
   
   .doc-search .doc-search-results > li.doc-search-result + li {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--border-subtle);
   }
   
   .doc-search .doc-search-results > li.doc-search-no-result {
     padding: 20px 24px;
-    color: #6b7280;
+    color: var(--text-soft);
     font-size: 15px;
   }
   
   .doc-search .doc-search-results > li.doc-search-no-result a {
-    color: #3b82f6;
+    color: var(--link-color);
     text-decoration: none;
     font-weight: 600;
     border-bottom: 1px solid transparent;
@@ -267,7 +267,7 @@
   }
 
   .doc-search .doc-search-results > li.doc-search-no-result a:hover {
-    border-bottom-color: #3b82f6;
+    border-bottom-color: var(--link-color);
   }
   
   .doc-search .doc-search-results > li.doc-search-result a {
@@ -286,7 +286,7 @@
   
   .doc-search .doc-search-results > li.doc-search-result a:hover,
   .doc-search .doc-search-results > li.doc-search-result a:focus {
-    background-color: #f9fafb;
+    background-color: var(--light-color);
     transform: translateX(4px);
   }
   
@@ -306,7 +306,7 @@
     position: relative;
     background-color: transparent;
     font-weight: 600;
-    color: #1e40af;
+    color: var(--link-hover-color);
   }
   
   .doc-search .doc-search-results > li.doc-search-result a mark::after {
@@ -314,7 +314,7 @@
     position: absolute;
     z-index: -1;
     inset: 0 -4px;
-    background-color: rgba(59, 130, 246, 0.1);
+    background-color: rgb(106 56 255 / 10%);
     border-radius: 4px;
   }
   
@@ -325,7 +325,7 @@
   
   .doc-search .doc-search-results > li.doc-search-result a p:first-of-type {
     grid-area: title;
-    color: #1f2937;
+    color: var(--text-color);
     font-weight: 600;
     font-size: 15px;
     margin-bottom: 4px;
@@ -339,6 +339,6 @@
     line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: #6b7280;
+    color: var(--text-soft);
     font-size: 14px;
   }

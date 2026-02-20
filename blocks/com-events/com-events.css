@@ -9,10 +9,10 @@
 
 .com-events > ul > li {
   position: relative;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #eceff3;
-  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.06);
+  background: var(--background-color);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   padding: 72px 16px 18px;
   min-height: 252px;
@@ -55,8 +55,8 @@
   letter-spacing: 0.1em;
   line-height: 1.1;
   font-weight: 700;
-  color: #6a4bbf;
-  background: #f5f2ff;
+  color: var(--link-color);
+  background: var(--surface-muted);
 }
 
 .com-events .com-events-title {
@@ -75,7 +75,7 @@
   line-height: 1.1;
   letter-spacing: -0.015em;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-color);
 }
 
 .com-events .com-events-title strong {
@@ -88,7 +88,7 @@
   font-size: 1.05rem;
   line-height: 1.3;
   font-weight: 500;
-  color: #505a68;
+  color: var(--text-muted);
 }
 
 .com-events .com-events-description {
@@ -96,7 +96,7 @@
   font-family: var(--body-font-family);
   font-size: 1.05rem;
   line-height: 1.45;
-  color: #505a68;
+  color: var(--text-muted);
 }
 
 @media (width <= 900px) {

@@ -1,11 +1,11 @@
 :root {
-    --background-color-primary: #fff;
-    --label-color: #2c3e50;
-    --border-color: #d1d5db;
-    --form-error-color: #ef4444;
-    --button-primary-color: #3b82f6;
-    --button-secondary-color: #6b7280;
-    --button-primary-hover-color: #2563eb;
+    --background-color-primary: var(--background-color);
+    --label-color: var(--text-color);
+    --border-color: var(--border-subtle);
+    --form-error-color: var(--color-primary);
+    --button-primary-color: var(--link-color);
+    --button-secondary-color: var(--text-soft);
+    --button-primary-hover-color: var(--link-hover-color);
     --form-font-size-m: 22px;
     --form-font-size-s: 15px;
     --form-font-size-xs: 14px;
@@ -14,10 +14,10 @@
     --form-columns: 12;
     --form-field-horz-gap: 24px;
     --form-field-vert-gap: 24px;
-    --form-invalid-border-color: #ef4444;
+    --form-invalid-border-color: var(--color-primary);
     --form-input-padding: 0.875rem 1rem;
     --form-input-font-size: 0.9375rem;
-    --form-input-disable-color: #f3f4f6;
+    --form-input-disable-color: var(--light-color);
     --form-input-border-size: 1.5px;
     --form-input-border-color: var(--border-color);
     --form-input-background-color: var(--background-color-primary);
@@ -50,7 +50,7 @@
     --form-width: 100%;
     --form-wizard-border: 0;
     --form-wizard-background-color: var(--background-color-primary);
-    --form-wizard-border-color: #757575;
+    --form-wizard-border-color: var(--text-soft);
     --form-wizard-number-color: var(--button-primary-color);
     --form-wizard-padding: 0px;
     --form-wizard-padding-bottom: 160px;
@@ -59,14 +59,14 @@
     --form-field-gap: 0;
     
     /* Card styling variables */
-    --form-card-border-color: #e0e0e0;
-    --form-card-border-radius: 4px;
+    --form-card-border-color: var(--border-subtle);
+    --form-card-border-radius: var(--radius-m);
     --form-card-padding: 0.6rem 0.8rem;
     --form-card-background: var(--background-color-primary);
-    --form-card-shadow: 0 1px 2px rgb(0 0 0 / 3%);
-    --form-card-hover-shadow: 0 2px 4px rgb(0 0 0 / 6%);
+    --form-card-shadow: var(--shadow-sm);
+    --form-card-hover-shadow: var(--shadow-md);
     --form-card-selected-border-color: var(--button-primary-color);
-    --form-card-selected-background: #F5F9FF;
+    --form-card-selected-background: var(--surface-muted);
     --form-card-selected-shadow: 0 0 0 1px var(--button-primary-color);
     --form-card-transition: all 0.15s ease-in-out;
 }
@@ -120,7 +120,7 @@ main .form form fieldset fieldset {
 }
 
 main .form .field-description {
-    color: #6b7280;
+    color: var(--text-soft);
     font-size: var(--form-font-size-xs);
     margin-top: 0.375rem;
     line-height: 1.5;
@@ -135,13 +135,13 @@ main .form form .field-invalid input,
 main .form form .field-invalid textarea,
 main .form form .field-invalid select {
     border-color: var(--form-error-color);
-    background-color: #fef2f2;
+    background-color: rgb(236 15 26 / 8%);
 }
 
 main .form form .field-invalid input:focus,
 main .form form .field-invalid textarea:focus,
 main .form form .field-invalid select:focus {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    box-shadow: 0 0 0 3px rgb(236 15 26 / 20%);
 }
 
 
@@ -198,7 +198,7 @@ main .form select {
 }
 
 main .form input:hover, main .form select:hover, main .form textarea:hover {
-    border-color: #9ca3af;
+    border-color: var(--text-soft);
 }
 
 main .form input:focus, 
@@ -206,12 +206,12 @@ main .form select:focus,
 main .form textarea:focus {
     outline: none;
     border-color: var(--button-primary-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow: var(--focus-ring);
 }
 
 main .form input::placeholder,
 main .form textarea::placeholder {
-    color: #9ca3af;
+    color: var(--text-soft);
     opacity: 1;
 }
 
@@ -395,7 +395,7 @@ main .form form fieldset.cards > .checkbox-wrapper > label {
 main .form form fieldset.cards > .radio-wrapper > label:hover,
 main .form form fieldset.cards > .checkbox-wrapper > label:hover {
     box-shadow: var(--form-card-hover-shadow);
-    border-color: #ccc;
+    border-color: var(--border-subtle);
     transform: translateY(-1px);
 }
 
@@ -493,13 +493,13 @@ main .form button {
     border: var(--form-button-border);
     padding: var(--form-button-padding);
     font-size: var(--form-button-font-size);
-    border-radius: 0.5rem;
+    border-radius: 999px;
     width: 100%;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     letter-spacing: 0.02em;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
 }
 
 main form .file-wrapper > button{
@@ -508,13 +508,13 @@ main form .file-wrapper > button{
 
 main .form button:hover {
     background: var(--form-button-background-hover-color);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
 
 main .form button:active {
     transform: translateY(0);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
 }
 
 main .submit-wrapper{
@@ -625,7 +625,7 @@ main .form .button-wrapper button[disabled] {
 
 main .form .button-wrapper button[disabled]:hover {
     transform: none;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
 }
 
 /** Wizard Styling */
@@ -750,27 +750,27 @@ main .form form .wizard.left .panel-wrapper{
 }
 
 main .form .form-message.success-message {
-    color: #065f46;
-    background-color: #d1fae5;
-    border: 1.5px solid #6ee7b7;
+    color: var(--text-color);
+    background-color: var(--surface-muted);
+    border: 1.5px solid var(--border-subtle);
     border-radius: 0.5rem;
     flex: 100%;
     grid-column: span 12;
     padding: 16px;
     font-weight: 500;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
 }
 
 main .form .form-message.error-message {
-    color: #991b1b;
-    background-color: #fee2e2;
-    border: 1.5px solid #fca5a5;
+    color: var(--color-primary);
+    background-color: rgb(236 15 26 / 8%);
+    border: 1.5px solid rgb(236 15 26 / 30%);
     border-radius: 0.5rem;
     flex: 100%;
     grid-column: span 12;
     padding: 16px;
     font-weight: 500;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-sm);
 }
 
 main .form .file-wrapper .file-drag-area {
@@ -869,11 +869,11 @@ main .form form .checkbox-group-wrapper.horizontal .field-description {
 }
 
 main div.form-wrapper {
-    background: white;
+    background: var(--background-color);
     padding: 48px;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-subtle);
 }
 
 /* Responsive adjustments for mobile */

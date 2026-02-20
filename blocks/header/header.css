@@ -27,13 +27,13 @@ header .nav-wrapper {
   position: fixed;
   backdrop-filter: saturate(180%) blur(10px);
   -webkit-backdrop-filter: saturate(180%) blur(10px);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Enhanced shadow when scrolled */
 header .nav-wrapper.scrolled {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 /* Optional: Hide header on scroll down */
@@ -197,7 +197,7 @@ header .nav-brand {
 header nav .nav-brand img {
   width: 128px;
   height: auto;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.06));
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 8%));
 }
 
 /* Clean brand link style - no box */
@@ -216,7 +216,7 @@ header .nav-brand a:focus-visible {
 }
 
 header nav .nav-brand a:hover img {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 12%));
 }
 
 /* sections */
@@ -336,8 +336,8 @@ header nav .nav-sections ul > li > ul > li {
     background-color: var(--background-color);
     white-space: initial;
     border-radius: 12px;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-subtle);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
@@ -379,7 +379,7 @@ header nav .nav-tools {
 /* mobile menu styles: larger tap targets and separators */
 header nav[aria-expanded='true'] .nav-sections ul > li {
   padding: 12px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 header nav[aria-expanded='true'] .nav-sections a {
@@ -390,7 +390,7 @@ header nav[aria-expanded='true'] .nav-sections a {
 
 header nav[aria-expanded='true'] .nav-sections a:hover,
 header nav[aria-expanded='true'] .nav-sections a:active {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--light-color);
 }
 
 /* Active link styling for mobile - underline only */
@@ -402,7 +402,7 @@ header nav[aria-expanded='true'] .nav-sections a.active {
 }
 
 header nav[aria-expanded='true'] .nav-sections a.active:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--light-color);
 }
 
 /* focus visibility for all nav links - enhanced */
