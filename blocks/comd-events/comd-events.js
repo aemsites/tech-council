@@ -123,7 +123,17 @@ export default async function decorate(block) {
     const queryName = new URL(window.location.href).searchParams.get('name');
     const filtered = resolveCommunityEvents(records, queryName);
 
-    if (!filtered.length) return;
+    const heading = document.createElement('h2');
+    heading.className = 'comd-events-heading';
+    heading.textContent = 'Events';
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'comd-events-empty';
+      empty.textContent = 'No events.';
+      block.append(heading, empty);
+      return;
+    }
 
     const rendered = filtered.map(createEventItem);
     const upcoming = rendered
@@ -132,10 +142,6 @@ export default async function decorate(block) {
     const past = rendered
       .filter((entry) => !entry.upcoming)
       .sort((a, b) => (b.date?.getTime() || 0) - (a.date?.getTime() || 0));
-
-    const heading = document.createElement('h2');
-    heading.className = 'comd-events-heading';
-    heading.textContent = 'Events';
 
     const list = document.createElement('div');
     list.className = 'comd-events-list';

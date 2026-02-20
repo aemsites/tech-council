@@ -87,11 +87,17 @@ export default async function decorate(block) {
     const filtered = resolveCommunityResources(records, queryName)
       .sort((a, b) => parseDateValue(b.date) - parseDateValue(a.date));
 
-    if (!filtered.length) return;
-
     const heading = document.createElement('h2');
     heading.className = 'comd-resources-heading';
     heading.textContent = 'Content & playbooks';
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'comd-resources-empty';
+      empty.textContent = 'No resources.';
+      block.append(heading, empty);
+      return;
+    }
 
     const grid = document.createElement('div');
     grid.className = 'comd-resources-grid';

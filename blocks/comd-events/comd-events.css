@@ -71,8 +71,12 @@
   color: #4b5563;
 }
 
+.comd-events .comd-events-empty,
 .comd-events .comd-events-error {
   margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.98rem;
+  line-height: 1.45;
   color: #6b7280;
 }
 

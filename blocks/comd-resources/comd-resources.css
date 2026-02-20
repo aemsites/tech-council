@@ -70,8 +70,12 @@
   opacity: 0.6;
 }
 
+.comd-resources .comd-resources-empty,
 .comd-resources .comd-resources-error {
   margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.98rem;
+  line-height: 1.45;
   color: #6b7280;
 }
 

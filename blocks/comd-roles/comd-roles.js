@@ -74,11 +74,17 @@ export default async function decorate(block) {
     const filtered = resolveCommunityRoles(records, queryName)
       .sort((a, b) => roleRank(a.role) - roleRank(b.role));
 
-    if (!filtered.length) return;
-
     const heading = document.createElement('h2');
     heading.className = 'comd-roles-heading';
     heading.textContent = 'People in roles';
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'comd-roles-empty';
+      empty.textContent = 'No people in roles.';
+      block.append(heading, empty);
+      return;
+    }
 
     const grid = document.createElement('div');
     grid.className = 'comd-roles-grid';

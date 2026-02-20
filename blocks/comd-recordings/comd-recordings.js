@@ -118,11 +118,17 @@ export default async function decorate(block) {
     const queryName = new URL(window.location.href).searchParams.get('name');
     const filtered = resolveCommunityRecords(records, queryName);
 
-    if (!filtered.length) return;
-
     const heading = document.createElement('h2');
     heading.className = 'comd-recordings-heading';
     heading.textContent = 'Recordings';
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'comd-recordings-empty';
+      empty.textContent = 'No recordings.';
+      block.append(heading, empty);
+      return;
+    }
 
     const grid = document.createElement('div');
     grid.className = 'comd-recordings-grid';

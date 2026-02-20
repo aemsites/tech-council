@@ -72,8 +72,12 @@
   color: #1f2937;
 }
 
+.comd-roles .comd-roles-empty,
 .comd-roles .comd-roles-error {
   margin: 0;
+  font-family: var(--body-font-family);
+  font-size: 0.98rem;
+  line-height: 1.45;
   color: #6b7280;
 }
 
