@@ -168,7 +168,7 @@ function decorateBrand(nav) {
   textNodes.forEach((node) => node.remove());
   if (!brandLink.querySelector('.nav-brand-text')) {
     brandLink.textContent = '';
-    brandLink.append(logo, createBrandTextSpan(text));
+    brandLink.append(createBrandTextSpan(text));
   }
 }
 

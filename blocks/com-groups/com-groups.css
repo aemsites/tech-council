@@ -14,7 +14,7 @@
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  padding: 86px 18px 16px;
+  padding: 88px 18px 16px;
   min-height: 196px;
 }
 
@@ -29,21 +29,12 @@
   box-shadow: var(--shadow-md);
 }
 
-.com-groups .com-groups-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 68px;
-  background: var(--light-color);
-  border-bottom: 1px solid var(--border-subtle);
-}
-
 .com-groups .com-groups-card .com-groups-icon {
   position: absolute;
-  top: 18px;
+  top: 20px;
   left: 50%;
-  width: 30px;
-  height: 30px;
+  width: 56px;
+  height: 56px;
   transform: translateX(-50%);
   object-fit: contain;
 }

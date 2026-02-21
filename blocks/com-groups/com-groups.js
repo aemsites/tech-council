@@ -42,8 +42,8 @@ function createCardFromData(item, index) {
   iconImg.src = iconSrc;
   iconImg.alt = '';
   iconImg.loading = 'lazy';
-  iconImg.width = 30;
-  iconImg.height = 30;
+  iconImg.width = 56;
+  iconImg.height = 56;
   iconImg.onerror = () => { iconImg.src = `${basePath}/icons/community-link.svg`; };
 
   const title = document.createElement('div');

@@ -227,14 +227,6 @@ header .nav-brand .nav-brand-text {
   color: var(--text-color);
 }
 
-header .nav-brand .nav-brand-text-tech {
-  color: #e60012;
-}
-
-header .nav-brand .nav-brand-text-council {
-  color: var(--text-color);
-}
-
 header .nav-brand a:hover,
 header .nav-brand a:focus-visible {
   opacity: 0.8;
