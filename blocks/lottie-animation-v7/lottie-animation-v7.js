@@ -4,13 +4,18 @@
  * Authors set animation path/URL in block table: animation | URL or path.
  *
  * EDS: Uses lottie-web SVG renderer only (no <lottie-player> — Shadow DOM/WASM fails on EDS CSP).
- * AE expressions (e.g. loopOut('cycle')) are expanded to keyframes so the expression evaluator is not used.
- * Debug: ?lottie=immediate for immediate load; window.lottie.getRegisteredAnimations() to confirm load.
+ * AE expressions (e.g. loopOut('cycle')) are expanded to keyframes
+ * so the expression evaluator is not used.
+ * Debug: ?lottie=immediate for immediate load;
+ * window.lottie.getRegisteredAnimations() to confirm load.
  */
 import { readBlockConfig } from '../../scripts/aem.js';
 
 const LOTTIE_WEB_SCRIPT = 'https://unpkg.com/lottie-web@5.12.2/build/player/lottie_light.min.js';
-const DEBUG = true; // set false in production; helps trace "Lottie:" in console
+const DEBUG = false;
+let lottieScriptPromise;
+const lottieAnimationMap = new WeakMap();
+const lottieCleanupMap = new WeakMap();
 
 function log(...args) {
   if (DEBUG && typeof console !== 'undefined' && console.info) {
@@ -19,19 +24,36 @@ function log(...args) {
 }
 
 function loadScript(src) {
+  if (lottieScriptPromise) {
+    return lottieScriptPromise;
+  }
+
+  const existing = document.querySelector(`script[src="${src}"]`);
+  if (existing?.dataset.loaded === 'true') {
+    lottieScriptPromise = Promise.resolve();
+    return lottieScriptPromise;
+  }
+
   return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${src}"]`);
-    if (existing) {
-      log('script already on page');
-      resolve();
-      return;
-    }
-    const script = document.createElement('script');
+    const script = existing || document.createElement('script');
     script.src = src;
     script.async = true;
-    script.onload = () => { log('script loaded'); resolve(); };
+    script.onload = () => {
+      script.dataset.loaded = 'true';
+      log('script loaded');
+      resolve();
+    };
     script.onerror = () => reject(new Error(`Script failed: ${src}`));
-    document.body.appendChild(script);
+
+    if (!existing) {
+      document.body.appendChild(script);
+    }
+  }).then((result) => {
+    lottieScriptPromise = Promise.resolve(result);
+    return result;
+  }).catch((error) => {
+    lottieScriptPromise = null;
+    throw error;
   });
 }
 
@@ -124,8 +146,13 @@ function stripRemainingExpressions(obj, seen = new Set()) {
 
 function isWhiteFill(shape) {
   if (shape?.ty !== 'fl' || !shape.c) return false;
-  const k = shape.c.k;
-  const vals = Array.isArray(k) ? k : (k?.a === 0 && Array.isArray(k.k) ? k.k : null);
+  const { k } = shape.c;
+  let vals = null;
+  if (Array.isArray(k)) {
+    vals = k;
+  } else if (k?.a === 0 && Array.isArray(k.k)) {
+    vals = k.k;
+  }
   if (!vals || vals.length < 3) return false;
   const [r, g, b] = vals;
   return r >= 0.99 && g >= 0.99 && b >= 0.99;
@@ -163,6 +190,7 @@ function stripWhiteBackgroundLayers(data) {
 
 function loadLottieIntoContainer(container) {
   const jsonUrl = container.getAttribute('data-jsonsrc');
+  const fallbackJsonUrl = container.getAttribute('data-fallback-jsonsrc');
   if (!jsonUrl) {
     log('no data-jsonsrc');
     return;
@@ -173,14 +201,16 @@ function loadLottieIntoContainer(container) {
   }
   container.dataset.lottieLoaded = 'true';
   container.dataset.lottieStatus = 'loading';
+  container.setAttribute('aria-busy', 'true');
+  container.innerHTML = '';
 
   const showError = (msg, err) => {
     container.dataset.lottieStatus = 'error';
+    container.removeAttribute('aria-busy');
     container.innerHTML = '';
     const p = document.createElement('p');
     p.className = 'lottie-error';
     p.textContent = msg;
-    p.style.cssText = 'padding:1rem;color:#c00;font-size:0.875rem;';
     container.appendChild(p);
     if (err && console && console.error) {
       console.error('[Lottie]', msg, err);
@@ -198,18 +228,27 @@ function loadLottieIntoContainer(container) {
   inner.style.width = '100%';
   container.appendChild(inner);
 
+  const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const lottieReady = window.lottie
     && typeof window.lottie.loadAnimation === 'function';
   const scriptPromise = lottieReady
     ? Promise.resolve()
     : loadScript(LOTTIE_WEB_SCRIPT).then(() => waitForLottie());
 
+  const fetchAnimationJson = (url) => fetch(url).then((res) => {
+    if (!res.ok) throw new Error(`JSON ${res.status}: ${url}`);
+    return res.json();
+  });
+
   scriptPromise
-    .then(() => fetch(absoluteUrl))
-    .then((res) => {
-      if (!res.ok) throw new Error(`JSON ${res.status}: ${absoluteUrl}`);
-      return res.json();
-    })
+    .then(() => fetchAnimationJson(absoluteUrl).catch((error) => {
+      if (!fallbackJsonUrl || fallbackJsonUrl === absoluteUrl) throw error;
+      log('falling back to default animation json');
+      return fetchAnimationJson(toAbsoluteJsonUrl(fallbackJsonUrl));
+    }))
     .then((animationData) => {
       log('JSON loaded, frames/layers:', animationData?.op != null ? 'yes' : 'no');
       expandTmCycles(animationData);
@@ -226,17 +265,56 @@ function loadLottieIntoContainer(container) {
         const anim = lottie.loadAnimation({
           container: inner,
           renderer: useCanvas ? 'canvas' : 'svg',
-          loop: true,
-          autoplay: true,
+          loop: !prefersReducedMotion,
+          autoplay: !prefersReducedMotion,
           animationData,
           initialSegment: [startFrame, endFrame],
           rendererSettings: useCanvas
             ? { preserveAspectRatio: 'xMidYMid meet' }
             : { preserveAspectRatio: 'xMidYMid meet', progressiveLoad: false },
         });
+
         container.dataset.lottieStatus = 'loaded';
+        container.removeAttribute('aria-busy');
+        lottieAnimationMap.set(container, anim);
+
+        const playOrPause = (inView) => {
+          if (!anim || typeof anim.play !== 'function' || typeof anim.pause !== 'function') return;
+          if (prefersReducedMotion) {
+            anim.goToAndStop(startFrame, true);
+            return;
+          }
+          if (document.hidden || !inView) {
+            anim.pause();
+          } else {
+            anim.play();
+          }
+        };
+
+        const visibilityObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            playOrPause(entry.isIntersecting);
+          });
+        }, { threshold: 0.05 });
+        visibilityObserver.observe(container);
+
+        const onVisibilityChange = () => {
+          const rect = container.getBoundingClientRect();
+          const inView = rect.bottom >= 0 && rect.top <= window.innerHeight;
+          playOrPause(inView);
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        lottieCleanupMap.set(container, () => {
+          visibilityObserver.disconnect();
+          document.removeEventListener('visibilitychange', onVisibilityChange);
+        });
+
         if (anim && typeof anim.play === 'function') {
-          anim.play();
+          if (prefersReducedMotion) {
+            anim.goToAndStop(startFrame, true);
+          } else {
+            anim.play();
+          }
         }
         log(
           'animation started',
@@ -302,7 +380,12 @@ function getCommunityNameFromUrl() {
   if (!path.includes('communities/details')) return null;
   const name = new URL(window.location.href).searchParams.get('name');
   if (!name || !name.trim()) return null;
-  return String(name).trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || null;
+  const slug = String(name)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return slug || null;
 }
 
 function getDefaultJsonUrl() {
@@ -324,6 +407,7 @@ export default function decorate(block) {
   const raw = (config.animation && config.animation.trim())
     ? config.animation.trim() : getDefaultJsonUrl();
   const jsonUrl = toAbsoluteJsonUrl(raw);
+  const fallbackJsonUrl = toAbsoluteJsonUrl('/blocks/lottie-animation-v7/panels.json');
 
   log('block decorate (v7 Panels)', jsonUrl);
 
@@ -331,6 +415,7 @@ export default function decorate(block) {
   container.id = `lottie-v7-${lottieV7BlockCount += 1}`;
   container.className = 'e-lottie__animation lottie-lazy lottie-container';
   container.setAttribute('data-jsonsrc', jsonUrl);
+  container.setAttribute('data-fallback-jsonsrc', fallbackJsonUrl);
   container.setAttribute('data-lottie-renderer', 'svg');
   container.setAttribute('role', 'img');
   container.setAttribute('aria-label', 'Animation');

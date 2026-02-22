@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 20px;
+  gap: var(--heading-margin-bottom);
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
@@ -14,7 +14,7 @@
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  padding: 72px 16px 18px;
+  padding: calc(var(--event-card-header-height) - var(--space-m)) var(--space-m) var(--space-s);
   min-height: 252px;
 }
 
@@ -22,20 +22,20 @@
   content: '';
   position: absolute;
   inset: 0 0 auto;
-  height: 88px;
-  background: linear-gradient(180deg, #6f55e8 0%, #8f7bf1 46%, rgba(255, 255, 255, 0) 100%);
+  height: var(--event-card-header-height);
+  background: linear-gradient(180deg, var(--event-accent-purple) 0%, var(--event-accent-purple-light) 46%, transparent 100%);
 }
 
 .com-events > ul > li:nth-child(2)::before {
-  background: linear-gradient(180deg, #20a5df 0%, #7bcceb 46%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(180deg, var(--event-accent-blue) 0%, var(--event-accent-blue-light) 46%, transparent 100%);
 }
 
 .com-events > ul > li:nth-child(3)::before {
-  background: linear-gradient(180deg, #19bb84 0%, #7cd5b3 46%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(180deg, var(--event-accent-green) 0%, var(--event-accent-green-light) 46%, transparent 100%);
 }
 
 .com-events > ul > li:nth-child(4)::before {
-  background: linear-gradient(180deg, #ffb100 0%, #ffda77 46%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(180deg, var(--event-accent-amber) 0%, var(--event-accent-amber-light) 46%, transparent 100%);
 }
 
 .com-events > ul > li > div {
@@ -46,11 +46,11 @@
 .com-events .com-events-frequency {
   display: inline-block;
   width: fit-content;
-  margin: 0 0 11px;
-  padding: 3px 8px;
-  border-radius: 4px;
+  margin: 0 0 var(--space-m);
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-xs);
   font-family: var(--body-font-family);
-  font-size: 0.66rem;
+  font-size: var(--body-font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   line-height: 1.1;
@@ -60,7 +60,7 @@
 }
 
 .com-events .com-events-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-s);
 }
 
 .com-events .com-events-title h1,
@@ -71,9 +71,9 @@
 .com-events .com-events-title h6 {
   margin: 0;
   font-family: var(--heading-font-family);
-  font-size: 1.9rem;
-  line-height: 1.1;
-  letter-spacing: -0.015em;
+  font-size: var(--heading-font-size-s);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
   font-weight: 700;
   color: var(--text-color);
 }
@@ -83,9 +83,9 @@
 }
 
 .com-events .com-events-duration {
-  margin: 0 0 10px;
+  margin: 0 0 var(--space-m);
   font-family: var(--body-font-family);
-  font-size: 1.05rem;
+  font-size: var(--body-font-size-s);
   line-height: 1.3;
   font-weight: 500;
   color: var(--text-muted);
@@ -94,7 +94,7 @@
 .com-events .com-events-description {
   margin-top: 0;
   font-family: var(--body-font-family);
-  font-size: 1.05rem;
+  font-size: var(--body-font-size-s);
   line-height: 1.45;
   color: var(--text-muted);
 }
@@ -114,6 +114,6 @@
   .com-events .com-events-title h4,
   .com-events .com-events-title h5,
   .com-events .com-events-title h6 {
-    font-size: 1.7rem;
+    font-size: var(--heading-font-size-xs);
   }
 }

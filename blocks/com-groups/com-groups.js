@@ -7,24 +7,16 @@ function normalizeIconName(name = '') {
   return value || 'community-link';
 }
 
-function makeCardInteractive(li, destination, label = 'community') {
-  li.classList.add('is-clickable');
-  li.setAttribute('role', 'link');
-  li.setAttribute('tabindex', '0');
-  li.setAttribute('aria-label', `Open ${label} details`);
-  li.addEventListener('click', (event) => {
-    if (event.target.closest('a')) return;
-    window.location.assign(destination);
-  });
-  li.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      window.location.assign(destination);
-    }
-  });
+const ICON_SCALE_OVERRIDES = {
+  evals: 1.3,
+  'program-management': 1.2,
+};
+
+function createDetailsHref(name) {
+  return `/communities/details?name=${encodeURIComponent(name)}`;
 }
 
-function createCardFromData(item, index) {
+function createCardFromData(item) {
   const name = String(item?.name || '').trim();
   const titleText = String(item?.title || '').trim();
   const descriptionText = String(item?.description || '').trim();
@@ -33,18 +25,23 @@ function createCardFromData(item, index) {
   const iconName = normalizeIconName(name);
   const basePath = window.hlx?.codeBasePath || '';
   const iconSrc = `${basePath}/icons/${iconName}.svg`;
+  const destination = createDetailsHref(name);
 
   const li = document.createElement('li');
   li.classList.add('com-groups-card');
+  const iconScale = ICON_SCALE_OVERRIDES[iconName] || 1;
+  li.style.setProperty('--com-groups-icon-scale', String(iconScale));
 
+  const iconWrap = document.createElement('div');
+  iconWrap.className = 'com-groups-icon-wrap';
   const iconImg = document.createElement('img');
   iconImg.className = 'com-groups-icon';
   iconImg.src = iconSrc;
   iconImg.alt = '';
   iconImg.loading = 'lazy';
-  iconImg.width = 56;
-  iconImg.height = 56;
+  iconImg.decoding = 'async';
   iconImg.onerror = () => { iconImg.src = `${basePath}/icons/community-link.svg`; };
+  iconWrap.append(iconImg);
 
   const title = document.createElement('div');
   title.className = 'com-groups-title';
@@ -56,10 +53,13 @@ function createCardFromData(item, index) {
   description.className = 'com-groups-description';
   description.textContent = descriptionText;
 
-  li.append(iconImg, title, description);
+  const link = document.createElement('a');
+  link.className = 'com-groups-link';
+  link.href = destination;
+  link.setAttribute('aria-label', `Open ${titleText} details`);
+  link.textContent = `Open ${titleText}`;
 
-  const destination = `/communities/details?name=${encodeURIComponent(name)}`;
-  makeCardInteractive(li, destination, titleText);
+  li.append(iconWrap, title, description, link);
   return li;
 }
 
@@ -81,18 +81,40 @@ function getSourceUrl(block) {
   }
 }
 
+function createEmptyState() {
+  const li = document.createElement('li');
+  li.className = 'com-groups-card com-groups-empty';
+
+  const title = document.createElement('h3');
+  title.textContent = 'Communities coming soon';
+
+  const description = document.createElement('p');
+  description.textContent = 'Community groups are being updated. Please check back shortly.';
+
+  li.append(title, description);
+  return li;
+}
+
 export default async function decorate(block) {
   const ul = document.createElement('ul');
   const sourceUrl = getSourceUrl(block);
+  let hasItems = false;
 
   try {
     const items = sourceUrl ? await fetchGroupsData(sourceUrl) : [];
-    items.forEach((item, index) => {
-      const card = createCardFromData(item, index);
-      if (card) ul.append(card);
+    items.forEach((item) => {
+      const card = createCardFromData(item);
+      if (card) {
+        ul.append(card);
+        hasItems = true;
+      }
     });
   } catch (e) {
-    // keep block empty on fetch errors to avoid exposing raw config links
+    // show empty-state card instead of exposing raw config links
+  }
+
+  if (!hasItems) {
+    ul.append(createEmptyState());
   }
 
   block.textContent = '';

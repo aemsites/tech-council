@@ -1,20 +1,21 @@
 .comd-resources {
-  margin-bottom: 48px;
+  margin-bottom: var(--section-margin-bottom);
 }
 
 .comd-resources .comd-resources-heading {
-  margin: 0 0 20px;
+  margin: 0 0 var(--heading-margin-bottom);
   font-family: var(--heading-font-family);
-  font-size: 1.9rem;
+  font-size: var(--heading-font-size-m);
   line-height: 1.2;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-color);
 }
 
 .comd-resources .comd-resources-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: var(--card-gap);
 }
 
 .comd-resources .comd-resources-card {
@@ -22,7 +23,7 @@
   border-radius: var(--radius-m);
   background: var(--background-color);
   box-shadow: var(--shadow-sm);
-  padding: 24px 22px 20px;
+  padding: var(--space-ml) var(--heading-margin-bottom) var(--heading-margin-bottom);
   display: flex;
   flex-direction: column;
   min-height: 165px;
@@ -35,18 +36,19 @@
 }
 
 .comd-resources .comd-resources-card h3 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-s);
   font-family: var(--heading-font-family);
-  font-size: 1.2rem;
+  font-size: var(--heading-font-size-s);
   line-height: 1.3;
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-color);
 }
 
 .comd-resources .comd-resources-description {
-  margin: 0 0 10px;
+  margin: 0 0 var(--space-m);
   font-family: var(--body-font-family);
-  font-size: 0.95rem;
+  font-size: var(--body-font-size-s);
   line-height: 1.45;
   color: var(--text-muted);
 }
@@ -54,7 +56,7 @@
 .comd-resources .comd-resources-link {
   margin-top: auto;
   font-family: var(--body-font-family);
-  font-size: 0.95rem;
+  font-size: var(--body-font-size-s);
   line-height: 1.3;
   font-weight: 700;
   color: var(--link-color);
@@ -74,31 +76,31 @@
 .comd-resources .comd-resources-error {
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: 0.98rem;
+  font-size: var(--body-font-size-s);
   line-height: 1.45;
   color: var(--text-soft);
 }
 
 @media (width <= 900px) {
   .comd-resources .comd-resources-heading {
-    font-size: 1.45rem;
+    font-size: var(--heading-font-size-s);
   }
 
   .comd-resources .comd-resources-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: var(--card-gap-mobile);
   }
 
   .comd-resources .comd-resources-card {
-    padding: 20px 18px 18px;
+    padding: var(--card-padding-mobile);
   }
 
   .comd-resources .comd-resources-card h3 {
-    font-size: 1.05rem;
+    font-size: var(--heading-font-size-xs);
   }
 
   .comd-resources .comd-resources-description,
   .comd-resources .comd-resources-link {
-    font-size: 0.9rem;
+    font-size: var(--body-font-size-xs);
   }
 }

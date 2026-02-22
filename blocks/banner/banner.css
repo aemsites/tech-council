@@ -23,7 +23,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgb(0 0 0 / 55%);
+  background: var(--overlay-banner);
   z-index: -1; /* between image and content */
 }
 
@@ -36,7 +36,7 @@
 }
 
 .banner p {
-  max-width: 800px;
+  max-width: var(--content-max-width-narrow);
   margin: 0 0 var(--space-m);
   
 }

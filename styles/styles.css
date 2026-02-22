@@ -39,8 +39,69 @@
   --space-xs: 4px;
   --space-s: 8px;
   --space-m: 16px;
+  --space-14: 14px;
+  --space-ml: 24px;
+  --space-18: 18px;
+  --space-28: 28px;
   --space-l: 32px;
   --space-xl: 64px;
+  --space-xxl: 48px;
+
+  /* block-specific spacing (derived from scale) */
+  --section-margin-bottom: var(--space-xxl);
+  --heading-margin-bottom: 20px;
+  --card-gap: var(--space-ml);
+  --card-gap-mobile: var(--space-m);
+  --card-padding: var(--space-ml) var(--space-m) var(--space-m);
+  --card-padding-mobile: var(--heading-margin-bottom) var(--space-18) var(--space-18);
+
+  /* radius (extend existing) */
+  --radius-xs: 4px;
+  --radius-carousel: 16px;
+
+  /* carousel / nav */
+  --carousel-padding-mobile: 60px;
+  --carousel-content-margin: 68px;
+  --carousel-padding-tablet: 70px;
+  --carousel-padding-desktop: 74px;
+  --carousel-gradient-width: 64px;
+  --nav-button-size: 44px;
+
+  /* icon / component sizes */
+  --icon-size-s: 22px;
+  --icon-size-m: 28px;
+  --icon-size-l: 44px;
+  --icon-size-xl: 64px;
+  --icon-wrap-size: 72px;
+  --icon-wrap-size-desktop: 96px;
+
+  /* layout */
+  --content-max-width-narrow: 800px;
+  --card-hover-lift: -6px;
+
+  /* overlays & surfaces */
+  --overlay-border-light: rgb(255 255 255 / 35%);
+  --overlay-banner: rgb(0 0 0 / 55%);
+  --gradient-edge-start: rgb(255 255 255 / 96%);
+  --gradient-edge-end: rgb(255 255 255 / 0%);
+  --surface-tint-light: #f5f3ff;
+  --surface-tint-lighter: #ede9fe;
+  --shadow-tint: 0 2px 8px rgb(99 102 241 / 8%);
+
+  /* event card layout */
+  --event-card-header-height: 88px;
+  --event-card-bg: rgb(255 255 255 / 50%);
+  --event-card-bg-hover: rgb(255 255 255 / 65%);
+
+  /* event card gradients */
+  --event-accent-purple: #6f55e8;
+  --event-accent-purple-light: #8f7bf1;
+  --event-accent-blue: #20a5df;
+  --event-accent-blue-light: #7bcceb;
+  --event-accent-green: #19bb84;
+  --event-accent-green-light: #7cd5b3;
+  --event-accent-amber: #ffb100;
+  --event-accent-amber-light: #ffda77;
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;

@@ -3,7 +3,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 14px;
+  gap: clamp(14px, 2vw, 22px);
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
@@ -14,33 +14,42 @@
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  padding: 88px 18px 16px;
-  min-height: 196px;
+  padding: calc(var(--space-l) + 56px) var(--space-m) var(--space-m);
+  min-height: 208px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.com-groups .com-groups-card.is-clickable {
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.com-groups .com-groups-card.is-clickable:hover,
-.com-groups .com-groups-card.is-clickable:focus-visible {
+.com-groups .com-groups-card:hover,
+.com-groups .com-groups-card:focus-within {
   border-color: var(--border-subtle);
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.com-groups .com-groups-card .com-groups-icon-wrap {
+  position: absolute;
+  top: var(--space-m);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(72%, 190px);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
 .com-groups .com-groups-card .com-groups-icon {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  width: 56px;
-  height: 56px;
-  transform: translateX(-50%);
+  width: auto;
+  height: 42px;
+  max-width: 100%;
   object-fit: contain;
+  transform: scale(var(--com-groups-icon-scale, 1));
+  transform-origin: center;
 }
 
 .com-groups .com-groups-title {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-s);
 }
 
 .com-groups .com-groups-title h1,
@@ -51,9 +60,9 @@
 .com-groups .com-groups-title h6 {
   margin: 0;
   font-family: var(--heading-font-family);
-  font-size: 1.12rem;
+  font-size: var(--heading-font-size-s);
   line-height: 1.25;
-  letter-spacing: 0;
+  letter-spacing: -0.02em;
   font-weight: 700;
   color: var(--text-color);
 }
@@ -74,35 +83,22 @@
 .com-groups .com-groups-description {
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: 0.92rem;
-  line-height: 1.4;
+  font-size: var(--body-font-size-s);
+  line-height: 1.52;
   color: var(--text-soft);
 }
 
-.com-groups .com-groups-description a {
-  color: inherit;
-  text-decoration: none;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  box-shadow: none;
-  border-radius: 0;
-  font-size: inherit;
-  font-weight: inherit;
-  line-height: inherit;
+.com-groups .com-groups-link {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  text-indent: -9999px;
+  overflow: hidden;
 }
 
-.com-groups .com-groups-description h1,
-.com-groups .com-groups-description h2,
-.com-groups .com-groups-description h3,
-.com-groups .com-groups-description h4,
-.com-groups .com-groups-description h5,
-.com-groups .com-groups-description h6 {
-  margin: 0;
-  font-size: inherit;
-  line-height: inherit;
-  font-weight: 400;
+.com-groups .com-groups-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .com-groups .com-groups-add-card::after {
@@ -115,7 +111,7 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: var(--space-s);
 }
 
 .com-groups .com-groups-add-card .com-groups-add-icon {
@@ -128,8 +124,24 @@
 .com-groups .com-groups-add-card p {
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: 0.99rem;
+  font-size: var(--body-font-size-s);
   font-weight: 600;
+  color: var(--text-soft);
+}
+
+.com-groups .com-groups-empty {
+  min-height: 0;
+  padding: var(--space-l) var(--space-m);
+  text-align: center;
+}
+
+.com-groups .com-groups-empty h3 {
+  margin: 0 0 var(--space-s);
+  font-size: var(--heading-font-size-s);
+}
+
+.com-groups .com-groups-empty p {
+  margin: 0;
   color: var(--text-soft);
 }
 
