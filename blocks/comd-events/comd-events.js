@@ -84,7 +84,8 @@ function createEventItem(event) {
   const content = document.createElement('div');
   content.className = 'comd-events-content';
 
-  const title = document.createElement('h3');
+  const title = document.createElement('p');
+  title.className = 'comd-events-title';
   title.textContent = event.title || '';
 
   const meta = document.createElement('p');
@@ -123,15 +124,11 @@ export default async function decorate(block) {
     const queryName = new URL(window.location.href).searchParams.get('name');
     const filtered = resolveCommunityEvents(records, queryName);
 
-    const heading = document.createElement('h2');
-    heading.className = 'comd-events-heading';
-    heading.textContent = 'Events';
-
     if (!filtered.length) {
       const empty = document.createElement('p');
       empty.className = 'comd-events-empty';
       empty.textContent = 'No events.';
-      block.append(heading, empty);
+      block.append(empty);
       return;
     }
 
@@ -147,7 +144,7 @@ export default async function decorate(block) {
     list.className = 'comd-events-list';
     [...upcoming, ...past].forEach((entry) => list.append(entry.item));
 
-    block.append(heading, list);
+    block.append(list);
   } catch (e) {
     const fallback = document.createElement('p');
     fallback.className = 'comd-events-error';

@@ -2,16 +2,6 @@
   margin-bottom: var(--section-margin-bottom);
 }
 
-.comd-roles .comd-roles-heading {
-  margin: 0 0 var(--heading-margin-bottom);
-  font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-m);
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-color);
-}
-
 .comd-roles .comd-roles-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -84,10 +74,6 @@
 }
 
 @media (width <= 900px) {
-  .comd-roles .comd-roles-heading {
-    font-size: var(--heading-font-size-s);
-  }
-
   .comd-roles .comd-roles-grid {
     grid-template-columns: 1fr;
     gap: var(--card-gap-mobile);

@@ -70,7 +70,8 @@ function createRecordingCard(record) {
   const body = document.createElement('div');
   body.className = 'comd-recordings-card-body';
 
-  const title = document.createElement('h3');
+  const title = document.createElement('p');
+  title.className = 'comd-recordings-title';
   title.textContent = record.title || '';
 
   const dateText = formatSheetDate(record.date);
@@ -118,15 +119,11 @@ export default async function decorate(block) {
     const queryName = new URL(window.location.href).searchParams.get('name');
     const filtered = resolveCommunityRecords(records, queryName);
 
-    const heading = document.createElement('h2');
-    heading.className = 'comd-recordings-heading';
-    heading.textContent = 'Recordings';
-
     if (!filtered.length) {
       const empty = document.createElement('p');
       empty.className = 'comd-recordings-empty';
       empty.textContent = 'No recordings.';
-      block.append(heading, empty);
+      block.append(empty);
       return;
     }
 
@@ -134,7 +131,7 @@ export default async function decorate(block) {
     grid.className = 'comd-recordings-grid';
     filtered.forEach((record) => grid.append(createRecordingCard(record)));
 
-    block.append(heading, grid);
+    block.append(grid);
   } catch (e) {
     const fallback = document.createElement('p');
     fallback.className = 'comd-recordings-error';

@@ -1,3 +1,4 @@
+import { decorateIcons } from '../../scripts/aem.js';
 import { fetchPlaceholders } from '../../scripts/placeholders.js';
 
 /**
@@ -81,10 +82,75 @@ function bindCarouselEvents(block, ul, prevButton, nextButton) {
   });
 }
 
-export default async function decorate(block) {
-  const placeholders = await fetchPlaceholders();
-  const ul = document.createElement('ul');
+function toRelativeUrl(input) {
+  if (!input) return '';
+  try {
+    const parsed = new URL(input, window.location.origin);
+    return `${parsed.pathname}${parsed.search}`;
+  } catch (e) {
+    return '';
+  }
+}
 
+/**
+ * Data-source mode trigger:
+ * icon-cards block has exactly 1 row and 1 cell with a URL.
+ */
+function getSourceUrl(block) {
+  const rows = [...block.children];
+  if (rows.length !== 1) return '';
+  const cells = [...rows[0].children];
+  if (cells.length !== 1) return '';
+
+  const cell = cells[0];
+  const link = cell.querySelector('a[href]')?.href;
+  const raw = cell.textContent?.trim();
+  return toRelativeUrl(link || raw);
+}
+
+function createCardFromRecord(record = {}) {
+  const li = document.createElement('li');
+  li.className = 'icon-cards-card';
+
+  const iconWrap = document.createElement('div');
+  iconWrap.className = 'icon-cards-card-icon';
+  const iconName = String(record.icon || '').trim();
+  if (iconName) {
+    const icon = document.createElement('span');
+    icon.className = `icon icon-${iconName}`;
+    iconWrap.append(icon);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'icon-cards-card-body';
+
+  const title = document.createElement('h3');
+  const titleText = String(record.title || '').trim();
+  title.textContent = titleText;
+
+  const description = document.createElement('p');
+  description.textContent = String(record.description || '').trim();
+
+  body.append(title, description);
+
+  const destination = String(record.link || '').trim();
+  if (destination) {
+    li.classList.add('has-link');
+    const titleLink = document.createElement('a');
+    titleLink.href = destination;
+    titleLink.target = '_blank';
+    titleLink.rel = 'noopener';
+    titleLink.textContent = titleText || destination;
+    title.textContent = '';
+    title.append(titleLink);
+  }
+
+  li.append(iconWrap, body);
+  return li;
+}
+
+function buildListFromAuthoredRows(block) {
+  const ul = document.createElement('ul');
   [...block.children].forEach((row) => {
     const li = document.createElement('li');
     li.className = 'icon-cards-card';
@@ -93,7 +159,6 @@ export default async function decorate(block) {
     [...li.children].forEach((div, idx) => {
       if (idx === 0) {
         div.className = 'icon-cards-card-icon';
-        // icon decoration handled globally to avoid duplicates
       } else {
         div.className = 'icon-cards-card-body';
       }
@@ -101,6 +166,39 @@ export default async function decorate(block) {
 
     ul.append(li);
   });
+  return ul;
+}
+
+async function buildListFromDataSource(sourceUrl) {
+  const ul = document.createElement('ul');
+  const response = await fetch(sourceUrl, {
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
+  });
+  if (!response.ok) throw new Error(`Failed to fetch ${sourceUrl}`);
+
+  const payload = await response.json();
+  const records = Array.isArray(payload?.data) ? payload.data : [];
+  records.forEach((record) => {
+    ul.append(createCardFromRecord(record));
+  });
+  return ul;
+}
+
+export default async function decorate(block) {
+  const placeholders = await fetchPlaceholders();
+  const sourceUrl = getSourceUrl(block);
+  block.classList.toggle('icon-cards-data-source', Boolean(sourceUrl));
+  let ul;
+  if (sourceUrl) {
+    try {
+      ul = await buildListFromDataSource(sourceUrl);
+    } catch (e) {
+      ul = document.createElement('ul');
+    }
+  } else {
+    ul = buildListFromAuthoredRows(block);
+  }
 
   block.textContent = '';
 
@@ -132,6 +230,7 @@ export default async function decorate(block) {
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener');
   });
+  decorateIcons(ul);
 
   slidesContainer.appendChild(ul);
   slidesContainer.appendChild(navButtons);

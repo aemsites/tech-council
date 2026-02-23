@@ -81,7 +81,8 @@ export default async function decorate(block) {
 
     const content = document.createElement('div');
     content.className = 'comd-details-content';
-    const title = document.createElement('h2');
+    const title = document.createElement('p');
+    title.className = 'comd-details-title';
     title.textContent = selected.title || '';
     const description = document.createElement('p');
     description.textContent = selected.description || '';

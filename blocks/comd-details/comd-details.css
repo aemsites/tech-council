@@ -39,7 +39,7 @@
   min-width: 0;
 }
 
-.comd-details .comd-details-content h2 {
+.comd-details .comd-details-title {
   margin: 0 0 var(--space-m);
   font-family: var(--heading-font-family);
   font-size: var(--heading-font-size-m);
@@ -80,7 +80,7 @@
     height: 40px;
   }
 
-  .comd-details .comd-details-content h2 {
+  .comd-details .comd-details-title {
     font-size: var(--heading-font-size-s);
   }
 

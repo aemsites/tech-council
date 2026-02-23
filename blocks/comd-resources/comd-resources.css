@@ -2,16 +2,6 @@
   margin-bottom: var(--section-margin-bottom);
 }
 
-.comd-resources .comd-resources-heading {
-  margin: 0 0 var(--heading-margin-bottom);
-  font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-m);
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-color);
-}
-
 .comd-resources .comd-resources-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -35,7 +25,7 @@
   box-shadow: var(--shadow-md);
 }
 
-.comd-resources .comd-resources-card h3 {
+.comd-resources .comd-resources-title {
   margin: 0 0 var(--space-s);
   font-family: var(--heading-font-family);
   font-size: var(--heading-font-size-s);
@@ -82,10 +72,6 @@
 }
 
 @media (width <= 900px) {
-  .comd-resources .comd-resources-heading {
-    font-size: var(--heading-font-size-s);
-  }
-
   .comd-resources .comd-resources-grid {
     grid-template-columns: 1fr;
     gap: var(--card-gap-mobile);
@@ -95,7 +81,7 @@
     padding: var(--card-padding-mobile);
   }
 
-  .comd-resources .comd-resources-card h3 {
+  .comd-resources .comd-resources-title {
     font-size: var(--heading-font-size-xs);
   }
 

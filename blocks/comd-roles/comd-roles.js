@@ -49,7 +49,7 @@ function createRoleCard(record) {
       </svg>
     </div>
     <p class="comd-roles-role">${record.role || ''}</p>
-    <h3 class="comd-roles-name">${record.emp || ''}</h3>
+    <p class="comd-roles-name">${record.emp || ''}</p>
   `;
   return card;
 }
@@ -74,15 +74,11 @@ export default async function decorate(block) {
     const filtered = resolveCommunityRoles(records, queryName)
       .sort((a, b) => roleRank(a.role) - roleRank(b.role));
 
-    const heading = document.createElement('h2');
-    heading.className = 'comd-roles-heading';
-    heading.textContent = 'People in roles';
-
     if (!filtered.length) {
       const empty = document.createElement('p');
       empty.className = 'comd-roles-empty';
       empty.textContent = 'No people in roles.';
-      block.append(heading, empty);
+      block.append(empty);
       return;
     }
 
@@ -90,7 +86,7 @@ export default async function decorate(block) {
     grid.className = 'comd-roles-grid';
     filtered.forEach((record) => grid.append(createRoleCard(record)));
 
-    block.append(heading, grid);
+    block.append(grid);
   } catch (e) {
     const fallback = document.createElement('p');
     fallback.className = 'comd-roles-error';

@@ -2,16 +2,6 @@
   margin-bottom: var(--section-margin-bottom);
 }
 
-.comd-recordings .comd-recordings-heading {
-  margin: 0 0 var(--heading-margin-bottom);
-  font-family: var(--heading-font-family);
-  font-size: var(--heading-font-size-m);
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-color);
-}
-
 .comd-recordings .comd-recordings-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -57,7 +47,7 @@
   padding: var(--heading-margin-bottom) var(--heading-margin-bottom) var(--heading-margin-bottom);
 }
 
-.comd-recordings .comd-recordings-card-body h3 {
+.comd-recordings .comd-recordings-title {
   margin: 0 0 var(--space-s);
   font-family: var(--heading-font-family);
   font-size: var(--heading-font-size-s);
@@ -105,10 +95,6 @@
 }
 
 @media (width <= 900px) {
-  .comd-recordings .comd-recordings-heading {
-    font-size: var(--heading-font-size-s);
-  }
-
   .comd-recordings .comd-recordings-grid {
     grid-template-columns: 1fr;
     gap: var(--card-gap-mobile);
@@ -127,7 +113,7 @@
     height: var(--space-l);
   }
 
-  .comd-recordings .comd-recordings-card-body h3 {
+  .comd-recordings .comd-recordings-title {
     font-size: var(--heading-font-size-xs);
   }
 

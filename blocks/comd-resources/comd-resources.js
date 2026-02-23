@@ -40,11 +40,25 @@ function parseDateValue(value) {
   return Number.MIN_SAFE_INTEGER;
 }
 
+function resolveResourceCtaLabel(record = {}) {
+  const labelSource = [
+    record.type,
+    record.category,
+    record.format,
+    record.resourceType,
+    record.title,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  if (labelSource.includes('playbook')) return 'Read playbook →';
+  return 'View resource →';
+}
+
 function createResourceCard(record) {
   const card = document.createElement('article');
   card.className = 'comd-resources-card';
 
-  const title = document.createElement('h3');
+  const title = document.createElement('p');
+  title.className = 'comd-resources-title';
   title.textContent = record.title || '';
 
   const description = document.createElement('p');
@@ -54,7 +68,7 @@ function createResourceCard(record) {
   const link = document.createElement('a');
   link.className = 'comd-resources-link';
   link.href = (record.link || '').trim() || '#';
-  link.textContent = 'Read playbook →';
+  link.textContent = resolveResourceCtaLabel(record);
   link.target = '_blank';
   link.rel = 'noopener';
 
@@ -87,15 +101,11 @@ export default async function decorate(block) {
     const filtered = resolveCommunityResources(records, queryName)
       .sort((a, b) => parseDateValue(b.date) - parseDateValue(a.date));
 
-    const heading = document.createElement('h2');
-    heading.className = 'comd-resources-heading';
-    heading.textContent = 'Content & playbooks';
-
     if (!filtered.length) {
       const empty = document.createElement('p');
       empty.className = 'comd-resources-empty';
       empty.textContent = 'No resources.';
-      block.append(heading, empty);
+      block.append(empty);
       return;
     }
 
@@ -103,7 +113,7 @@ export default async function decorate(block) {
     grid.className = 'comd-resources-grid';
     filtered.forEach((record) => grid.append(createResourceCard(record)));
 
-    block.append(heading, grid);
+    block.append(grid);
   } catch (e) {
     const fallback = document.createElement('p');
     fallback.className = 'comd-resources-error';

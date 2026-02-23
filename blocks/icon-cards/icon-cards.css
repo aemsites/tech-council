@@ -57,6 +57,43 @@
   line-height: 1.45;
 } 
 
+/* Data-source mode polish (does not affect authored icon-cards) */
+.icon-cards.icon-cards-data-source .icon-cards-carousel-wrapper .icon-cards-card {
+  padding: var(--space-ml) var(--space-ml) var(--space-ml);
+}
+
+.icon-cards.icon-cards-data-source .icon-cards-card-icon {
+  margin-bottom: var(--space-m);
+}
+
+.icon-cards.icon-cards-data-source .icon-cards-card-icon span.icon,
+.icon-cards.icon-cards-data-source .icon-cards-card-icon svg,
+.icon-cards.icon-cards-data-source .icon-cards-card-icon img {
+  width: var(--icon-size-l);
+  height: var(--icon-size-l);
+}
+
+.icon-cards.icon-cards-data-source .icon-cards-card-body h3 {
+  margin: 0 0 var(--space-s);
+  line-height: 1.25;
+}
+
+.icon-cards.icon-cards-data-source .icon-cards-card-body h3 a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.icon-cards.icon-cards-data-source .icon-cards-card-body h3 a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+.icon-cards.icon-cards-data-source .icon-cards-card-body p {
+  margin: 0;
+  max-width: 24ch;
+  margin-inline: auto;
+}
+
 /* --- Improved Carousel Styles --- */
 
 .icon-cards {
