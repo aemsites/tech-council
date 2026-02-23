@@ -139,7 +139,7 @@ function buildRecordingsCard(row, rowIdx) {
 
   const speakerEl = document.createElement('p');
   speakerEl.className = 'recordings-speaker';
-  speakerEl.textContent = speaker || '';
+  speakerEl.textContent = speaker ? `By ${speaker}` : '';
   if (!speaker) speakerEl.classList.add('is-empty');
   body.append(speakerEl);
 
