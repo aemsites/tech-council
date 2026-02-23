@@ -1,338 +1,485 @@
-/* Recordings Block — toolbar, two items per row, shared icon per card */
+/* Recordings Block — left sidebar (filters + sort), main content grid of cards */
 
-.recordings-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px 24px;
-    margin-bottom: 24px;
+.recordings-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px 40px;
+  align-items: flex-start;
 }
 
-.recordings-search-wrap {
-    flex: 1;
-    min-width: 200px;
+/* Left sidebar: filters and sort (Amazon-style) */
+.recordings-sidebar {
+  flex: 0 0 260px;
+  min-width: 220px;
+  position: sticky;
+  top: 24px;
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 16px rgba(106, 56, 255, 0.04);
 }
 
-.recordings-search {
-    width: 100%;
-    max-width: 320px;
-    padding: 10px 16px 10px 40px;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 10px;
-    font-size: var(--body-font-size-m);
-    color: var(--text-color);
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
-    background-size: 18px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+.recordings-filter-group {
+  margin-bottom: 22px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7);
 }
 
-.recordings-search::placeholder {
-    color: #94a3b8;
+.recordings-filter-group:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
-.recordings-search:hover,
-.recordings-search:focus {
-    border-color: rgba(106, 56, 255, 0.4);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(106, 56, 255, 0.1);
+.recordings-filter-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
 }
 
-.recordings-sort-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.recordings-sidebar .recordings-search {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 10px;
+  font-size: var(--body-font-size-m);
+  color: var(--text-color);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+  background-size: 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.recordings-sort-label {
-    font-size: var(--body-font-size-s);
-    font-weight: 500;
-    color: var(--text-color);
+.recordings-sidebar .recordings-search::placeholder {
+  color: #94a3b8;
 }
 
-.recordings-sort {
-    padding: 10px 36px 10px 14px;
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    border-radius: 10px;
-    font-size: var(--body-font-size-m);
-    color: var(--text-color);
-    background: #fff;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L2 4h8L6 8z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    transition: border-color 0.2s;
+.recordings-sidebar .recordings-search:hover,
+.recordings-sidebar .recordings-search:focus {
+  border-color: rgba(106, 56, 255, 0.4);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(106, 56, 255, 0.1);
 }
 
-.recordings-sort:hover,
-.recordings-sort:focus {
-    border-color: rgba(106, 56, 255, 0.4);
-    outline: none;
+.recordings-sidebar .recordings-search:focus-visible {
+  box-shadow: 0 0 0 3px rgba(106, 56, 255, 0.15);
+}
+
+.recordings-sidebar .recordings-sort {
+  width: 100%;
+  padding: 10px 36px 10px 12px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 10px;
+  font-size: var(--body-font-size-m);
+  color: var(--text-color);
+  background: #fff;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L2 4h8L6 8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.2s;
+}
+
+.recordings-sidebar .recordings-sort:hover,
+.recordings-sidebar .recordings-sort:focus {
+  border-color: rgba(106, 56, 255, 0.4);
+  outline: none;
+}
+
+.recordings-sidebar .recordings-sort:focus-visible {
+  box-shadow: 0 0 0 2px rgba(106, 56, 255, 0.2);
+}
+
+.recordings-filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recordings-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--body-font-size-s);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.recordings-filter-option:focus-within {
+  outline: none;
+}
+
+.recordings-filter-option input[type="radio"],
+.recordings-filter-option input[type="checkbox"] {
+  accent-color: var(--link-color);
+  cursor: pointer;
+}
+
+.recordings-filter-option input[type="radio"]:focus-visible,
+.recordings-filter-option input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
 }
 
 .recordings-empty {
-    margin: 32px 0 0;
-    padding: 24px;
-    text-align: center;
-    color: #64748b;
-    font-size: var(--body-font-size-m);
+  margin: 32px 0 0;
+  padding: 28px 24px;
+  text-align: center;
+  color: #64748b;
+  font-size: var(--body-font-size-s);
+  line-height: 1.5;
+}
+
+/* Main content area */
+.recordings-main {
+  flex: 1;
+  min-width: 0;
 }
 
 .recordings-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 28px 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px 32px;
 }
 
 .recordings-list.is-empty {
-    display: none;
+  display: none;
 }
 
 .recordings-list > li {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: 20px;
-    min-height: 0;
-    background: linear-gradient(145deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(248, 250, 252, 0.9) 100%);
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: 20px;
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.05),
-        0 2px 4px -1px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 28px 24px;
-    position: relative;
-    overflow: hidden;
-    /* entry animation */
-    animation: recordings-fade-up 0.5s ease calc(var(--i, 0) * 60ms) both;
-    will-change: transform, opacity;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 14px;
+  min-height: 0;
+  background: linear-gradient(145deg, #ffffff 0%, rgba(252, 253, 255, 0.98) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.75);
+  border-radius: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 26px 24px;
+  position: relative;
+  overflow: hidden;
+  animation: recordings-fade-up 0.5s ease calc(var(--i, 0) * 60ms) both;
 }
 
 .recordings-list > li.reveal {
-    animation: recordings-fade-up 0.45s ease both;
+  animation: recordings-fade-up 0.45s ease both;
 }
 
 @keyframes recordings-fade-up {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .recordings-list > li,
-    .recordings-list > li.reveal {
-        animation: none !important;
-    }
+  .recordings-list > li,
+  .recordings-list > li.reveal {
+    animation: none !important;
+  }
 }
 
 .recordings-list > li::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg,
-    var(--link-color) 0%,
-    rgba(106, 56, 255, 0.6) 50%,
-    rgba(106, 56, 255, 0.3) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+  var(--link-color) 0%,
+  rgba(106, 56, 255, 0.6) 50%,
+  rgba(106, 56, 255, 0.3) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .recordings-list > li:hover,
 .recordings-list > li:focus-within {
-    transform: translateY(-6px);
-    box-shadow:
-        0 12px 24px -4px rgba(0, 0, 0, 0.08),
-        0 6px 12px -2px rgba(0, 0, 0, 0.05);
-    border-color: rgba(106, 56, 255, 0.2);
+  transform: translateY(-4px);
+  box-shadow:
+      0 10px 24px -4px rgba(0, 0, 0, 0.08),
+      0 4px 12px -2px rgba(106, 56, 255, 0.06);
+  border-color: rgba(106, 56, 255, 0.18);
 }
 
 .recordings-list > li:hover::before,
 .recordings-list > li:focus-within::before {
-    opacity: 1;
+  opacity: 1;
 }
 
-/* Shared icon for every card */
+/* Custom tooltip for icon links */
+.recordings [data-tooltip] {
+  position: relative;
+}
+
+.recordings [data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #fff;
+  background: #334155;
+  padding: 5px 10px;
+  border-radius: 6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+}
+
+.recordings [data-tooltip]:hover::after,
+.recordings [data-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+
+.recordings .recordings-card-presentation-link[data-tooltip]::after {
+  font-size: 0.625rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+}
+
+/* Column: play icon on top, optional presentation icon below */
+.recordings-card-icons {
+  flex: 0 0 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* When icon is wrapped in a link (clickable), the link takes the icon slot */
+.recordings .recordings-card-icon-link {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--link-color);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  border-radius: 50%;
+}
+
+.recordings .recordings-card-icon-link:hover {
+  color: rgba(106, 56, 255, 0.95);
+}
+
+.recordings .recordings-card-icon-link:hover .recordings-card-icon {
+  transform: scale(1.15) translateY(-3px);
+  color: inherit;
+  filter: drop-shadow(0 4px 12px rgba(106, 56, 255, 0.35));
+}
+
+.recordings .recordings-card-icon-link:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 4px;
+}
+
 .recordings .recordings-card-icon {
-    flex: 0 0 72px;
-    width: 72px;
-    height: 72px;
-    line-height: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--link-color);
-    transition: transform 0.3s ease, color 0.2s ease;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, filter 0.25s ease;
 }
 
+.recordings-list > li:hover .recordings-card-icon-link:not(:hover) .recordings-card-icon,
 .recordings-list > li:hover .recordings-card-icon {
-    transform: scale(1.08);
-    color: rgba(106, 56, 255, 0.9);
+  transform: scale(1.08);
+  color: rgba(106, 56, 255, 0.9);
 }
 
 .recordings .recordings-card-icon svg {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
+}
+
+/* Presentation icon (PowerPoint) below play — only shown when presentation link exists */
+.recordings .recordings-card-presentation-link {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recordings .recordings-card-presentation-link:hover {
+  transform: scale(1.25);
+  filter: drop-shadow(0 2px 6px rgba(106, 56, 255, 0.25));
+}
+
+.recordings .recordings-card-presentation-link:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 4px;
+}
+
+.recordings .recordings-card-presentation-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .recordings .recordings-card-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    gap: 12px;
-    justify-content: flex-start;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
-/* Fixed structure: title → speaker → date → buttons; same gaps for every card */
 .recordings .recordings-card-body .recordings-title,
 .recordings .recordings-card-body .recordings-speaker,
-.recordings .recordings-card-body .recordings-date {
-    margin: 0;
-    line-height: 1.5;
+.recordings .recordings-card-body .recordings-date,
+.recordings .recordings-card-body .recordings-tag {
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* Reserve one line when a field is empty so structure is preserved */
 .recordings .recordings-card-body .recordings-title.is-empty {
-    min-height: 1.3em;
-    visibility: hidden;
+  min-height: 1.3em;
+  visibility: hidden;
 }
 
 .recordings .recordings-card-body .recordings-speaker.is-empty {
-    min-height: 1.5em;
-    visibility: hidden;
+  min-height: 1.4em;
+  visibility: hidden;
 }
 
 .recordings .recordings-card-body .recordings-date.is-empty {
-    min-height: 1.5em;
-    visibility: hidden;
+  min-height: 1.5em;
+  visibility: hidden;
 }
 
 .recordings .recordings-card-body .recordings-title {
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: var(--heading-font-size-l);
-    line-height: 1.3;
-    letter-spacing: -0.025em;
-    transition: color 0.2s ease;
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: var(--heading-font-size-l);
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  transition: color 0.2s ease;
 }
 
 .recordings-list > li:hover .recordings-card-body .recordings-title {
-    color: var(--link-color);
+  color: var(--link-color);
 }
 
 .recordings .recordings-card-body .recordings-speaker {
-    font-size: var(--body-font-size-m);
-    color: var(--text-color);
-    font-style: italic;
+  font-size: var(--body-font-size-xs);
+  color: #64748b;
+  font-style: italic;
+  font-weight: 500;
 }
 
 .recordings .recordings-card-body .recordings-date {
-    font-size: var(--body-font-size-xs);
-    color: #94a3b8;
-    font-weight: 500;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
-.recordings .recordings-card-body .button-container {
-    margin-top: auto;
-    padding-top: 4px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+.recordings .recordings-card-body .recordings-tag {
+  font-size: 0.6875rem;
+  color: rgba(106, 56, 255, 0.85);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.recordings .recordings-card-body .button-container.is-empty {
-    display: none;
-}
-
-.recordings .recordings-card-body a.button {
-    background: linear-gradient(135deg, rgba(106, 56, 255, 0.85), rgba(106, 56, 255, 0.75));
-    color: #fff;
-    border: 2px solid transparent;
-    border-radius: 10px;
-    padding: 12px 24px;
-    font-size: var(--body-font-size-xs);
-    font-weight: 600;
-    letter-spacing: 0.025em;
-    text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(106, 56, 255, 0.2);
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.recordings .recordings-card-body a.button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(106, 56, 255, 0.3);
-    background: linear-gradient(135deg, rgba(106, 56, 255, 0.95), rgba(106, 56, 255, 0.85));
-    color: #fff;
-}
-
-/* Presentation = outlined style, same purple accent */
-.recordings .recordings-card-body a.button.secondary {
-    background: transparent;
-    color: var(--link-color);
-    border: 2px solid rgba(106, 56, 255, 0.5);
-    box-shadow: none;
-}
-
-.recordings .recordings-card-body a.button.secondary:hover {
-    background: rgba(106, 56, 255, 0.08);
-    border-color: var(--link-color);
-    color: var(--link-color);
-    box-shadow: 0 2px 8px rgba(106, 56, 255, 0.15);
-    transform: translateY(-2px);
-}
-
-/* Responsive: single column on smaller screens */
+/* Responsive: sidebar above content on smaller screens */
 @media (width <= 900px) {
-    .recordings-list {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
+  .recordings-list {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 }
 
 @media (width <= 768px) {
-    .recordings-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
+  .recordings-layout {
+    flex-direction: column;
+    gap: 24px;
+  }
 
-    .recordings-search {
-        max-width: none;
-    }
+  .recordings-sidebar {
+    flex: 0 0 auto;
+    width: 100%;
+    min-width: 0;
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+  }
 
-    .recordings-list > li {
-        padding: 24px 20px;
-        gap: 16px;
-    }
+  .recordings-sidebar .recordings-filter-group {
+    margin-bottom: 0;
+  }
 
-    .recordings .recordings-card-icon {
-        flex: 0 0 56px;
-        width: 56px;
-        height: 56px;
-    }
+  .recordings-sidebar .recordings-filter-group:first-child {
+    grid-column: 1 / -1;
+  }
 
-    .recordings .recordings-card-body .recordings-title {
-        font-size: var(--heading-font-size-m);
-    }
+  .recordings-list > li {
+    padding: 24px 20px;
+    gap: 16px;
+  }
+
+  .recordings-card-icons {
+    flex: 0 0 40px;
+    gap: 10px;
+  }
+
+  .recordings .recordings-card-icon-link,
+  .recordings .recordings-card-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .recordings .recordings-card-presentation-link {
+    width: 24px;
+    height: 24px;
+  }
+
+  .recordings .recordings-card-body .recordings-title {
+    font-size: var(--heading-font-size-m);
+  }
 }
 
 @media (width <= 480px) {
-    .recordings-list > li {
-        margin: 0 -8px;
-        border-radius: 16px;
-    }
-} 
+  .recordings-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .recordings-list > li {
+    margin: 0 -8px;
+    border-radius: 16px;
+  }
+}
