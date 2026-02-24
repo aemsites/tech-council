@@ -34,7 +34,10 @@
   }
   
   .search ul.search-results > li {
-    border: 1px solid #dadada;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
   }
   
   .search ul.search-results > li > a {

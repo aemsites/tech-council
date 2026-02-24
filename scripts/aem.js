@@ -392,14 +392,23 @@ function wrapTextNodes(block) {
  * @param {Element} element container element
  */
 function decorateButtons(element) {
-  const allowedTitleSubstrings = ['Watch Now','AI Radar','FluffyJaws','Dev Home','Dev Home','EasyMCP','Adobe AI Foundation'];
+  const allowedTitleSubstrings = [
+    'Watch Now',
+    'AI Radar',
+    'FluffyJaws',
+    'Dev Home',
+    'EasyMCP',
+    'Adobe AI Foundation',
+  ];
   element.querySelectorAll('a').forEach((a) => {
     a.title = a.title || a.textContent;
     if (a.href !== a.textContent) {
       const up = a.parentElement;
       const twoup = a.parentElement.parentElement;
       if (!a.querySelector('img')) {
-        const isAllowedByTitle = allowedTitleSubstrings.some((s) => a.title && a.title.toLowerCase().includes(s.toLowerCase()));
+        const titleText = a.title ? a.title.toLowerCase() : '';
+        const isAllowedByTitle = allowedTitleSubstrings
+          .some((s) => titleText.includes(s.toLowerCase()));
         const isAllowedByStructure = up.childNodes.length === 1 && (up.tagName === 'P' || up.tagName === 'DIV');
         if (isAllowedByTitle || isAllowedByStructure) {
           a.className = 'button'; // default

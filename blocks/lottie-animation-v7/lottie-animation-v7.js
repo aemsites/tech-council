@@ -1,0 +1,434 @@
+/**
+ * Lottie animation block (v7) — Panels / EDS/DA.
+ * Pattern from https://www.getswivel.io/ (e-lottie__animation, viewBox 610×352).
+ * Authors set animation path/URL in block table: animation | URL or path.
+ *
+ * EDS: Uses lottie-web SVG renderer only (no <lottie-player> — Shadow DOM/WASM fails on EDS CSP).
+ * AE expressions (e.g. loopOut('cycle')) are expanded to keyframes
+ * so the expression evaluator is not used.
+ * Debug: ?lottie=immediate for immediate load;
+ * window.lottie.getRegisteredAnimations() to confirm load.
+ */
+import { readBlockConfig } from '../../scripts/aem.js';
+
+const LOTTIE_WEB_SCRIPT = 'https://unpkg.com/lottie-web@5.12.2/build/player/lottie_light.min.js';
+const DEBUG = false;
+let lottieScriptPromise;
+const lottieAnimationMap = new WeakMap();
+const lottieCleanupMap = new WeakMap();
+
+function log(...args) {
+  if (DEBUG && typeof console !== 'undefined' && console.info) {
+    console.info('[Lottie]', ...args);
+  }
+}
+
+function loadScript(src) {
+  if (lottieScriptPromise) {
+    return lottieScriptPromise;
+  }
+
+  const existing = document.querySelector(`script[src="${src}"]`);
+  if (existing?.dataset.loaded === 'true') {
+    lottieScriptPromise = Promise.resolve();
+    return lottieScriptPromise;
+  }
+
+  return new Promise((resolve, reject) => {
+    const script = existing || document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = () => {
+      script.dataset.loaded = 'true';
+      log('script loaded');
+      resolve();
+    };
+    script.onerror = () => reject(new Error(`Script failed: ${src}`));
+
+    if (!existing) {
+      document.body.appendChild(script);
+    }
+  }).then((result) => {
+    lottieScriptPromise = Promise.resolve(result);
+    return result;
+  }).catch((error) => {
+    lottieScriptPromise = null;
+    throw error;
+  });
+}
+
+function waitForLottie(maxMs = 5000) {
+  if (window.lottie && typeof window.lottie.loadAnimation === 'function') {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const deadline = Date.now() + maxMs;
+    function check() {
+      if (window.lottie && typeof window.lottie.loadAnimation === 'function') {
+        log('lottie-web ready');
+        resolve();
+        return;
+      }
+      if (Date.now() > deadline) {
+        reject(new Error('lottie-web not available'));
+        return;
+      }
+      setTimeout(check, 50);
+    }
+    check();
+  });
+}
+
+function toAbsoluteJsonUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const base = (typeof window !== 'undefined' && window.hlx?.codeBasePath) ? window.hlx.codeBasePath.replace(/\/$/, '') : '';
+  const path = trimmed.startsWith('/')
+    ? trimmed
+    : (`${base ? `/${base}` : ''}/${trimmed.replace(/^\//, '')}`).replace(/\/+/g, '/');
+  try {
+    return new URL(path, typeof window !== 'undefined' ? window.location.origin : '').href;
+  } catch {
+    return trimmed;
+  }
+}
+
+function expandTmCycles(data) {
+  const walk = (layers) => {
+    if (!Array.isArray(layers)) return;
+    layers.forEach((layer) => {
+      const { tm } = layer;
+      if (!tm || !tm.x || !tm.x.includes('loopOut')) return;
+      const kfs = tm.k;
+      if (!Array.isArray(kfs) || kfs.length < 2) return;
+
+      const cycleDur = kfs[kfs.length - 1].t - kfs[0].t;
+      if (cycleDur <= 0) return;
+
+      const dur = (layer.op || 900) - (layer.ip || 0);
+      const cycles = Math.ceil(dur / cycleDur) + 1;
+      const expanded = [];
+
+      for (let c = 0; c < cycles; c += 1) {
+        const off = c * cycleDur;
+        kfs.forEach((kf) => {
+          const copy = JSON.parse(JSON.stringify(kf));
+          copy.t = kf.t + off;
+          expanded.push(copy);
+        });
+      }
+
+      tm.k = expanded;
+      delete tm.x;
+    });
+  };
+  walk(data.layers);
+  if (Array.isArray(data.assets)) {
+    data.assets.forEach((a) => walk(a.layers));
+  }
+}
+
+function stripRemainingExpressions(obj, seen = new Set()) {
+  if (!obj || typeof obj !== 'object') return;
+  if (seen.has(obj)) {
+    if (!Array.isArray(obj) && 'x' in obj && typeof obj.x === 'string') delete obj.x;
+    return;
+  }
+  seen.add(obj);
+  if (Array.isArray(obj)) {
+    obj.forEach((item) => stripRemainingExpressions(item, seen));
+    return;
+  }
+  if ('x' in obj && typeof obj.x === 'string') delete obj.x;
+  Object.values(obj).forEach((v) => stripRemainingExpressions(v, seen));
+}
+
+function isWhiteFill(shape) {
+  if (shape?.ty !== 'fl' || !shape.c) return false;
+  const { k } = shape.c;
+  let vals = null;
+  if (Array.isArray(k)) {
+    vals = k;
+  } else if (k?.a === 0 && Array.isArray(k.k)) {
+    vals = k.k;
+  }
+  if (!vals || vals.length < 3) return false;
+  const [r, g, b] = vals;
+  return r >= 0.99 && g >= 0.99 && b >= 0.99;
+}
+
+function layerHasWhiteBackground(layer) {
+  const shapes = layer?.shapes;
+  if (!Array.isArray(shapes)) return false;
+  return shapes.some((s) => {
+    if (s.ty === 'gr' && Array.isArray(s.it)) {
+      return s.it.some((it) => isWhiteFill(it));
+    }
+    return isWhiteFill(s);
+  });
+}
+
+function stripWhiteBackgroundLayers(data) {
+  const processLayers = (layers) => {
+    if (!Array.isArray(layers)) return;
+    layers.forEach((layer) => {
+      if (layerHasWhiteBackground(layer)) {
+        if (!layer.ks) layer.ks = {};
+        if (!layer.ks.o) layer.ks.o = { a: 0, k: 100, ix: 11 };
+        layer.ks.o = { a: 0, k: 0, ix: 11 };
+        log('stripped white background layer:', layer.nm);
+      }
+      if (layer.layers) processLayers(layer.layers);
+    });
+  };
+  processLayers(data?.layers);
+  if (Array.isArray(data?.assets)) {
+    data.assets.forEach((a) => processLayers(a.layers));
+  }
+}
+
+function loadLottieIntoContainer(container) {
+  const jsonUrl = container.getAttribute('data-jsonsrc');
+  const fallbackJsonUrl = container.getAttribute('data-fallback-jsonsrc');
+  if (!jsonUrl) {
+    log('no data-jsonsrc');
+    return;
+  }
+  if (container.dataset.lottieLoaded === 'true') {
+    log('already loaded');
+    return;
+  }
+  container.dataset.lottieLoaded = 'true';
+  container.dataset.lottieStatus = 'loading';
+  container.setAttribute('aria-busy', 'true');
+  container.innerHTML = '';
+
+  const showError = (msg, err) => {
+    container.dataset.lottieStatus = 'error';
+    container.removeAttribute('aria-busy');
+    container.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = 'lottie-error';
+    p.textContent = msg;
+    container.appendChild(p);
+    if (err && console && console.error) {
+      console.error('[Lottie]', msg, err);
+    }
+  };
+
+  const absoluteUrl = toAbsoluteJsonUrl(jsonUrl);
+  log('loading from', absoluteUrl);
+
+  const inner = document.createElement('div');
+  inner.className = 'lottie-inner';
+  inner.setAttribute('aria-hidden', 'true');
+  const isSwivelStyle = container.classList.contains('e-lottie__animation');
+  inner.style.minHeight = isSwivelStyle ? '352px' : '250px';
+  inner.style.width = '100%';
+  container.appendChild(inner);
+
+  const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const lottieReady = window.lottie
+    && typeof window.lottie.loadAnimation === 'function';
+  const scriptPromise = lottieReady
+    ? Promise.resolve()
+    : loadScript(LOTTIE_WEB_SCRIPT).then(() => waitForLottie());
+
+  const fetchAnimationJson = (url) => fetch(url).then((res) => {
+    if (!res.ok) throw new Error(`JSON ${res.status}: ${url}`);
+    return res.json();
+  });
+
+  scriptPromise
+    .then(() => fetchAnimationJson(absoluteUrl).catch((error) => {
+      if (!fallbackJsonUrl || fallbackJsonUrl === absoluteUrl) throw error;
+      log('falling back to default animation json');
+      return fetchAnimationJson(toAbsoluteJsonUrl(fallbackJsonUrl));
+    }))
+    .then((animationData) => {
+      log('JSON loaded, frames/layers:', animationData?.op != null ? 'yes' : 'no');
+      expandTmCycles(animationData);
+      stripRemainingExpressions(animationData);
+      stripWhiteBackgroundLayers(animationData);
+      const { lottie } = window;
+      if (!lottie || typeof lottie.loadAnimation !== 'function') {
+        throw new Error('lottie-web not available');
+      }
+      const runInit = () => {
+        const useCanvas = container.dataset.lottieRenderer === 'canvas';
+        const startFrame = 0;
+        const endFrame = animationData.op != null ? Math.ceil(animationData.op) : 857;
+        const anim = lottie.loadAnimation({
+          container: inner,
+          renderer: useCanvas ? 'canvas' : 'svg',
+          loop: !prefersReducedMotion,
+          autoplay: !prefersReducedMotion,
+          animationData,
+          initialSegment: [startFrame, endFrame],
+          rendererSettings: useCanvas
+            ? { preserveAspectRatio: 'xMidYMid meet' }
+            : { preserveAspectRatio: 'xMidYMid meet', progressiveLoad: false },
+        });
+
+        container.dataset.lottieStatus = 'loaded';
+        container.removeAttribute('aria-busy');
+        lottieAnimationMap.set(container, anim);
+
+        const playOrPause = (inView) => {
+          if (!anim || typeof anim.play !== 'function' || typeof anim.pause !== 'function') return;
+          if (prefersReducedMotion) {
+            anim.goToAndStop(startFrame, true);
+            return;
+          }
+          if (document.hidden || !inView) {
+            anim.pause();
+          } else {
+            anim.play();
+          }
+        };
+
+        const visibilityObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            playOrPause(entry.isIntersecting);
+          });
+        }, { threshold: 0.05 });
+        visibilityObserver.observe(container);
+
+        const onVisibilityChange = () => {
+          const rect = container.getBoundingClientRect();
+          const inView = rect.bottom >= 0 && rect.top <= window.innerHeight;
+          playOrPause(inView);
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+        lottieCleanupMap.set(container, () => {
+          visibilityObserver.disconnect();
+          document.removeEventListener('visibilitychange', onVisibilityChange);
+        });
+
+        if (anim && typeof anim.play === 'function') {
+          if (prefersReducedMotion) {
+            anim.goToAndStop(startFrame, true);
+          } else {
+            anim.play();
+          }
+        }
+        log(
+          'animation started',
+          useCanvas ? '(canvas)' : '(svg)',
+          'segment',
+          startFrame,
+          '-',
+          endFrame,
+        );
+        if (DEBUG && window.lottie
+          && window.lottie.getRegisteredAnimations) {
+          setTimeout(() => {
+            const count = window.lottie
+              .getRegisteredAnimations().length;
+            const rect = inner.getBoundingClientRect();
+            log(
+              'getRegisteredAnimations:',
+              count,
+              '| container size:',
+              rect.width,
+              'x',
+              rect.height,
+            );
+          }, 500);
+        }
+      };
+      requestAnimationFrame(() => {
+        requestAnimationFrame(runInit);
+      });
+    })
+    .catch((err) => {
+      showError('Animation could not be loaded.', err);
+    });
+}
+
+function initLottieWhenVisible(container) {
+  const jsonUrl = container.getAttribute('data-jsonsrc');
+  if (!jsonUrl) return;
+
+  let loaded = false;
+  const run = () => {
+    if (loaded) return;
+    loaded = true;
+    loadLottieIntoContainer(container);
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) run();
+    });
+  }, { rootMargin: '100px', threshold: 0 });
+
+  observer.observe(container);
+
+  setTimeout(() => {
+    if (container.dataset.lottieLoaded !== 'true') run();
+  }, 500);
+}
+
+function getCommunityNameFromUrl() {
+  if (typeof window === 'undefined' || !window.location?.pathname) return null;
+  const path = window.location.pathname;
+  if (!path.includes('communities/details')) return null;
+  const name = new URL(window.location.href).searchParams.get('name');
+  if (!name || !name.trim()) return null;
+  const slug = String(name)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return slug || null;
+}
+
+function getDefaultJsonUrl() {
+  const communityName = getCommunityNameFromUrl();
+  const jsonFile = communityName ? `${communityName}.json` : 'panels.json';
+  const base = (typeof window !== 'undefined' && window.hlx?.codeBasePath) ? window.hlx.codeBasePath.replace(/\/$/, '') : '';
+  const path = `${base ? `/${base}` : ''}/blocks/lottie-animation-v7/${jsonFile}`.replace(/\/+/g, '/');
+  try {
+    return new URL(path, typeof window !== 'undefined' ? window.location.origin : '').href;
+  } catch {
+    return `/blocks/lottie-animation-v7/${jsonFile}`;
+  }
+}
+
+let lottieV7BlockCount = 0;
+
+export default function decorate(block) {
+  const config = readBlockConfig(block);
+  const raw = (config.animation && config.animation.trim())
+    ? config.animation.trim() : getDefaultJsonUrl();
+  const jsonUrl = toAbsoluteJsonUrl(raw);
+  const fallbackJsonUrl = toAbsoluteJsonUrl('/blocks/lottie-animation-v7/panels.json');
+
+  log('block decorate (v7 Panels)', jsonUrl);
+
+  const container = document.createElement('div');
+  container.id = `lottie-v7-${lottieV7BlockCount += 1}`;
+  container.className = 'e-lottie__animation lottie-lazy lottie-container';
+  container.setAttribute('data-jsonsrc', jsonUrl);
+  container.setAttribute('data-fallback-jsonsrc', fallbackJsonUrl);
+  container.setAttribute('data-lottie-renderer', 'svg');
+  container.setAttribute('role', 'img');
+  container.setAttribute('aria-label', 'Animation');
+
+  block.innerHTML = '';
+  block.appendChild(container);
+
+  const immediate = config.immediate === true || config.immediate === 'true'
+    || (typeof window !== 'undefined' && window.location?.search?.includes('lottie=immediate'));
+  if (immediate) {
+    log('immediate load (no lazy)');
+    loadLottieIntoContainer(container);
+  } else {
+    initLottieWhenVisible(container);
+  }
+}

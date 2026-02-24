@@ -1,0 +1,125 @@
+.comd-recordings {
+  margin-bottom: var(--section-margin-bottom);
+}
+
+.comd-recordings .comd-recordings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--card-gap);
+}
+
+.comd-recordings .comd-recordings-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  background: var(--background-color);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.comd-recordings .comd-recordings-card:hover {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+.comd-recordings .comd-recordings-card-top {
+  height: 100px;
+  background: var(--surface-muted);
+  display: grid;
+  place-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.comd-recordings .comd-recordings-card-top svg {
+  width: calc(var(--icon-size-l) - var(--space-s));
+  height: calc(var(--icon-size-l) - var(--space-s));
+  stroke: var(--text-soft);
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.comd-recordings .comd-recordings-card-top svg path {
+  fill: var(--text-soft);
+  stroke: none;
+}
+
+.comd-recordings .comd-recordings-card-body {
+  padding: var(--heading-margin-bottom) var(--heading-margin-bottom) var(--heading-margin-bottom);
+}
+
+.comd-recordings .comd-recordings-title {
+  margin: 0 0 var(--space-s);
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-s);
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-color);
+}
+
+.comd-recordings .comd-recordings-date {
+  margin: 0 0 var(--space-s);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-xs);
+  line-height: 1.35;
+  color: var(--text-soft);
+}
+
+.comd-recordings .comd-recordings-description {
+  margin: 0 0 var(--space-s);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  line-height: 1.42;
+  color: var(--text-soft);
+}
+
+.comd-recordings .comd-recordings-link {
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  font-weight: 700;
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.comd-recordings .comd-recordings-link:hover {
+  text-decoration: underline;
+}
+
+.comd-recordings .comd-recordings-empty,
+.comd-recordings .comd-recordings-error {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+@media (width <= 900px) {
+  .comd-recordings .comd-recordings-grid {
+    grid-template-columns: 1fr;
+    gap: var(--card-gap-mobile);
+  }
+
+  .comd-recordings .comd-recordings-card-body {
+    padding: var(--space-18) var(--space-18) var(--heading-margin-bottom);
+  }
+
+  .comd-recordings .comd-recordings-card-top {
+    height: 82px;
+  }
+
+  .comd-recordings .comd-recordings-card-top svg {
+    width: var(--space-l);
+    height: var(--space-l);
+  }
+
+  .comd-recordings .comd-recordings-title {
+    font-size: var(--heading-font-size-xs);
+  }
+
+  .comd-recordings .comd-recordings-date,
+  .comd-recordings .comd-recordings-description,
+  .comd-recordings .comd-recordings-link {
+    font-size: var(--body-font-size-xs);
+  }
+}

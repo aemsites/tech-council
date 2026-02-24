@@ -4,25 +4,26 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
-  grid-gap: 24px;
+  grid-gap: var(--card-gap);
 }
 
 .cards > ul > li {
   background-color: var(--background-color);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .cards > ul > li:hover,
 .cards > ul > li:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(var(--card-hover-lift));
+  box-shadow: var(--shadow-md);
 }
 
 .cards .cards-card-body {
-  padding: 20px 16px 24px;
+  padding: var(--heading-margin-bottom) var(--space-18) var(--space-ml);
 }
 
 .cards .cards-card-image {
@@ -37,8 +38,8 @@
 }
 
 .cards .cards-card-image img {
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  border-top-left-radius: var(--radius-m);
+  border-top-right-radius: var(--radius-m);
 }
 
 /* Card heading styling */
@@ -48,6 +49,64 @@
 .cards .cards-card-body h4,
 .cards .cards-card-body h5,
 .cards .cards-card-body h6 {
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-s);
   font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--link-color);
+}
+
+/* =========================================
+   Objectives variant
+   Usage: <div class="cards objectives block">...</div>
+   This variant hides images and presents compact text cards.
+   ========================================= */
+.cards.objectives > ul {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: var(--card-gap);
+}
+
+.cards.objectives .cards-card-image {
+  display: none; /* objectives cards are text-only */
+}
+
+.cards.objectives > ul > li {
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease;
+}
+
+.cards.objectives .cards-card-body {
+  padding: var(--space-ml);
+}
+
+.cards.objectives .cards-card-body h1,
+.cards.objectives .cards-card-body h2,
+.cards.objectives .cards-card-body h3,
+.cards.objectives .cards-card-body h4,
+.cards.objectives .cards-card-body h5,
+.cards.objectives .cards-card-body h6 {
+  margin: 0 0 var(--space-s);
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-s);
+  color: var(--text-color); /* override link color for headings */
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.cards.objectives .cards-card-body p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.cards.objectives > ul > li:hover,
+.cards.objectives > ul > li:focus-within {
+  transform: none;
+  box-shadow: var(--shadow-md);
 }

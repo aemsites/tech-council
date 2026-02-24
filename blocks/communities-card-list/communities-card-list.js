@@ -31,6 +31,44 @@ function isSafeUrl(url) {
 }
 
 /**
+ * Returns true for absolute http/https URLs that leave this site.
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isExternalUrl(url) {
+  if (!isSafeUrl(url)) return false;
+  try {
+    const u = new URL(url, window.location.origin);
+    if (u.hostname === 'communities') return false;
+    return u.origin !== window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Converts same-origin absolute URLs to relative path and preserves relative links.
+ * @param {string} url
+ * @returns {string|null}
+ */
+function normalizeLink(url) {
+  if (!isSafeUrl(url)) return null;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/')) return trimmed;
+  try {
+    const u = new URL(trimmed, window.location.origin);
+    if (u.origin === window.location.origin) return `${u.pathname}${u.search}${u.hash}`;
+    if (u.hostname === 'communities') {
+      const path = u.pathname.startsWith('/communities') ? u.pathname : `/communities${u.pathname}`;
+      return `${path}${u.search}${u.hash}`;
+    }
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Checks if a row is a config row.
  * @param {HTMLDivElement} row
  * @returns {boolean}
@@ -50,9 +88,10 @@ function isConfigRow(row) {
 function getAddCommunityLinkFromRow(row) {
   const cols = [...row.children];
   const linkEl = cols[1]?.querySelector('a[href]');
-  if (linkEl && isSafeUrl(linkEl.href)) return linkEl.href;
+  const href = linkEl?.getAttribute('href');
+  if (href && isSafeUrl(href)) return normalizeLink(href);
   const text = (cols[1]?.textContent || '').trim();
-  if (text && isSafeUrl(text)) return text;
+  if (text && isSafeUrl(text)) return normalizeLink(text);
   return null;
 }
 
@@ -78,14 +117,17 @@ function parseDetailsColumn(col) {
   }
 
   if (links.length >= 2) {
-    result.slackUrl = links[0].href && isSafeUrl(links[0].href) ? links[0].href : null;
+    const slackHref = links[0].getAttribute('href');
+    const eventsHref = links[1].getAttribute('href');
+    result.slackUrl = slackHref && isSafeUrl(slackHref) ? normalizeLink(slackHref) : null;
     result.slackText = (links[0].textContent || '').trim() || null;
-    result.eventsUrl = links[1].href && isSafeUrl(links[1].href) ? links[1].href : null;
+    result.eventsUrl = eventsHref && isSafeUrl(eventsHref) ? normalizeLink(eventsHref) : null;
   } else if (links.length === 1) {
+    const href = links[0].getAttribute('href');
     const linkText = (links[0].textContent || '').trim().toLowerCase();
-    result.slackUrl = linkText.includes('slack') && isSafeUrl(links[0].href) ? links[0].href : null;
+    result.slackUrl = linkText.includes('slack') && href && isSafeUrl(href) ? normalizeLink(href) : null;
     result.slackText = result.slackUrl ? (links[0].textContent || '').trim() || null : null;
-    result.eventsUrl = !result.slackUrl && isSafeUrl(links[0].href) ? links[0].href : null;
+    result.eventsUrl = !result.slackUrl && href && isSafeUrl(href) ? normalizeLink(href) : null;
   }
   return result;
 }
@@ -123,7 +165,7 @@ export default async function decorate(block) {
     if (!addCommunityLink) {
       const config = readBlockConfig(block);
       if (config.addCommunityLink && isSafeUrl(config.addCommunityLink)) {
-        addCommunityLink = config.addCommunityLink;
+        addCommunityLink = normalizeLink(config.addCommunityLink);
       }
     }
 
@@ -175,8 +217,10 @@ export default async function decorate(block) {
       nameEl.textContent = nameText || 'Community';
       if (eventsUrl && isSafeUrl(eventsUrl)) {
         nameEl.href = eventsUrl;
-        nameEl.setAttribute('target', '_blank');
-        nameEl.setAttribute('rel', 'noopener');
+        if (isExternalUrl(eventsUrl)) {
+          nameEl.setAttribute('target', '_blank');
+          nameEl.setAttribute('rel', 'noopener');
+        }
       }
       body.appendChild(nameEl);
 
@@ -197,8 +241,10 @@ export default async function decorate(block) {
         const a = document.createElement('a');
         a.href = slackUrl;
         a.className = 'communities-card-list-link';
-        a.setAttribute('target', '_blank');
-        a.setAttribute('rel', 'noopener');
+        if (isExternalUrl(slackUrl)) {
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener');
+        }
         const icon = document.createElement('span');
         icon.className = 'icon icon-slack';
         icon.setAttribute('aria-hidden', 'true');
@@ -220,13 +266,9 @@ export default async function decorate(block) {
     addText.className = 'communities-card-list-add-text';
     addText.textContent = placeholders.doYouWantToStartCommunity || 'Do you want to start a community?';
     const addBtn = document.createElement('a');
-    addBtn.href = addCommunityLink || '#';
+    addBtn.href = '/communities/new-community';
     addBtn.className = 'communities-card-list-add-btn button primary';
     addBtn.textContent = placeholders.submitProposal || 'Submit Proposal';
-    if (addCommunityLink && isSafeUrl(addCommunityLink)) {
-      addBtn.setAttribute('target', '_blank');
-      addBtn.setAttribute('rel', 'noopener');
-    }
     addBody.appendChild(addText);
     addBody.appendChild(addBtn);
     addCard.appendChild(addBody);

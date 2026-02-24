@@ -1,0 +1,91 @@
+.comd-details {
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
+}
+
+.comd-details .comd-details-item {
+  display: grid;
+  grid-template-columns: var(--icon-wrap-size-desktop) 1fr;
+  align-items: center;
+  gap: var(--space-28);
+}
+
+.comd-details .comd-details-icon-wrap {
+  width: var(--icon-wrap-size-desktop);
+  height: var(--icon-wrap-size-desktop);
+  flex-shrink: 0;
+  border-radius: var(--radius-l);
+  background: linear-gradient(145deg, var(--surface-muted) 0%, var(--surface-tint-light) 50%, var(--surface-tint-lighter) 100%);
+  border: 1px solid var(--border-subtle);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm), var(--shadow-tint);
+}
+
+.comd-details .comd-details-icon-wrap .icon {
+  width: 52px;
+  height: 52px;
+}
+
+.comd-details .comd-details-icon-wrap .icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.comd-details .comd-details-content {
+  min-width: 0;
+}
+
+.comd-details .comd-details-title {
+  margin: 0 0 var(--space-m);
+  font-family: var(--heading-font-family);
+  font-size: var(--heading-font-size-m);
+  line-height: 1.25;
+  font-weight: 700;
+  color: var(--text-color);
+  letter-spacing: -0.02em;
+}
+
+.comd-details .comd-details-content p {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  line-height: 1.55;
+  color: var(--text-muted);
+  max-width: 42ch;
+}
+
+.comd-details .comd-details-error {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+@media (width <= 900px) {
+  .comd-details .comd-details-item {
+    grid-template-columns: var(--icon-wrap-size) 1fr;
+    gap: var(--heading-margin-bottom);
+  }
+
+  .comd-details .comd-details-icon-wrap {
+    width: var(--icon-wrap-size);
+    height: var(--icon-wrap-size);
+    border-radius: var(--radius-m);
+  }
+
+  .comd-details .comd-details-icon-wrap .icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .comd-details .comd-details-title {
+    font-size: var(--heading-font-size-s);
+  }
+
+  .comd-details .comd-details-content p {
+    font-size: var(--body-font-size-xs);
+    max-width: none;
+  }
+}

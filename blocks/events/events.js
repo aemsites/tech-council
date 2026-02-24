@@ -240,10 +240,19 @@ export default async function decorate(block) {
         // Convert icon spans to images
         decorateIcons(body);
         
-        // Parse event date
+        // Parse event date and add badge (Upcoming/Past)
         if (dateEl) {
           const dateText = dateEl.textContent;
           const eventDate = parseEventDate(dateText);
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          const isUpcoming = eventDate && eventDate >= now;
+          li.classList.add(isUpcoming ? 'is-upcoming' : 'is-past');
+          const badge = document.createElement('span');
+          badge.className = 'events-card-badge';
+          badge.textContent = isUpcoming ? 'Upcoming' : 'Past';
+          badge.setAttribute('aria-hidden', 'true');
+          li.prepend(badge);
           allEvents.push({ element: li, date: eventDate });
         } else {
           allEvents.push({ element: li, date: null });
@@ -271,12 +280,22 @@ export default async function decorate(block) {
     
     // Filter events based on criteria
     const filteredEvents = filterEvents(allEvents);
-    
+
+    // Create "See more" card
+    const seeMoreCard = document.createElement('li');
+    seeMoreCard.className = 'events-card events-card-see-more';
+    const seeMoreLink = document.createElement('a');
+    seeMoreLink.href = '/events';
+    seeMoreLink.className = 'events-see-more-button';
+    seeMoreLink.textContent = placeholders.seeMore || 'See more';
+    seeMoreCard.appendChild(seeMoreLink);
+    filteredEvents.push({ element: seeMoreCard, date: null, isSeeMore: true });
+
     if (filteredEvents.length === 0) {
       block.innerHTML = '<p class="events-empty">No events available at this time.</p>';
       return;
     }
-    
+
     // Group events into slides (4 per slide on desktop, responsive)
     const cardsPerSlide = 4;
     const slides = [];

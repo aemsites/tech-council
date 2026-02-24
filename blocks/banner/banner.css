@@ -23,7 +23,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--overlay-banner);
   z-index: -1; /* between image and content */
 }
 
@@ -32,11 +32,11 @@
   font-size: clamp(32px, 5vw, var(--heading-font-size-xl));
   line-height: 1.15;
   font-family: var(--heading-font-family);
-  font-weight: bolder;
+  font-weight: 700;
 }
 
 .banner p {
-  max-width: 800px;
+  max-width: var(--content-max-width-narrow);
   margin: 0 0 var(--space-m);
   
 }

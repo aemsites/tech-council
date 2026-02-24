@@ -1,0 +1,138 @@
+/*
+ * Hero Video block — full-width hero with video background.
+ * Blends with page background for seamless integration.
+ */
+
+main .section.hero-video-container {
+  margin: 0;
+  padding: 0;
+}
+
+main .section.hero-video-container > div {
+  max-width: unset;
+  padding: 0;
+}
+
+.hero-video-container .hero-video-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.hero-video {
+  position: relative;
+  min-height: 70vh;
+  max-height: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 8% 0%, rgb(11 99 222 / 12%), transparent 36%),
+    radial-gradient(circle at 100% 28%, rgb(0 29 38 / 8%), transparent 42%),
+    linear-gradient(180deg, #f5f9ff 0, var(--color-brand-pure-white, #fff) 420px);
+}
+
+.hero-video .hero-video-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-height: 70vh;
+}
+
+.hero-video .hero-video-media-col {
+  flex: 1 1 50%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-video .hero-video-content-col {
+  flex: 1 1 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px);
+}
+
+.hero-video .hero-video-media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  background:
+    radial-gradient(circle at 8% 0%, rgb(11 99 222 / 12%), transparent 36%),
+    radial-gradient(circle at 100% 28%, rgb(0 29 38 / 8%), transparent 42%),
+    linear-gradient(180deg, #f5f9ff 0, var(--color-brand-pure-white, #fff) 420px);
+}
+
+.hero-video .hero-video-element {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  object-fit: contain;
+  display: block;
+}
+
+.hero-video .hero-video-media.hero-video-error {
+  background: linear-gradient(135deg, var(--light-color, #f2f6fb) 0%, var(--surface-muted, #f6f9fc) 100%);
+}
+
+.hero-video .hero-video-media.hero-video-error::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.5;
+}
+
+.hero-video .hero-video-content-col h2 {
+  margin: 0 0 0.5em;
+  color: var(--dark-color, #001d26);
+  font-size: var(--heading-font-size-xl, clamp(34px, 4.6vw, 48px));
+}
+
+.hero-video .hero-video-description {
+  margin: 0 0 1em;
+  color: var(--text-color, #17252f);
+  font-size: var(--body-font-size-m, clamp(17px, 1.2vw, 19px));
+  line-height: 1.65;
+}
+
+.hero-video .hero-video-description p {
+  margin: 0 0 0.6em;
+}
+
+.hero-video .hero-video-description p:last-child {
+  margin-bottom: 0;
+}
+
+.hero-video .hero-video-content-col .button {
+  margin-top: 0.5em;
+  align-self: flex-start;
+  background-color: var(--color-primary, #0b63de);
+  color: var(--color-brand-pure-white, #fff);
+  border-color: transparent;
+}
+
+.hero-video .hero-video-content-col .button:hover {
+  background-color: var(--link-hover-color, #0849a8);
+  color: var(--color-brand-pure-white, #fff);
+}
+
+@media (width >= 900px) {
+  .hero-video .hero-video-wrapper {
+    flex-direction: row;
+    min-height: 75vh;
+  }
+
+  .hero-video .hero-video-media-col {
+    order: 1;
+    flex: 0 1 50%;
+  }
+
+  .hero-video .hero-video-content-col {
+    order: 2;
+    flex: 0 1 50%;
+    text-align: left;
+    align-items: flex-start;
+  }
+}

@@ -11,7 +11,7 @@
 
 .section-heading p {
   margin: 0;
-  max-width: 800px;
+  max-width: var(--content-max-width-narrow);
   font-size: var(--body-font-size-xs);
   color: var(--text-color);
 } 
