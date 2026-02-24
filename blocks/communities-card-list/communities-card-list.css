@@ -1,7 +1,7 @@
 /* Communities Card List - 3x3 grid, minimalistic modern */
 
 .communities-card-list {
-  padding: var(--space-xl) 0;
+  /* padding: var(--space-xl) 0; */
 }
 
 .communities-card-list-wrapper {
@@ -148,8 +148,8 @@
 }
 
 .communities-card-list-link .icon {
-  width: 16px;
-  height: 16px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
 }
 
