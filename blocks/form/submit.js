@@ -40,10 +40,19 @@ function generateUnique() {
   return new Date().valueOf() + Math.random();
 }
 
+function isMultiCheckbox(fe) {
+  if (fe.type !== 'checkbox' || !fe.name) return false;
+  const group = fe.form?.elements?.[fe.name];
+  return Boolean(group && typeof group.length === 'number' && group.length > 1);
+}
+
 function getFieldValue(fe, payload) {
   if (fe.type === 'radio') {
     return fe.form.elements[fe.name].value;
   } if (fe.type === 'checkbox') {
+    if (!isMultiCheckbox(fe)) {
+      return fe.checked;
+    }
     if (payload[fe.name]) {
       if (fe.checked) {
         return `${payload[fe.name]},${fe.value}`;
@@ -65,7 +74,7 @@ function constructPayload(form) {
     if (fe.name && !fe.matches('button') && !fe.disabled && fe.tagName !== 'FIELDSET') {
       const value = getFieldValue(fe, payload);
       if (fe.closest('.repeat-wrapper')) {
-        payload[fe.name] = payload[fe.name] ? `${payload[fe.name]},${fe.value}` : value;
+        payload[fe.name] = payload[fe.name] ? `${payload[fe.name]},${value}` : value;
       } else {
         payload[fe.name] = value;
       }
