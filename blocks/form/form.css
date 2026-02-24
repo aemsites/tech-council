@@ -37,6 +37,11 @@
     --form-fieldset-legend-font-weight: var(--form-title-font-weight);
     --form-fieldset-legend-border: none;
     --form-fieldset-legend-padding: 0;
+    --form-section-border-color: var(--border-subtle);
+    --form-section-background: color-mix(in srgb, var(--background-color-primary) 98%, var(--surface-muted));
+    --form-section-radius: var(--radius-m);
+    --form-section-padding: var(--space-m);
+    --form-section-gap: var(--space-s);
     --form-button-color: var(--background-color-primary);
     --form-button-font-size: 16px;
     --form-button-background-color: var(--button-primary-color);
@@ -172,11 +177,35 @@ main .form select {
     padding-bottom: 0;
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--text-soft) 50%),
+      linear-gradient(135deg, var(--text-soft) 50%, transparent 50%);
     background-repeat: no-repeat;
-    background-position: right 1rem center;
-    padding-right: 3rem;
-  }
+    background-position:
+      calc(100% - 18px) calc(50% - 2px),
+      calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    padding-right: 2.8rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+main .form select:invalid {
+    color: var(--text-soft);
+}
+
+main .form select option {
+    color: var(--text-color);
+}
+
+main .form select:hover {
+    background-color: color-mix(in srgb, var(--surface-muted) 35%, var(--form-input-background-color));
+}
+
+main .form select:focus {
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--link-color) 50%),
+      linear-gradient(135deg, var(--link-color) 50%, transparent 50%);
+}
 
 main .form input,
 main .form textarea,
@@ -254,12 +283,34 @@ main .form textarea {
 
 main .form fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper) legend {
     font-weight: var(--form-fieldset-legend-font-weight);
-    font-size: var(--form-fieldset-legend-font-size);
+    font-size: var(--heading-font-size-xs);
+    font-family: var(--heading-font-family);
     color: var(--form-fieldset-legend-color);
     border-bottom: var(--form-fieldset-legend-border);
     width: 100%;
     padding: var(--form-fieldset-legend-padding);
-    margin-bottom: 10px;
+    margin-bottom: var(--space-m);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+/* Section-style fieldset presentation for grouped questions */
+main .form form > fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper, .cards, .wizard) {
+    border: 1px solid var(--form-section-border-color);
+    border-radius: var(--form-section-radius);
+    background: var(--form-section-background);
+    padding: var(--form-section-padding);
+    margin: 0;
+}
+
+main .form form > fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper, .cards, .wizard) > legend {
+    padding: 0;
+    margin-bottom: var(--space-m);
+}
+
+main .form form > fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper, .cards, .wizard) > .field-wrapper:last-child,
+main .form form > fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper, .cards, .wizard) > .panel-wrapper:last-child {
+    margin-bottom: 0;
 }
 
 main .form label,
@@ -350,6 +401,18 @@ main .form form fieldset > .checkbox-wrapper {
 main .form .radio-wrapper  label,
 main .form .checkbox-wrapper label {
     flex-basis: calc(100% - 24px);
+}
+
+main .form form .checkbox-wrapper[data-id="commitment"] > input[type='checkbox'] {
+    margin-top: 3px;
+}
+
+main .form form .checkbox-wrapper[data-id="commitment"] > label {
+    flex-basis: calc(100% - 28px);
+    font-size: var(--form-font-size-xs);
+    margin-bottom: 0;
+    color: var(--text-soft-muted);
+    line-height: 1.45;
 }
 
 main .form fieldset.link .checkbox-wrapper label {
@@ -894,6 +957,10 @@ main div.form-wrapper {
     main div.form-wrapper {
         padding: 24px;
         border-radius: 12px;
+    }
+
+    main .form form > fieldset:not(.checkbox-group-wrapper, .radio-group-wrapper, .cards, .wizard) {
+        padding: var(--space-s);
     }
     
     main .form input,

@@ -35,7 +35,7 @@
 
 /* Photo */
 .communities-card-list-photo {
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 28 / 10;
   overflow: hidden;
   background: rgba(106, 56, 255, 0.04);
 }
