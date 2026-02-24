@@ -230,6 +230,8 @@ export default async function decorate(block) {
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener');
   });
+  // Prevent duplicate icon images when the block is decorated more than once.
+  ul.querySelectorAll('span.icon img[data-icon-name]').forEach((img) => img.remove());
   decorateIcons(ul);
 
   slidesContainer.appendChild(ul);
