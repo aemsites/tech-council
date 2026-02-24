@@ -12,14 +12,14 @@
 
 :root {
   /* colors */
-  --background-color: #fff;
-  --light-color: #f2f6fb;
+  --background-color: #ffffff;
+  --light-color: #f3f3f3;
   --dark-color: #001d26;
-  --text-color: #17252f;
+  --text-color: #1d1d1d;
   --text-muted: #445666;
   --text-soft: #607181;
-  --link-color: #0b63de;
-  --link-hover-color: #0849a8;
+  --link-color: #6a38ff; /* Purple */
+  --link-hover-color: #4b2cdc;
   --surface-muted: #f6f9fc;
   --border-subtle: rgb(0 29 38 / 10%);
   --overlay-dark: rgb(19 19 19 / 80%);
@@ -28,13 +28,13 @@
   --white-95: rgb(255 255 255 / 95%);
 
   /* brand palette */
-  --color-primary: #0b63de;
-  --color-primary-dark: #0849a8;
+  --color-primary: #ec0f1a;
+  --color-primary-dark: #b30b13;
   --color-secondary: #001d26;
-  --color-surface: #fff;
-  --color-gradient-accent: #0b63de;
-  --color-brand-pure-white: #fff;
-
+  --color-surface: #ffffff;
+  /* gradient colors */
+  --color-gradient-purple: #6a38ff;
+  --color-brand-pure-white: #ffffff;
   /* spacing scale */
   --space-xs: 4px;
   --space-s: 8px;
@@ -154,10 +154,7 @@
 body {
   display: none;
   margin: 0;
-  background:
-    radial-gradient(circle at 8% 0%, rgb(11 99 222 / 12%), transparent 36%),
-    radial-gradient(circle at 100% 28%, rgb(0 29 38 / 8%), transparent 42%),
-    linear-gradient(180deg, #f5f9ff 0, var(--color-brand-pure-white) 420px);
+  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFFFFF 550px, #FFFFFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
@@ -276,23 +273,22 @@ button {
   max-width: 100%;
   margin: 12px 0;
   border: 2px solid transparent;
-  border-radius: 999px;
-  padding: 0.58em 1.25em;
+  border-radius: 2.4em;
+  padding: 0.5em 1.2em;
   font-family: var(--body-font-family);
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.25;
   text-align: center;
   text-decoration: none;
-  background-color: var(--color-primary);
+  background-color: var(--link-color);
   color: var(--background-color);
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
+
 
 a.button:hover,
 a.button:focus,

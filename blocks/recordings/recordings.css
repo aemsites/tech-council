@@ -382,11 +382,9 @@
 }
 
 .recordings .recordings-card-body .recordings-title {
-  font-weight: 600;
   color: var(--text-color);
-  font-size: var(--heading-font-size-l);
-  line-height: 1.3;
-  letter-spacing: -0.025em;
+  font-size: clamp(18px, 1.4vw, 22px);
+  line-height: 1.25;
   transition: color 0.2s ease;
 }
 
@@ -468,9 +466,6 @@
     height: 24px;
   }
 
-  .recordings .recordings-card-body .recordings-title {
-    font-size: var(--heading-font-size-m);
-  }
 }
 
 @media (width <= 480px) {
