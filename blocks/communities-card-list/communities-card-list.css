@@ -85,16 +85,6 @@
   overflow: hidden;
 }
 
-.communities-card-list-name[href] {
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.communities-card-list-name[href]:hover,
-.communities-card-list-name[href]:focus-visible {
-  color: var(--link-hover-color);
-  text-decoration: underline;
-}
 
 .communities-card-list-leads {
   list-style: none;

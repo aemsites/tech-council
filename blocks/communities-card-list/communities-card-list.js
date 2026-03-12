@@ -212,16 +212,9 @@ export default async function decorate(block) {
 
       const { leads, slackUrl, slackText, eventsUrl } = parseDetailsColumn(col2);
 
-      const nameEl = document.createElement(eventsUrl && isSafeUrl(eventsUrl) ? 'a' : 'h3');
+      const nameEl = document.createElement('h3');
       nameEl.className = 'communities-card-list-name';
       nameEl.textContent = nameText || 'Community';
-      if (eventsUrl && isSafeUrl(eventsUrl)) {
-        nameEl.href = eventsUrl;
-        if (isExternalUrl(eventsUrl)) {
-          nameEl.setAttribute('target', '_blank');
-          nameEl.setAttribute('rel', 'noopener');
-        }
-      }
       body.appendChild(nameEl);
 
       if (leads.length > 0) {
