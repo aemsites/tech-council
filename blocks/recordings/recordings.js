@@ -44,7 +44,7 @@ function debounce(fn, ms) {
 }
 
 /** EDS sheet path and origin. */
-const RECORDINGS_SHEET_PATH = '/forms/recording-form/recordings-data.json?sheet=recordings';
+const RECORDINGS_SHEET_PATH = '/forms/recording-form/form/recordings.json?sheet=recordings';
 const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
 
 /**
