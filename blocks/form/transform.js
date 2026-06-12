@@ -168,6 +168,7 @@ export default class DocBasedFormToAF {
     'Pattern Error Message': 'constraintMessages.pattern',
     'Min Error Message': 'constraintMessages.min',
     'Max Error Message': 'constraintMessages.max',
+    'Custom Type': ':type',
   };
 
   fieldMapping = new Map([
