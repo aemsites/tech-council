@@ -186,12 +186,11 @@ main .section.highlight .events {
 }
 
 .events-card-body {
-  padding: var(--space-m);
+  padding: var(--space-m) var(--space-m) var(--space-18);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   flex: 1;
-  gap: 2px;
 }
 
 /* Title styling */
@@ -237,52 +236,6 @@ main .section.highlight .events {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* Speaker styling */
-.events-card-speaker {
-  font-family: var(--body-font-family);
-  font-size: var(--body-font-size-xs);
-  color: var(--text-soft);
-  margin: 0 0 var(--space-s);
-  font-weight: 500;
-}
-
-/* Tag styling */
-.events-card-tag {
-  display: inline-block;
-  font-family: var(--body-font-family);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--link-color);
-  background: color-mix(in srgb, var(--link-color) 8%, transparent);
-  padding: 3px 10px;
-  border-radius: var(--radius-xs);
-  margin: var(--space-s) 0 0;
-}
-
-/* Join meeting button */
-.events-card-join {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: auto;
-  padding: 8px 16px;
-  font-family: var(--body-font-family);
-  font-size: var(--body-font-size-xs);
-  font-weight: 600;
-  color: var(--background-color);
-  background: var(--link-color);
-  border-radius: var(--radius-xs);
-  text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.events-card-join:hover {
-  background: var(--link-hover-color);
-  transform: translateY(-1px);
 }
 
 /* Icon spacing */
