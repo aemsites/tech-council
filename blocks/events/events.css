@@ -186,12 +186,12 @@ main .section.highlight .events {
 }
 
 .events-card-body {
-  padding: 20px 20px 24px;
+  padding: var(--space-m);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   flex: 1;
-  gap: 8px;
+  gap: 2px;
 }
 
 /* Title styling */
@@ -200,8 +200,7 @@ main .section.highlight .events {
   font-weight: 600;
   color: var(--link-color);
   font-size: var(--heading-font-size-xs);
-  margin: 0 0 4px;
-  padding-right: 70px;
+  margin: 0 0 var(--space-m);
   line-height: 1.4;
   letter-spacing: -0.02em;
   display: -webkit-box;
@@ -217,7 +216,7 @@ main .section.highlight .events {
   font-family: var(--body-font-family);
   font-weight: 600;
   color: var(--text-muted);
-  margin: 0;
+  margin: 0 0 var(--space-s);
   font-size: var(--body-font-size-xs);
   display: flex;
   align-items: center;
@@ -245,14 +244,13 @@ main .section.highlight .events {
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-xs);
   color: var(--text-soft);
-  margin: 0;
+  margin: 0 0 var(--space-s);
   font-weight: 500;
 }
 
 /* Tag styling */
 .events-card-tag {
   display: inline-block;
-  align-self: flex-start;
   font-family: var(--body-font-family);
   font-size: 11px;
   font-weight: 600;
@@ -260,9 +258,9 @@ main .section.highlight .events {
   text-transform: uppercase;
   color: var(--link-color);
   background: color-mix(in srgb, var(--link-color) 8%, transparent);
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: var(--radius-xs);
-  margin: 4px 0 0;
+  margin: var(--space-s) 0 0;
 }
 
 /* Join meeting button */
@@ -270,9 +268,8 @@ main .section.highlight .events {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  align-self: flex-start;
   margin-top: auto;
-  padding: 10px 20px;
+  padding: 8px 16px;
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-xs);
   font-weight: 600;
@@ -401,7 +398,7 @@ main .section.highlight .events {
   }
   
   .events-card-body {
-    padding: 24px 20px 28px;
+    padding: var(--space-18) var(--space-m) var(--heading-margin-bottom);
   }
 }
 
@@ -429,7 +426,7 @@ main .section.highlight .events {
   }
   
   .events-card-body {
-    padding: 24px 24px 28px;
+    padding: var(--space-m) var(--space-14) var(--space-18);
   }
 }
 
