@@ -176,12 +176,8 @@
   padding-right: 70px;
   line-height: 1.4;
   letter-spacing: -0.02em;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
   min-height: 66px;
+  overflow-wrap: anywhere;
 }
 
 /* Speaker styling */
@@ -212,13 +208,9 @@
   color: var(--text-soft);
   margin: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 /* Tag styling */
@@ -268,6 +260,10 @@
   width: var(--body-font-size-xs);
   height: var(--body-font-size-xs);
   flex-shrink: 0;
+}
+
+.events-card-location span.icon {
+  margin-top: 2px;
 }
 
 /* Carousel Navigation - matching main carousel style */

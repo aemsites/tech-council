@@ -126,6 +126,7 @@ function buildEventCard(row) {
   const title = document.createElement('h3');
   title.className = 'events-card-title';
   title.textContent = (row.title || '').trim();
+  title.title = title.textContent;
   body.append(title);
 
   if ((row.speaker || '').trim()) {
@@ -157,6 +158,7 @@ function buildEventCard(row) {
     locIcon.setAttribute('aria-hidden', 'true');
     locationEl.append(locIcon);
     locationEl.append(document.createTextNode(room));
+    locationEl.title = room;
     body.append(locationEl);
   }
 
