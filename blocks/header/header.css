@@ -329,26 +329,33 @@ header nav .nav-sections ul > li > ul > li {
     position: relative;
   }
 
-  /* top-level links: compact hit area + active/hover underline */
+  /* top-level links: compact hit area + clean underline indicator */
   header nav .nav-sections .default-content-wrapper > ul > li > a {
     display: inline-block;
+    position: relative;
     padding: 6px 2px;
-    border-bottom: 2px solid transparent;
-    border-radius: 4px;
+    transition: color 0.2s ease;
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > a:hover,
   header nav .nav-sections .default-content-wrapper > ul > li > a:focus-visible {
     color: var(--link-color);
-    border-bottom-color: var(--link-color);
-    outline: none;
   }
 
-  /* Active page indicator - blue text + thin underline */
+  /* Active page indicator - link color text + straight underline */
   header nav .nav-sections .default-content-wrapper > ul > li > a.active {
     color: var(--link-color);
     font-weight: 600;
-    border-bottom-color: var(--link-color);
+  }
+
+  header nav .nav-sections .default-content-wrapper > ul > li > a.active::after {
+    content: '';
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    bottom: -2px;
+    height: 2px;
+    background: var(--link-color);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul {
@@ -406,42 +413,43 @@ header nav .nav-tools {
   grid-area: tools;
 }
 
-/* mobile menu styles: larger tap targets and separators */
-header nav[aria-expanded='true'] .nav-sections ul > li {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-subtle);
+/* mobile menu styles: larger tap targets and separators (mobile only) */
+@media (width < 900px) {
+  header nav[aria-expanded='true'] .nav-sections ul > li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  header nav[aria-expanded='true'] .nav-sections a {
+    display: block;
+    padding: 12px 8px;
+    border-radius: 8px;
+  }
+
+  header nav[aria-expanded='true'] .nav-sections a:hover,
+  header nav[aria-expanded='true'] .nav-sections a:active {
+    background-color: var(--light-color);
+  }
+
+  /* Active link styling for mobile - blue text + underline */
+  header nav[aria-expanded='true'] .nav-sections a.active {
+    color: var(--link-color);
+    font-weight: 600;
+    border-bottom: 2px solid var(--link-color);
+    background-color: transparent;
+  }
+
+  header nav[aria-expanded='true'] .nav-sections a.active:hover {
+    background-color: var(--light-color);
+  }
 }
 
-header nav[aria-expanded='true'] .nav-sections a {
-  display: block;
-  padding: 12px 8px;
-  border-radius: 8px;
-}
-
-header nav[aria-expanded='true'] .nav-sections a:hover,
-header nav[aria-expanded='true'] .nav-sections a:active {
-  background-color: var(--light-color);
-}
-
-/* Active link styling for mobile - blue text + underline */
-header nav[aria-expanded='true'] .nav-sections a.active {
-  color: var(--link-color);
-  font-weight: 600;
-  border-bottom: 2px solid var(--link-color);
-  background-color: transparent;
-}
-
-header nav[aria-expanded='true'] .nav-sections a.active:hover {
-  background-color: var(--light-color);
-}
-
-/* focus visibility for all nav links - enhanced */
+/* focus visibility for all nav links - keyboard accessible, no clipped ring */
 header nav a:any-link:focus-visible {
-  outline: 3px solid var(--link-color);
-  outline-offset: 3px;
-  border-radius: 6px;
-  box-shadow: 0 0 0 6px rgba(0, 112, 220, 0.1);
-  transition: outline-offset 0.2s ease, box-shadow 0.2s ease;
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+  box-shadow: none;
 }
 
 /* Hamburger button focus state */
