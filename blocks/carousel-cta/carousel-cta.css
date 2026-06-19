@@ -1,4 +1,4 @@
-/* Carousel CTA Block */
+/* Carousel CTA Block — single-column content card styled like event cards */
 
 /* Remove underlines from all links */
 .carousel-cta a:any-link,
@@ -16,49 +16,197 @@
   display: none !important;
 }
 
-/* Center content */
-.carousel-cta .carousel-slide {
-  align-items: center !important;
+/* Slide hosts a centered card instead of a full-bleed hero */
+.carousel.carousel-cta .carousel-slides,
+.carousel.carousel-cta .carousel-slide {
+  border: none;
+  border-radius: 0;
 }
 
-.carousel-cta .carousel-slide-content {
-  text-align: center !important;
+/* Eliminate any horizontal inset in the carousel chain so the card spans the
+   full content width (same as the communities block) */
+.carousel.carousel-cta .carousel-slides-container,
+.carousel.carousel-cta .carousel-slides,
+.carousel.carousel-cta .carousel-slide {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.carousel.carousel-cta .carousel-slide {
+  min-height: auto;
+  background: transparent;
+  overflow: visible;
+  padding-top: var(--space-l);
+  padding-bottom: var(--space-l);
+  align-items: stretch !important;
+  justify-content: center;
+}
+
+/* The content card — mirrors the event card look */
+.carousel-cta-card {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 600px;
+  text-align: center;
+  gap: 16px;
+  padding: 44px 40px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--link-color) 6%, transparent), transparent 60%),
+    var(--event-card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-radius: var(--radius-m);
+  box-shadow:
+    0 1px 2px rgb(0 29 38 / 5%),
+    0 4px 16px rgb(0 29 38 / 4%);
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.carousel-cta .carousel-cta-title {
+/* Horizontal banner layout on larger screens */
+@media (width >= 900px) {
+  .carousel-cta-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    gap: 40px;
+    padding: 40px 56px;
+  }
+
+  .carousel-cta .carousel-cta-card .carousel-cta-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .carousel-cta .carousel-cta-button {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+}
+
+/* Text group wrapper (title + description) — centered on mobile */
+.carousel-cta-card .carousel-cta-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Safety net: neutralize any stray list markers from authored content */
+.carousel.carousel-cta .carousel-slide {
+  list-style: none;
+}
+
+.carousel-cta-card ul,
+.carousel-cta-card ol,
+.carousel-cta-card li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.carousel-cta .carousel-cta-title,
+.carousel-cta .carousel-cta-card :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-family: var(--heading-font-family);
   font-weight: 700;
-  color: var(--background-color);
-  margin-bottom: 16px;
-  font-size: var(--heading-font-size-xl);
+  color: var(--link-color);
+  font-size: var(--heading-font-size-m);
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .carousel-cta .carousel-cta-description {
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--body-font-family);
   font-size: var(--body-font-size-s);
-  margin-bottom: 24px;
-  color: var(--white-95);
-  line-height: 1.5;
+  color: var(--text-muted);
+  line-height: 1.6;
 }
 
-.carousel-cta .carousel-cta-button {
-  align-self: center;
-  background-color: var(--link-color);
-  color: var(--background-color);
-  border-color: var(--link-color);
-  padding: 12px 32px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  text-decoration: none !important;
-  border-bottom: none !important;
+.carousel-cta .carousel-cta-button,
+.carousel-cta .carousel-cta-button:any-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 15px 38px;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: linear-gradient(135deg,
+    var(--link-color),
+    color-mix(in srgb, var(--link-color) 70%, #8a6bff));
+  border: none;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--link-color) 32%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+/* Arrow that nudges on hover */
+.carousel-cta .carousel-cta-button::after {
+  content: '→';
+  font-size: 1.05em;
+  line-height: 1;
+  transition: transform 0.2s ease;
 }
 
 .carousel-cta .carousel-cta-button:hover {
-  background-color: var(--link-hover-color);
-  border-color: var(--link-hover-color);
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-} 
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--link-color) 45%, transparent);
+  filter: brightness(1.05);
+}
+
+.carousel-cta .carousel-cta-button:hover::after {
+  transform: translateX(4px);
+}
+
+/* ---- Note mode: centered message with an inline link ---- */
+.carousel-cta .carousel-cta-card.is-note {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.carousel-cta .carousel-cta-card.is-note p,
+.carousel-cta .carousel-cta-card.is-note :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-m);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: normal;
+  color: var(--text-color);
+  max-width: 60ch;
+}
+
+.carousel-cta .carousel-cta-card.is-note .carousel-cta-link:any-link {
+  color: var(--link-color);
+  font-weight: 700;
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+
+.carousel-cta .carousel-cta-card.is-note .carousel-cta-link:hover {
+  color: var(--link-hover-color);
+}
