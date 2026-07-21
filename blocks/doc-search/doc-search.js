@@ -269,6 +269,20 @@ function loadSearch(input, docs, resultsContainer, isHomepage, clearButton) {
 }
 
 /**
+ * Resolves a display category label for a match, only for events,
+ * recordings and communities. Returns empty string otherwise.
+ * @param {Object} match - Matching document object.
+ * @returns {string} Category label to show, or '' to hide.
+ */
+function resolveCategory(match) {
+  if (match?.source === 'events') return 'Events';
+  if (match?.source === 'recordings') return 'Recordings';
+  const path = (match?.path || '').toLowerCase();
+  if (path === '/communities' || path.startsWith('/communities/')) return 'Communities';
+  return '';
+}
+
+/**
  * Builds a search result element.
  * @param {Object} match - Matching document object.
  * @param {Array} terms - Array of search terms to highlight.
@@ -307,10 +321,15 @@ function buildResult(match, terms, isHomepage) {
   const desc = createTag('p', {}, truncate(match.description));
   highlightTerms(terms, [title, desc]);
   const imageSrc = getSafeImageSrc(match.image);
+  const category = resolveCategory(match);
+  const categoryTag = category
+    ? createTag('span', { class: 'doc-search-result-category' }, category)
+    : null;
 
   if (isHomepage) {
     const image = createOptimizedPicture(imageSrc, '', false, [{ width: '20' }]);
     result.append(image, title, desc);
+    if (categoryTag) result.append(categoryTag);
     const li = createTag('li', { class: 'doc-search-result' });
     li.append(result);
     return li;
@@ -325,6 +344,7 @@ function buildResult(match, terms, isHomepage) {
   const h3 = createTag('h3', {}, span);
   const p = createTag('p', {}, desc);
   cardBody.append(h3, p);
+  if (categoryTag) cardBody.append(categoryTag);
   result.append(cardImage, cardBody);
   return result;
 }
