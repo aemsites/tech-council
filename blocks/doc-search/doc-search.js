@@ -2,7 +2,8 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import createTag from '../../utils/tag.js';
 
 const CURSOR_BLINK = 580; // in milliseconds
-const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json?sheet=recordings';
+const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json';
+const EVENTS_SOURCE = '/forms/events-form/events-data.json';
 const DEFAULT_IMAGE = '/icons/genai-doc.svg';
 
 /**
@@ -68,6 +69,11 @@ export async function fetchSourceData(index, faq = '') {
     const recordings = await fetchRecordingsData(RECORDINGS_SOURCE);
     if (recordings.length) {
       window.docs.push(...recordings);
+    }
+    // eslint-disable-next-line no-use-before-define
+    const events = await fetchEventsData(EVENTS_SOURCE);
+    if (events.length) {
+      window.docs.push(...events);
     }
     return window.docs;
   } catch (error) {
@@ -135,6 +141,48 @@ export async function fetchRecordingsData(index) {
     const json = await resp.json();
     const rows = Array.isArray(json?.data) ? json.data : [];
     return rows.map(mapRecordingToSearchDoc).filter(Boolean);
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Converts an events feed row into a searchable doc entry.
+ * @param {Object} row - Event row from JSON feed.
+ * @returns {Object|null} Search doc entry.
+ */
+function mapEventToSearchDoc(row) {
+  if (!row || typeof row !== 'object') return null;
+  const title = String(row.title || '').trim();
+  if (!title) return null;
+  const speaker = String(row.speaker || '').trim();
+  const dateTime = String(row.dateTime || '').trim();
+  const tag = String(row.tag || '').trim();
+  const meetingRoom = String(row.meetingRoom || '').trim();
+  const description = [speaker, tag].filter(Boolean).join(' | ') || 'Event';
+  // Keep destination on /events while making each entry unique for de-dupe.
+  const path = `/events`;
+  return {
+    title,
+    description,
+    path,
+    image: DEFAULT_IMAGE,
+    content: `${title} ${speaker} ${dateTime} ${tag} ${meetingRoom}`.toLowerCase(),
+    source: 'events',
+  };
+}
+
+/**
+ * Fetches events index and maps it into search docs.
+ * @param {string} index - Relative events JSON endpoint.
+ * @returns {Array} Searchable events entries.
+ */
+export async function fetchEventsData(index) {
+  try {
+    const resp = await fetch(index);
+    const json = await resp.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    return rows.map(mapEventToSearchDoc).filter(Boolean);
   } catch (error) {
     return [];
   }
