@@ -189,6 +189,50 @@ footer .footer[data-block-status="loaded"] {
   visibility: visible;
 }
 
+/* Section skeleton loading
+ * While a below-the-fold section loads, JS adds .section-loading to reserve its
+ * slot (so nothing pops in above it) and show a shimmer placeholder. The
+ * placeholder is delayed ~200ms so fast sections never flash a skeleton, and
+ * the shimmer only animates when the user has no reduced-motion preference. */
+main .section.section-loading {
+  position: relative;
+  min-height: 220px;
+}
+
+/* hide the section's raw, not-yet-decorated content behind the skeleton */
+main .section.section-loading > * {
+  visibility: hidden;
+}
+
+main .section.section-loading::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 12px;
+  background-color: #eef1f6;
+  opacity: 0;
+  animation: section-skeleton-appear 0.2s ease-out 0.2s forwards;
+}
+
+@keyframes section-skeleton-appear {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  main .section.section-loading::after {
+    background-image: linear-gradient(100deg, #eef1f6 40%, #f6f9fc 50%, #eef1f6 60%);
+    background-size: 200% 100%;
+    animation:
+      section-skeleton-appear 0.2s ease-out 0.2s forwards,
+      section-skeleton-shimmer 1.4s linear 0.2s infinite;
+  }
+}
+
+@keyframes section-skeleton-shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -150% 0; }
+}
+
 h1,
 h2,
 h3,
