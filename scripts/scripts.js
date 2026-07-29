@@ -198,18 +198,23 @@ async function loadLazy(doc) {
 
   const main = doc.querySelector('main');
 
-  // Load header and footer up front so the nav is not queued behind the
-  // (slower) fragment section fetches below.
+  // Header and footer are not in the LCP path; kick them off up front so they
+  // load in parallel with the section content instead of queued behind it.
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
 
-  // Load all sections concurrently. Each fragment-based section (Events,
-  // Communities, Tools, ...) makes its own network request; loading them in
-  // parallel collapses the total wait from the sum of those round-trips down
-  // to roughly the slowest one, so the below-the-fold content appears together
-  // instead of popping in one section at a time.
-  const sections = [...main.querySelectorAll('div.section')];
-  await Promise.all(sections.map((section) => loadSection(section)));
+  // Load every below-the-fold section concurrently, but keep them hidden while
+  // loading and reveal them together, in document order. Concurrency keeps it
+  // fast (the per-section fragment fetches overlap instead of running one after
+  // another); the synchronized reveal means the content appears all at once
+  // with no per-section pop-in and, crucially, no reordering -- a faster lower
+  // section can never surface above a slower one that sits above it. Using
+  // visibility (not display) reserves layout space, so the reveal is shift-free.
+  const pending = [...main.querySelectorAll('.section')]
+    .filter((section) => section.dataset.sectionStatus !== 'loaded');
+  pending.forEach((section) => { section.style.visibility = 'hidden'; });
+  await Promise.all(pending.map((section) => loadSection(section)));
+  pending.forEach((section) => { section.style.visibility = ''; });
   if (sampleRUM.enhance) sampleRUM.enhance();
 
   // Highlight and optionally scroll to matches from ?highlight= query param
