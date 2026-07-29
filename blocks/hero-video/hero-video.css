@@ -70,6 +70,11 @@ main .section.hero-video-container > div {
   min-height: 320px;
   object-fit: contain;
   display: block;
+
+  /* A <video> paints black until its first frame decodes; keep it transparent
+     so the media container's light gradient shows through and there is no
+     black flash while /assets/file.webm downloads. */
+  background: transparent;
 }
 
 .hero-video .hero-video-media.hero-video-error {
