@@ -9,8 +9,8 @@ import {
   decorateTemplateAndTheme,
   waitForFirstImage,
   loadSection,
-  loadSections,
   loadCSS,
+  sampleRUM,
 } from './aem.js';
 
 /**
@@ -195,9 +195,27 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   autolinkModals(doc);
-  
+
   const main = doc.querySelector('main');
-  await loadSections(main);
+
+  // Header and footer are not in the LCP path; kick them off up front so they
+  // load in parallel with the section content instead of queued behind it.
+  loadHeader(doc.querySelector('header'));
+  loadFooter(doc.querySelector('footer'));
+
+  // Load every below-the-fold section concurrently, but keep them hidden while
+  // loading and reveal them together, in document order. Concurrency keeps it
+  // fast (the per-section fragment fetches overlap instead of running one after
+  // another); the synchronized reveal means the content appears all at once
+  // with no per-section pop-in and, crucially, no reordering -- a faster lower
+  // section can never surface above a slower one that sits above it. Using
+  // visibility (not display) reserves layout space, so the reveal is shift-free.
+  const pending = [...main.querySelectorAll('.section')]
+    .filter((section) => section.dataset.sectionStatus !== 'loaded');
+  pending.forEach((section) => { section.style.visibility = 'hidden'; });
+  await Promise.all(pending.map((section) => loadSection(section)));
+  pending.forEach((section) => { section.style.visibility = ''; });
+  if (sampleRUM.enhance) sampleRUM.enhance();
 
   // Highlight and optionally scroll to matches from ?highlight= query param
   if (main) highlightFromQuery(main);
@@ -205,9 +223,6 @@ async function loadLazy(doc) {
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
-
-  loadHeader(doc.querySelector('header'));
-  loadFooter(doc.querySelector('footer'));
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
