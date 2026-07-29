@@ -23,14 +23,11 @@ export async function fetchPlaceholders(prefix = 'default') {
   if (!window.placeholders[prefix]) {
     window.placeholders[prefix] = new Promise((resolve) => {
       fetch(`${prefix === 'default' ? '' : prefix}/placeholders.json`)
-        .then((resp) => {
-          if (resp.ok) {
-            return resp.json();
-          }
-          return {};
-        }).then((json) => {
+        .then((resp) => (resp.ok ? resp.json() : {}))
+        .then((json) => {
           const placeholders = {};
-          json.data
+          // json.data is absent when the sheet is missing (e.g. 404 -> {})
+          (json.data || [])
             .filter((placeholder) => placeholder.Key)
             .forEach((placeholder) => {
               placeholders[toCamelCase(placeholder.Key)] = placeholder.Text;
