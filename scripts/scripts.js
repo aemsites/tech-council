@@ -203,19 +203,26 @@ async function loadLazy(doc) {
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
 
-  // Load every below-the-fold section concurrently, but keep them hidden while
-  // loading and reveal them together, in document order. Concurrency keeps it
-  // fast (the per-section fragment fetches overlap instead of running one after
-  // another); the synchronized reveal means the content appears all at once
-  // with no per-section pop-in and, crucially, no reordering -- a faster lower
-  // section can never surface above a slower one that sits above it. Using
-  // visibility (not display) reserves layout space, so the reveal is shift-free.
+  // Reserve space for every below-the-fold section up front with a skeleton
+  // placeholder, then load them all concurrently and swap each skeleton for its
+  // real content as soon as it is ready ("show data as it loads"). Because each
+  // section already holds its slot in document order, a faster lower section
+  // simply fills its own reserved space -- it can never pop in above a slower
+  // section that sits above it (no reordering, minimal layout shift). The
+  // skeleton itself only appears if a section takes longer than ~200ms (see the
+  // .section-loading CSS), so fast sections show content directly with no flash.
   const pending = [...main.querySelectorAll('.section')]
     .filter((section) => section.dataset.sectionStatus !== 'loaded');
-  pending.forEach((section) => { section.style.visibility = 'hidden'; });
-  await Promise.all(pending.map((section) => loadSection(section)));
-  pending.forEach((section) => { section.style.visibility = ''; });
-  if (sampleRUM.enhance) sampleRUM.enhance();
+  pending.forEach((section) => {
+    section.style.display = '';
+    section.classList.add('section-loading');
+    section.setAttribute('aria-busy', 'true');
+  });
+  await Promise.all(pending.map((section, i) => loadSection(section).then(() => {
+    section.classList.remove('section-loading');
+    section.removeAttribute('aria-busy');
+    if (i === 0 && sampleRUM.enhance) sampleRUM.enhance();
+  })));
 
   // Highlight and optionally scroll to matches from ?highlight= query param
   if (main) highlightFromQuery(main);
