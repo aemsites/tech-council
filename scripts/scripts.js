@@ -9,8 +9,8 @@ import {
   decorateTemplateAndTheme,
   waitForFirstImage,
   loadSection,
+  loadSections,
   loadCSS,
-  sampleRUM,
 } from './aem.js';
 
 /**
@@ -195,22 +195,9 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   autolinkModals(doc);
-
+  
   const main = doc.querySelector('main');
-
-  // Load header and footer up front so the nav is not queued behind the
-  // (slower) fragment section fetches below.
-  loadHeader(doc.querySelector('header'));
-  loadFooter(doc.querySelector('footer'));
-
-  // Load all sections concurrently. Each fragment-based section (Events,
-  // Communities, Tools, ...) makes its own network request; loading them in
-  // parallel collapses the total wait from the sum of those round-trips down
-  // to roughly the slowest one, so the below-the-fold content appears together
-  // instead of popping in one section at a time.
-  const sections = [...main.querySelectorAll('div.section')];
-  await Promise.all(sections.map((section) => loadSection(section)));
-  if (sampleRUM.enhance) sampleRUM.enhance();
+  await loadSections(main);
 
   // Highlight and optionally scroll to matches from ?highlight= query param
   if (main) highlightFromQuery(main);
@@ -218,6 +205,9 @@ async function loadLazy(doc) {
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
+
+  loadHeader(doc.querySelector('header'));
+  loadFooter(doc.querySelector('footer'));
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
