@@ -13,6 +13,9 @@ export default async function decorate(block) {
 
   // decorate footer DOM
   block.textContent = '';
+  // loadFragment returns null when the footer document is missing (e.g. 404);
+  // bail out cleanly instead of throwing on fragment.firstElementChild.
+  if (!fragment) return;
   const footer = document.createElement('div');
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
 
