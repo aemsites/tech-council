@@ -1,7 +1,7 @@
 import { decorateIcons } from '../../scripts/aem.js';
 import { fetchPlaceholders } from '../../scripts/placeholders.js';
 
-const EVENTS_SHEET_PATH = '/forms/events-form/events-data.json';
+const EVENTS_SHEET_PATH = '/forms/events-form/form/events.json?sheet=events';
 const EVENTS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
 
 function getEventsSheetUrl() {
