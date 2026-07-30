@@ -1,10 +1,23 @@
+/** A field is considered empty when it's null/undefined, blank, or the number/string 0. */
+function isEmptyField(value) {
+  if (value == null) return true;
+  if (typeof value === 'number') return value === 0;
+  const str = String(value).trim();
+  return str === '' || str === '0';
+}
+
+/** Trims a field to a string, treating 0/"0"/blank as empty (''). */
+function normalizeField(value) {
+  return isEmptyField(value) ? '' : String(value).trim();
+}
+
 /**
  * Converts Excel serial date to a readable date string.
  * @param {string|number} value - Excel serial date (e.g. "46056") or ISO date string
  * @returns {string} Formatted date or original value if not a number
  */
 function formatSheetDate(value) {
-  if (value == null || value === '') return '';
+  if (isEmptyField(value)) return '';
   const num = Number(value);
   if (Number.isNaN(num)) return String(value);
   // Excel serial: days since 1900-01-01 (Excel epoch). 25569 ≈ Jan 1, 1970 in Excel.
@@ -160,7 +173,7 @@ function createRecordingsCardIcons(recordingLink, presentationLink) {
 /** Get numeric date for sorting (Excel serial or timestamp). Returns 0 if missing/invalid. */
 function getSortDate(row) {
   const v = row.date;
-  if (v == null || v === '') return 0;
+  if (isEmptyField(v)) return 0;
   const num = Number(v);
   return Number.isNaN(num) ? 0 : num;
 }
@@ -168,7 +181,7 @@ function getSortDate(row) {
 /** Get timestamp (ms) for date-range filtering. Returns null if no valid date. */
 function getDateTimestamp(row) {
   const v = row.date;
-  if (v == null || v === '') return null;
+  if (isEmptyField(v)) return null;
   const num = Number(v);
   if (Number.isNaN(num)) return null;
   return (num - 25569) * 86400 * 1000;
@@ -187,7 +200,7 @@ const DATE_RANGES = [
 const TAG_OTHER = 'Other';
 
 function getRowTag(row) {
-  const t = (row.tag || '').trim();
+  const t = normalizeField(row.tag);
   return t === '' ? TAG_OTHER : t;
 }
 
@@ -213,8 +226,8 @@ function getFilteredAndSortedData(block) {
   /* Text search (title / speaker) */
   if (query) {
     list = list.filter((row) => {
-      const title = (row.title || '').toLowerCase();
-      const speaker = (row.speaker || '').toLowerCase();
+      const title = normalizeField(row.title).toLowerCase();
+      const speaker = normalizeField(row.speaker).toLowerCase();
       return title.includes(query) || speaker.includes(query);
     });
   }
@@ -242,19 +255,19 @@ function getFilteredAndSortedData(block) {
       const da = getSortDate(a);
       const db = getSortDate(b);
       if (da !== db) return db - da; /* higher date first; 0 (no date) goes to end */
-      return (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' });
+      return normalizeField(a.title).localeCompare(normalizeField(b.title), undefined, { sensitivity: 'base' });
     });
   } else if (sortBy === 'date-asc') {
     list.sort((a, b) => {
       const da = getSortDate(a);
       const db = getSortDate(b);
       if (da !== db) return da - db; /* lower date first; 0 (no date) goes to end */
-      return (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' });
+      return normalizeField(a.title).localeCompare(normalizeField(b.title), undefined, { sensitivity: 'base' });
     });
   } else if (sortBy === 'title-asc') {
-    list.sort((a, b) => (a.title || '').localeCompare(b.title || '', undefined, { sensitivity: 'base' }));
+    list.sort((a, b) => normalizeField(a.title).localeCompare(normalizeField(b.title), undefined, { sensitivity: 'base' }));
   } else if (sortBy === 'title-desc') {
-    list.sort((a, b) => (b.title || '').localeCompare(a.title || '', undefined, { sensitivity: 'base' }));
+    list.sort((a, b) => normalizeField(b.title).localeCompare(normalizeField(a.title), undefined, { sensitivity: 'base' }));
   }
 
   return list;
@@ -265,18 +278,18 @@ function buildRecordingsCard(row, rowIdx) {
   const li = document.createElement('li');
   li.style.setProperty('--i', String(rowIdx));
 
-  const recordingLink = (row.recordingLink || '').trim();
-  const presentationLink = (row.presentationLink || '').trim();
+  const recordingLink = normalizeField(row.recordingLink);
+  const presentationLink = normalizeField(row.presentationLink);
 
   li.append(createRecordingsCardIcons(recordingLink, presentationLink));
 
   const body = document.createElement('div');
   body.className = 'recordings-card-body';
 
-  const title = row.title ? String(row.title).trim() : '';
-  const speaker = row.speaker ? String(row.speaker).trim() : '';
+  const title = normalizeField(row.title);
+  const speaker = normalizeField(row.speaker);
   const dateStr = formatSheetDate(row.date);
-  const tagRaw = (row.tag || '').trim();
+  const tagRaw = normalizeField(row.tag);
 
   const titleEl = document.createElement('h3');
   titleEl.className = 'recordings-title';

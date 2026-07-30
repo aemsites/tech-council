@@ -42,8 +42,21 @@ async function fetchEventsData() {
   }
 }
 
+/** A field is considered empty when it's null/undefined, blank, or the number/string 0. */
+function isEmptyField(value) {
+  if (value == null) return true;
+  if (typeof value === 'number') return value === 0;
+  const str = String(value).trim();
+  return str === '' || str === '0';
+}
+
+/** Trims a field to a string, treating 0/"0"/blank as empty ('') . */
+function normalizeField(value) {
+  return isEmptyField(value) ? '' : String(value).trim();
+}
+
 function parseEventDate(value) {
-  if (!value) return null;
+  if (isEmptyField(value)) return null;
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
 }
@@ -125,14 +138,15 @@ function buildEventCard(row) {
 
   const title = document.createElement('h3');
   title.className = 'events-card-title';
-  title.textContent = (row.title || '').trim();
+  title.textContent = normalizeField(row.title);
   title.title = title.textContent;
   body.append(title);
 
-  if ((row.speaker || '').trim()) {
+  const speakerName = normalizeField(row.speaker);
+  if (speakerName) {
     const speaker = document.createElement('p');
     speaker.className = 'events-card-speaker';
-    speaker.textContent = `By ${row.speaker.trim()}`;
+    speaker.textContent = `By ${speakerName}`;
     body.append(speaker);
   }
 
@@ -149,7 +163,7 @@ function buildEventCard(row) {
     body.append(dateEl);
   }
 
-  const room = (row.meetingRoom || '').trim();
+  const room = normalizeField(row.meetingRoom);
   if (room) {
     const locationEl = document.createElement('p');
     locationEl.className = 'events-card-location';
@@ -162,7 +176,7 @@ function buildEventCard(row) {
     body.append(locationEl);
   }
 
-  const tagRaw = (row.tag || '').trim();
+  const tagRaw = normalizeField(row.tag);
   if (tagRaw) {
     const tagEl = document.createElement('p');
     tagEl.className = 'events-card-tag';
@@ -170,7 +184,7 @@ function buildEventCard(row) {
     body.append(tagEl);
   }
 
-  const meetingLink = (row.meetingLink || '').trim();
+  const meetingLink = normalizeField(row.meetingLink);
   if (isUpcoming && meetingLink && isSafeUrl(meetingLink)) {
     const joinBtn = document.createElement('a');
     joinBtn.href = meetingLink;
