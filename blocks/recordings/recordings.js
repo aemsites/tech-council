@@ -44,8 +44,8 @@ function debounce(fn, ms) {
 }
 
 /** EDS sheet path and origin. */
-const RECORDINGS_SHEET_PATH = '/forms/recording-form/form/recordings.json?sheet=recordings';
-const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
+const RECORDINGS_SHEET_PATH = '/forms/recording-form/recordings.json?sheet=recordings';
+const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.live';
 
 /**
  * Resolves the recordings sheet URL so the request is always same-origin (avoids 403 on production).
