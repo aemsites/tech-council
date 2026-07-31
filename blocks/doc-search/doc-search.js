@@ -766,7 +766,7 @@ export default async function decorate(block) {
   const noResults = createTag(
     'li',
     { class: 'doc-search-no-result', 'aria-hidden': true },
-    'We didn\'t find a good match. <a href="/docs/">Visit our documentation page</a> for more.',
+    'No matching events or recordings found. Try a different search.',
   );
   results.append(noResults);
   // add functionality to search bar
