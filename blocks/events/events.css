@@ -171,12 +171,12 @@
   font-family: var(--heading-font-family);
   font-weight: 600;
   color: var(--link-color);
-  font-size: var(--heading-font-size-s);
+  font-size: clamp(17px, 1.4vw, 20px);
   margin: 0 0 4px;
   padding-right: 70px;
   line-height: 1.4;
   letter-spacing: -0.02em;
-  min-height: 66px;
+  min-height: 50px;
   overflow-wrap: anywhere;
 }
 
@@ -364,11 +364,6 @@
     gap: var(--heading-margin-bottom);
   }
   
-  .events-card-title {
-    font-size: var(--heading-font-size-s);
-    min-height: 66px;
-  }
-  
   .events-card-body {
     padding: 28px 28px 32px;
   }
@@ -391,10 +386,6 @@
   .events-carousel-slide-content {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--card-gap);
-  }
-  
-  .events-card-title {
-    font-size: var(--heading-font-size-s);
   }
   
   .events-card-body {

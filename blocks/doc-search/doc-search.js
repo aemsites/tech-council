@@ -790,7 +790,7 @@ export default async function decorate(block) {
   search.addEventListener('focus', () => {
     search.dataset.rotate = false;
     forceStop(search);
-    search.placeholder = 'Search the documentation';
+    search.placeholder = 'Search events and recordings';
   });
   search.addEventListener('blur', () => {
     if (search.value === '' && isHomepage && placeholders.length > 0) {

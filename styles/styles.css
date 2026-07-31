@@ -106,7 +106,7 @@
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
-  --heading-font-family: roboto-condensed, roboto-condensed-fallback, roboto, sans-serif;
+  --heading-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
 
   /* body sizes */
   --body-font-size-m: clamp(17px, 1.2vw, 19px);
@@ -133,12 +133,6 @@
 }
 
 /* fallback fonts */
-@font-face {
-  font-family: roboto-condensed-fallback;
-  size-adjust: 88.82%;
-  src: local('Adobe Clean');
-}
-
 @font-face {
   font-family: roboto-fallback;
   size-adjust: 99.529%;
