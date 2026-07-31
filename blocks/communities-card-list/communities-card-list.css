@@ -166,24 +166,29 @@
 }
 
 .communities-card-list-add-text {
-  font-size: var(--heading-font-size-m);
+  font-size: var(--heading-font-size-s);
   font-weight: 600;
   color: #4f4f4f;
   margin: 0;
   line-height: 1.3;
 }
 
-.communities-card-list-add-btn {
-  padding: 10px 20px;
+.communities-card-list-add-btn.button.primary {
+  margin: 0;
+  padding: 0.6em 1.4em;
+  font-size: var(--body-font-size-xs);
   font-weight: 600;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  border-radius: 8px;
-  transition: transform 0.2s ease;
+  border-radius: 2em;
+  box-shadow: 0 2px 8px rgba(106, 56, 255, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.communities-card-list-add-btn:hover,
-.communities-card-list-add-btn:focus-visible {
+.communities-card-list-add-btn.button.primary:hover,
+.communities-card-list-add-btn.button.primary:focus-visible {
   transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(106, 56, 255, 0.32);
 }
 
 .communities-card-list-error {
@@ -216,7 +221,7 @@
   }
 
   .communities-card-list-add-text {
-    font-size: 20px;
+    font-size: 18px;
   }
 }
 
