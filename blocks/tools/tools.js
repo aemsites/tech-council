@@ -45,10 +45,20 @@ function debounce(fn, ms) {
   };
 }
 
+/** The sheet tab to read from the tools JSON. */
+const TOOLS_SHEET_NAME = 'tools';
+
+/**
+ * Convert an input URL to a same-origin relative path and ensure it targets
+ * the `tools` sheet tab (adds `?sheet=tools` when not already present).
+ */
 function toRelativeUrl(input) {
   if (!input) return '';
   try {
     const parsed = new URL(input, window.location.origin);
+    if (!parsed.searchParams.has('sheet')) {
+      parsed.searchParams.set('sheet', TOOLS_SHEET_NAME);
+    }
     return `${parsed.pathname}${parsed.search}`;
   } catch (e) {
     return '';
