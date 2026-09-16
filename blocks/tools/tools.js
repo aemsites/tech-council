@@ -102,6 +102,46 @@ function getInitials(title) {
   return (words[0][0] + words[1][0]).toUpperCase();
 }
 
+/** The known primary types; anything else falls under "others". */
+const KNOWN_TYPES = ['skill', 'agent', 'app'];
+
+/** Type filters shown below the search bar (in display order). */
+const TYPE_FILTERS = [
+  {
+    value: 'all',
+    label: 'All',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 8l10 5 10-5-10-5z"/><path d="M2 16l10 5 10-5"/></svg>',
+  },
+  {
+    value: 'skill',
+    label: 'Skills',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>',
+  },
+  {
+    value: 'agent',
+    label: 'Agents',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 4v4M9 14h.01M15 14h.01"/></svg>',
+  },
+  {
+    value: 'app',
+    label: 'Apps',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18"/></svg>',
+  },
+  {
+    value: 'others',
+    label: 'Others',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>',
+  },
+];
+
+/** Whether a row matches the active type filter. */
+function matchesActiveType(row, active) {
+  if (!active || active === 'all') return true;
+  const t = normalizeField(row.type).toLowerCase();
+  if (active === 'others') return !KNOWN_TYPES.includes(t);
+  return t === active;
+}
+
 /** Build one clickable card for a tool row. */
 function buildToolCard(row, rowIdx) {
   const title = normalizeField(row.title);
@@ -180,12 +220,17 @@ function buildToolCard(row, rowIdx) {
   return li;
 }
 
-/** Filter data based on the search query (keeps the sheet's authored order). */
+/**
+ * Filter data by the active type filter and the search query (search is
+ * scoped to the selected type). Keeps the sheet's authored order.
+ */
 function getFilteredData(block) {
   const data = block.toolsData || [];
   const query = (block.toolsSearchQuery || '').trim().toLowerCase();
-  if (!query) return [...data];
+  const active = block.toolsActiveType || 'all';
   return data.filter((row) => {
+    if (!matchesActiveType(row, active)) return false;
+    if (!query) return true;
     const title = normalizeField(row.title).toLowerCase();
     const description = normalizeField(row.description).toLowerCase();
     return title.includes(query) || description.includes(query);
@@ -237,14 +282,59 @@ function createToolbar(block) {
   return toolbar;
 }
 
+/** Filter bar with icon chips for each type, shown below the search bar. */
+function createFilterBar(block) {
+  const bar = document.createElement('div');
+  bar.className = 'tools-filters';
+  bar.setAttribute('role', 'group');
+  bar.setAttribute('aria-label', 'Filter tools by type');
+
+  TYPE_FILTERS.forEach((f) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tools-filter';
+    btn.dataset.value = f.value;
+    const active = (block.toolsActiveType || 'all') === f.value;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', String(active));
+
+    const icon = document.createElement('span');
+    icon.className = 'tools-filter-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = f.icon;
+
+    const label = document.createElement('span');
+    label.className = 'tools-filter-label';
+    label.textContent = f.label;
+
+    btn.append(icon, label);
+
+    btn.addEventListener('click', () => {
+      block.toolsActiveType = f.value;
+      bar.querySelectorAll('.tools-filter').forEach((b) => {
+        const on = b.dataset.value === f.value;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      updateToolsList(block);
+    });
+
+    bar.append(btn);
+  });
+
+  return bar;
+}
+
 /** Render tools with a top search bar and a card grid. */
 function renderFromSheet(block, data) {
   block.toolsData = data;
   block.toolsSearchQuery = '';
+  block.toolsActiveType = 'all';
 
   block.textContent = '';
 
   const toolbar = createToolbar(block);
+  const filterBar = createFilterBar(block);
 
   const listContainer = document.createElement('ul');
   listContainer.className = 'tools-list';
@@ -254,7 +344,7 @@ function renderFromSheet(block, data) {
   emptyMsg.textContent = 'No tools match your search.';
   emptyMsg.hidden = true;
 
-  block.append(toolbar, listContainer, emptyMsg);
+  block.append(toolbar, filterBar, listContainer, emptyMsg);
 
   updateToolsList(block);
 }
