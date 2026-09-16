@@ -7,7 +7,7 @@
 
 /* Top toolbar: full-width search */
 .tools-toolbar {
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 }
 
 .tools-search {
@@ -33,6 +33,58 @@
   border-color: rgb(106 56 255 / 40%);
   outline: none;
   box-shadow: 0 0 0 3px rgb(106 56 255 / 10%);
+}
+
+/* Type filter chips (below search) */
+.tools-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.tools-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 15px;
+  border: 1px solid rgb(226 232 240 / 90%);
+  border-radius: 999px;
+  background: #fff;
+  color: #64748b;
+  font-family: var(--body-font-family);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.tools-filter-icon {
+  display: inline-flex;
+}
+
+.tools-filter-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.tools-filter:hover {
+  color: var(--link-color);
+  border-color: rgb(106 56 255 / 35%);
+  background: rgb(106 56 255 / 4%);
+}
+
+.tools-filter:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.tools-filter.is-active {
+  color: #fff;
+  background: var(--link-color);
+  border-color: var(--link-color);
+  box-shadow: 0 2px 8px rgb(106 56 255 / 25%);
 }
 
 /* Grid */
