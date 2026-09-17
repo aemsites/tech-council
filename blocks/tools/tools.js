@@ -91,6 +91,9 @@ function hashCode(str) {
   return h;
 }
 
+/** Destination for the "Add a tool" button (same-origin submission form). */
+const SUBMIT_TOOL_URL = '/toolsubmission';
+
 /** On-brand soft-tint palette (hue) for monogram tiles. */
 const MONO_HUES = [258, 230, 280, 200, 165, 320];
 
@@ -278,7 +281,16 @@ function createToolbar(block) {
   }, 180);
   search.addEventListener('input', () => applySearch());
 
-  toolbar.append(search);
+  const submit = document.createElement('a');
+  submit.className = 'tools-submit';
+  submit.href = SUBMIT_TOOL_URL;
+  submit.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+    <span>Add a tool</span>`;
+
+  toolbar.append(search, submit);
   return toolbar;
 }
 
