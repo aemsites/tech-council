@@ -112,6 +112,32 @@
   border: 1px solid rgb(0 29 38 / 8%);
 }
 
+/* No upcoming events banner */
+.events-no-upcoming-banner {
+  margin: 0 var(--carousel-padding-mobile) var(--space-m);
+  padding: var(--space-xs) var(--space-s);
+  background: rgb(255 255 255 / 90%);
+  border: 1px solid rgb(0 29 38 / 8%);
+  border-radius: var(--radius-xs);
+  box-shadow: var(--shadow-sm);
+}
+
+.events-no-upcoming-text {
+  margin: 0;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-xs);
+  color: var(--text-muted);
+}
+
+.events-no-upcoming-link {
+  color: var(--link-color);
+}
+
+.events-no-upcoming-link:hover,
+.events-no-upcoming-link:focus-visible {
+  color: var(--link-hover-color);
+}
+
 .events-card::before {
   content: '';
   position: absolute;
@@ -358,14 +384,18 @@
   .events-carousel-slide {
     padding: 0 8px;
   }
-  
+
   .events-carousel-slide-content {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--heading-margin-bottom);
   }
-  
+
   .events-card-body {
     padding: 28px 28px 32px;
+  }
+
+  .events-no-upcoming-banner {
+    margin: 0 var(--carousel-padding-tablet) var(--space-m);
   }
 }
 
@@ -382,14 +412,18 @@
   .events-carousel-slide {
     padding: 0 12px;
   }
-  
+
   .events-carousel-slide-content {
     grid-template-columns: repeat(3, 1fr);
     gap: var(--card-gap);
   }
-  
+
   .events-card-body {
     padding: 32px 32px 36px;
+  }
+
+  .events-no-upcoming-banner {
+    margin: 0 var(--carousel-padding-desktop) var(--space-m);
   }
 }
 

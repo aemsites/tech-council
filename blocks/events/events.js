@@ -3,6 +3,7 @@ import { fetchPlaceholders } from '../../scripts/placeholders.js';
 
 const EVENTS_SHEET_PATH = '/forms/events-form/events.json?sheet=events';
 const EVENTS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
+const RECORDINGS_PATH = '/recordings';
 
 function getEventsSheetUrl() {
   const { origin } = window.location;
@@ -117,7 +118,22 @@ function filterAndSortEvents(data) {
   if (result.length < maxEvents) {
     result.push(...noDates.slice(0, maxEvents - result.length));
   }
-  return result;
+  return { events: result, hasUpcoming: upcoming.length > 0 };
+}
+
+/** Whole-day difference between date and now, using local-midnight boundaries. */
+function daysUntil(date) {
+  const now = new Date();
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const valueDayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.round((valueDayStart - dayStart) / (1000 * 60 * 60 * 24));
+}
+
+function formatRelativeBadge(date) {
+  const days = daysUntil(date);
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  return `In ${days} days`;
 }
 
 function buildEventCard(row) {
@@ -129,7 +145,7 @@ function buildEventCard(row) {
 
   const badge = document.createElement('span');
   badge.className = 'events-card-badge';
-  badge.textContent = isUpcoming ? 'Upcoming' : 'Past';
+  badge.textContent = isUpcoming ? formatRelativeBadge(row.parsedDate) : 'Past';
   badge.setAttribute('aria-hidden', 'true');
   li.prepend(badge);
 
@@ -198,6 +214,24 @@ function buildEventCard(row) {
   li.append(body);
   decorateIcons(li);
   return li;
+}
+
+function buildNoUpcomingBanner() {
+  const banner = document.createElement('div');
+  banner.className = 'events-no-upcoming-banner';
+
+  const text = document.createElement('p');
+  text.className = 'events-no-upcoming-text';
+  text.append(document.createTextNode('No upcoming events right now - catch up on past sessions in '));
+
+  const link = document.createElement('a');
+  link.className = 'events-no-upcoming-link';
+  link.href = RECORDINGS_PATH;
+  link.textContent = 'Recordings';
+  text.append(link);
+
+  banner.append(text);
+  return banner;
 }
 
 function createCarouselControls(placeholders) {
@@ -286,7 +320,7 @@ export default async function decorate(block) {
     return;
   }
 
-  const events = filterAndSortEvents(data);
+  const { events, hasUpcoming } = filterAndSortEvents(data);
 
   const cards = events.map((row) => buildEventCard(row));
 
@@ -325,6 +359,9 @@ export default async function decorate(block) {
   carouselWrapper.appendChild(slidesContainer);
 
   block.textContent = '';
+  if (!hasUpcoming) {
+    block.appendChild(buildNoUpcomingBanner());
+  }
   block.appendChild(carouselWrapper);
   block.dataset.currentSlide = '0';
   block.classList.add('at-start');
