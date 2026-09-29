@@ -273,6 +273,14 @@ function getFilteredAndSortedData(block) {
   return list;
 }
 
+const NEW_BADGE_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+
+/** True when the row's date falls within the last 14 days. */
+function isRecentRecording(row) {
+  const ts = getDateTimestamp(row);
+  return ts != null && ts >= Date.now() - NEW_BADGE_WINDOW_MS;
+}
+
 /** Build one list item DOM for a row. */
 function buildRecordingsCard(row, rowIdx) {
   const li = document.createElement('li');
@@ -317,6 +325,14 @@ function buildRecordingsCard(row, rowIdx) {
   }
 
   li.append(body);
+
+  if (isRecentRecording(row)) {
+    const newBadge = document.createElement('span');
+    newBadge.className = 'recordings-card-badge-new';
+    newBadge.textContent = 'New';
+    li.append(newBadge);
+  }
+
   return li;
 }
 

@@ -224,6 +224,24 @@
   opacity: 1;
 }
 
+.recordings-card-badge-new {
+  position: absolute;
+  top: var(--space-s);
+  right: var(--space-s);
+  z-index: 2;
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-xs);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  box-shadow: var(--shadow-sm);
+  background: var(--link-color);
+  color: var(--background-color);
+}
+
 /* Custom tooltip for icon links */
 .recordings [data-tooltip] {
   position: relative;
