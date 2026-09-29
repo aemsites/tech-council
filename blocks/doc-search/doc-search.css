@@ -362,3 +362,57 @@
   .doc-search .doc-search-results > li.doc-search-result a .doc-search-result-category {
     grid-area: cat;
   }
+
+  .doc-search .doc-search-results > li.doc-search-recent-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .doc-search .doc-search-results > li.doc-search-recent-heading span {
+    color: var(--text-soft);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .doc-search .doc-search-results > li.doc-search-recent-item {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .doc-search .doc-search-recent-query {
+    flex: 1 1 auto;
+    display: block;
+    padding: 14px 16px;
+    color: unset;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .doc-search .doc-search-recent-query:hover,
+  .doc-search .doc-search-recent-query:focus {
+    background-color: var(--light-color);
+  }
+
+  .doc-search .doc-search-recent-remove,
+  .doc-search .doc-search-recent-clear {
+    flex: 0 0 auto;
+    border: none;
+    background: none;
+    padding: 0 16px;
+    color: var(--text-soft);
+    font: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .doc-search .doc-search-recent-remove:hover,
+  .doc-search .doc-search-recent-remove:focus,
+  .doc-search .doc-search-recent-clear:hover,
+  .doc-search .doc-search-recent-clear:focus {
+    color: var(--link-color);
+  }

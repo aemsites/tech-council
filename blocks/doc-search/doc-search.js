@@ -5,6 +5,8 @@ const CURSOR_BLINK = 580; // in milliseconds
 const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json';
 const EVENTS_SOURCE = '/forms/events-form/events-data.json';
 const DEFAULT_IMAGE = '/icons/genai-doc.svg';
+const RECENT_SEARCHES_KEY = 'tc-recent-searches';
+const MAX_RECENT_SEARCHES = 5;
 
 /**
  * Debounces a function by given delay.
@@ -253,6 +255,62 @@ function toggleClearButton(input, clearButton) {
   }
 }
 
+/**
+ * Reads the stored list of recent searches from localStorage.
+ * @returns {Array} List of recent search queries, most-recent-first.
+ */
+function getRecentSearches() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY));
+    if (!Array.isArray(stored)) return [];
+    return stored
+      .filter((entry) => typeof entry === 'string' && entry.trim())
+      .slice(0, MAX_RECENT_SEARCHES);
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Persists the given list of recent searches to localStorage.
+ * @param {Array} list - List of recent search queries to store.
+ */
+function setRecentSearches(list) {
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(list));
+  } catch (error) {
+    // ignore write errors (e.g. storage disabled or full)
+  }
+}
+
+/**
+ * Records a search query as a recent search, de-duplicating and capping the list.
+ * @param {string} query - Search query to save.
+ */
+function saveRecentSearch(query) {
+  const trimmed = (query || '').trim();
+  if (!trimmed) return;
+  const existing = getRecentSearches()
+    .filter((entry) => entry.toLowerCase() !== trimmed.toLowerCase());
+  existing.unshift(trimmed);
+  setRecentSearches(existing.slice(0, MAX_RECENT_SEARCHES));
+}
+
+/**
+ * Removes a single query from the stored recent searches.
+ * @param {string} query - Search query to remove.
+ */
+function removeRecentSearch(query) {
+  setRecentSearches(getRecentSearches().filter((entry) => entry !== query));
+}
+
+/**
+ * Clears all stored recent searches.
+ */
+function clearRecentSearches() {
+  setRecentSearches([]);
+}
+
 function loadSearch(input, docs, resultsContainer, isHomepage, clearButton) {
   let searchTerm;
   if (/[?&]q=/.test(window.location.search)) {
@@ -387,6 +445,87 @@ export function displayResults(matches, terms, container, isHomepage) {
 }
 
 /**
+ * Removes all dynamically rendered live-result and recent-search entries from the
+ * container, leaving persistent elements (e.g. the "no result" message) in place.
+ * @param {HTMLElement} container - Results container.
+ */
+function clearDynamicResults(container) {
+  container.querySelectorAll('.doc-search-result, .doc-search-recent-heading, .doc-search-recent-item')
+    .forEach((el) => el.remove());
+}
+
+/**
+ * Builds a single recent-search list item.
+ * @param {string} query - Recent search query to render.
+ * @param {Function} onSelect - Called with the query when the entry is selected.
+ * @param {Function} onRemove - Called with the query when the entry is removed.
+ * @returns {HTMLElement} List item for the recent search entry.
+ */
+function buildRecentSearchItem(query, onSelect, onRemove) {
+  const link = createTag('a', { href: '#', class: 'doc-search-recent-query' });
+  link.textContent = query;
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    onSelect(query);
+  });
+  const remove = createTag(
+    'button',
+    {
+      type: 'button',
+      class: 'doc-search-recent-remove',
+      'aria-label': `Remove "${query}" from recent searches`,
+    },
+    '✕',
+  );
+  remove.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onRemove(query);
+  });
+  const li = createTag('li', { class: 'doc-search-recent-item' });
+  li.append(link, remove);
+  return li;
+}
+
+/**
+ * Renders the "Recent searches" view into the results dropdown.
+ * @param {HTMLElement} results - Results container.
+ * @param {Function} rerun - Called with a stored query when it is selected.
+ */
+function renderRecentSearches(results, rerun) {
+  clearDynamicResults(results);
+  results.querySelector('.doc-search-no-result').setAttribute('aria-hidden', true);
+  const queries = getRecentSearches();
+  if (!queries.length) {
+    // eslint-disable-next-line no-use-before-define
+    hideResults(results);
+    return;
+  }
+
+  const label = createTag('span', {}, 'Recent searches');
+  const clearAll = createTag('button', { type: 'button', class: 'doc-search-recent-clear' }, 'Clear all');
+  clearAll.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    clearRecentSearches();
+    renderRecentSearches(results, rerun);
+  });
+  const heading = createTag('li', { class: 'doc-search-recent-heading' });
+  heading.append(label, clearAll);
+  results.append(heading);
+
+  queries.forEach((query) => {
+    results.append(buildRecentSearchItem(query, rerun, (removed) => {
+      removeRecentSearch(removed);
+      renderRecentSearches(results, rerun);
+    }));
+  });
+
+  results.setAttribute('aria-hidden', false);
+  results.classList.add('open');
+}
+
+/**
  * Displays a matched search result in the container.
  * @param {Object} match - Matching document object.
  * @param {Array} terms - Array of search terms to highlight.
@@ -516,7 +655,7 @@ function searchQuery(search, docs, results, isHomepage) {
   if (docs.length && search.trim()) {
     // clear previous results
     if (isHomepage) {
-      results.querySelectorAll('.doc-search-result').forEach((r) => r.remove());
+      clearDynamicResults(results);
     } else {
       results.querySelectorAll('.article-card').forEach((r) => r.remove());
     }
@@ -727,7 +866,7 @@ function rotatePlaceholder(currIndex, input, results, placeholders, isHomepage) 
  * @returns {HTMLAnchorElement|null} Last visible link if exists, otherwise null.
  */
 function findResultLink(results) {
-  const links = results.querySelectorAll('a[href]');
+  const links = results.querySelectorAll('a[href]:not(.doc-search-recent-query)');
   const result = links[links.length - 1];
   // only return link if visible to user
   return result.offsetParent ? result : null;
@@ -770,8 +909,15 @@ export default async function decorate(block) {
   );
   results.append(noResults);
   // add functionality to search bar
+  const rerunRecentSearch = (query) => {
+    search.value = query;
+    toggleClearButton(search, clear);
+    searchQuery(query, window.docs || [], results, isHomepage);
+    search.focus();
+  };
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (isHomepage) saveRecentSearch(search.value);
     // on form submit, send user to most relevant result
     const link = findResultLink(results);
     if (link) {
@@ -781,16 +927,22 @@ export default async function decorate(block) {
       }, 65);
     }
   });
+  results.addEventListener('click', (e) => {
+    if (isHomepage && e.target.closest('li.doc-search-result a[href]')) saveRecentSearch(search.value);
+  });
   clear.addEventListener('click', () => {
     search.value = '';
     toggleClearButton(search, clear);
+    // focus synchronously re-renders the recent-searches view on homepage (see 'focus'
+    // listener below); fading it out here would immediately undo that.
     search.focus();
-    fadeOut(results);
+    if (!isHomepage) fadeOut(results);
   });
   search.addEventListener('focus', () => {
     search.dataset.rotate = false;
     forceStop(search);
     search.placeholder = 'Search events and recordings';
+    if (isHomepage && !search.value.trim()) renderRecentSearches(results, rerunRecentSearch);
   });
   search.addEventListener('blur', () => {
     if (search.value === '' && isHomepage && placeholders.length > 0) {
@@ -814,6 +966,8 @@ export default async function decorate(block) {
     if (key === 'ArrowDown') {
       const link = findResultLink(results);
       if (link) link.focus();
+    } else if (key === 'Escape') {
+      fadeOut(results);
     }
   });
 
