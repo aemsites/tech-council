@@ -164,13 +164,15 @@ function decorateBrand(nav) {
     logo.classList.add('nav-brand-logo');
   }
 
-  const textNodes = [...brandLink.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  const textNodes = [...brandLink.childNodes]
+    .filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
   const text = textNodes.length
     ? textNodes.map((node) => node.textContent.trim()).join(' ')
     : brandLink.textContent.trim() || 'Tech Council';
   textNodes.forEach((node) => node.remove());
   if (!brandLink.querySelector('.nav-brand-text')) {
     brandLink.textContent = '';
+    // eslint-disable-next-line no-use-before-define -- hoisted function, safe
     brandLink.append(createBrandTextSpan(text));
   }
 }
@@ -198,12 +200,14 @@ function createBrandTextSpan(text) {
  * @param {Element} navWrapper The nav wrapper element
  */
 function handleScrollBehavior(navWrapper) {
+  // eslint-disable-next-line no-unused-vars -- only read in commented-out block below; pre-existing
   let lastScroll = 0;
+  // eslint-disable-next-line no-unused-vars -- only read in commented-out block below; pre-existing
   const scrollThreshold = 100;
 
   window.addEventListener('scroll', () => {
     const currentScroll = window.pageYOffset;
-    
+
     // Add shadow when scrolled
     if (currentScroll > 10) {
       navWrapper.classList.add('scrolled');
@@ -224,7 +228,7 @@ function handleScrollBehavior(navWrapper) {
       }
     }
     */
-    
+
     lastScroll = currentScroll;
   });
 }
