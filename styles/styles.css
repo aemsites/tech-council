@@ -19,8 +19,8 @@
   --text-muted: #445666;
   --text-soft-muted: #8693a0;
   --text-soft: #607181;
-  --link-color: #6a38ff; /* Purple */
-  --link-hover-color: #4b2cdc;
+  --link-color: #5c5c5c; /* Gray */
+  --link-hover-color: #3d3d3d;
   --surface-muted: #f6f9fc;
   --border-subtle: rgb(0 29 38 / 10%);
   --overlay-dark: rgb(19 19 19 / 80%);
