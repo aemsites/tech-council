@@ -145,6 +145,32 @@ function matchesActiveType(row, active) {
   return t === active;
 }
 
+/** Count rows of a given type that match a search query. */
+function countMatchingRows(data, query, typeValue) {
+  const q = (query || '').trim().toLowerCase();
+  return data.filter((row) => {
+    if (!matchesActiveType(row, typeValue)) return false;
+    if (!q) return true;
+    const title = normalizeField(row.title).toLowerCase();
+    const description = normalizeField(row.description).toLowerCase();
+    return title.includes(q) || description.includes(q);
+  }).length;
+}
+
+/** Update each filter chip's label, accessible name, and disabled state with live counts. */
+function updateFilterCounts(block) {
+  TYPE_FILTERS.forEach((f) => {
+    const n = countMatchingRows(block.toolsData || [], block.toolsSearchQuery, f.value);
+    const btn = block.querySelector(`.tools-filter[data-value="${f.value}"]`);
+    if (!btn) return;
+    const labelEl = btn.querySelector('.tools-filter-label');
+    if (labelEl) labelEl.textContent = `${f.label} (${n})`;
+    btn.setAttribute('aria-label', `${f.label}, ${n} tool${n === 1 ? '' : 's'}`);
+    btn.disabled = n === 0;
+    btn.classList.toggle('is-disabled', n === 0);
+  });
+}
+
 /** Build one clickable card for a tool row. */
 function buildToolCard(row, rowIdx) {
   const title = normalizeField(row.title);
@@ -278,6 +304,7 @@ function createToolbar(block) {
   const applySearch = debounce(() => {
     block.toolsSearchQuery = search.value;
     updateToolsList(block);
+    updateFilterCounts(block);
   }, 180);
   search.addEventListener('input', () => applySearch());
 
@@ -357,6 +384,7 @@ function renderFromSheet(block, data) {
   emptyMsg.hidden = true;
 
   block.append(toolbar, filterBar, listContainer, emptyMsg);
+  updateFilterCounts(block);
 
   updateToolsList(block);
 }
