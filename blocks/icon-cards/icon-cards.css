@@ -1,3 +1,5 @@
+/* stylelint-disable no-descending-specificity, no-duplicate-selectors -- pre-existing, TECHCOM-104 */
+
 /* Icon Cards Base Styles (non-carousel fallback) */
 .icon-cards > ul {
   list-style: none;
@@ -153,13 +155,13 @@
   padding: 0 var(--carousel-padding-mobile);
 }
 
-@media (min-width: 600px) {
+@media (width >= 600px) {
   .icon-cards-carousel-container {
     padding: 0 var(--carousel-padding-tablet);
   }
 }
 
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
   .icon-cards-carousel-container {
     padding: 0 var(--carousel-padding-desktop);
   }
@@ -343,7 +345,7 @@
 /* Responsive breakpoints */
 
 /* Mobile - 1 card */
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .icon-cards-carousel-wrapper .icon-cards-card {
     width: 100%;
   }
@@ -354,7 +356,7 @@
 }
 
 /* Tablet - 2 cards */
-@media (min-width: 601px) and (max-width: 900px) {
+@media (width >= 601px) and (width <= 900px) {
   .icon-cards-carousel-wrapper .icon-cards-card {
     width: calc((100% - var(--card-gap)) / 2);
   }
@@ -365,7 +367,7 @@
 }
 
 /* Small desktop - 3 cards */
-@media (min-width: 901px) and (max-width: 1199px) {
+@media (width >= 901px) and (width <= 1199px) {
   .icon-cards-carousel-wrapper .icon-cards-card {
     width: calc((100% - 2 * var(--card-gap)) / 3);
   }
@@ -376,7 +378,7 @@
 }
 
 /* Large desktop - 4 cards */
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
   .icon-cards-carousel-wrapper .icon-cards-card {
     width: calc((100% - 3 * var(--card-gap)) / 4);
   }
@@ -392,6 +394,7 @@
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

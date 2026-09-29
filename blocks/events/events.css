@@ -1,3 +1,5 @@
+/* stylelint-disable no-duplicate-selectors -- pre-existing, TECHCOM-104 */
+
 /* Events Block Carousel Styles */
 
 .events {
@@ -30,13 +32,13 @@
   background: transparent;
 }
 
-@media (min-width: 600px) {
+@media (width >= 600px) {
   .events-carousel-slides-container {
     padding: 0 var(--carousel-padding-tablet);
   }
 }
 
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
   .events-carousel-slides-container {
     padding: 0 var(--carousel-padding-desktop);
   }
@@ -65,7 +67,6 @@
   list-style: none;
   background: var(--event-card-bg);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgb(255 255 255 / 50%);
   border-radius: var(--radius-m);
   box-shadow:
@@ -354,7 +355,7 @@
 }
 
 /* Tablet - 2 cards per slide */
-@media (min-width: 600px) {
+@media (width >= 600px) {
   .events-carousel-slide {
     padding: 0 8px;
   }
@@ -370,7 +371,7 @@
 }
 
 /* Desktop small - 2 cards per slide */
-@media (min-width: 900px) {
+@media (width >= 900px) {
   .events-carousel-slide-content {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--heading-margin-bottom);
@@ -378,7 +379,7 @@
 }
 
 /* Desktop large - 3 cards per slide */
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
   .events-carousel-slide {
     padding: 0 12px;
   }
@@ -399,6 +400,7 @@
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
