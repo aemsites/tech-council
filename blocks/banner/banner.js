@@ -32,4 +32,20 @@ export default function decorate(block) {
     // eslint-disable-next-line no-console
     console.error('Banner block decoration failed', error);
   }
+
+  try {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          block.classList.add('banner-in-view');
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(block);
+  } catch (error) {
+    block.classList.add('banner-in-view');
+    // eslint-disable-next-line no-console
+    console.error('Banner in-view observer failed', error);
+  }
 }

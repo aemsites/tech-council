@@ -13,9 +13,23 @@
   padding: var(--space-xl) var(--space-m);
   min-height: 300px;
   color: var(--background-color);
+  border-top: 6px solid var(--color-primary);
 
   /* overlay to improve text legibility */
   isolation: isolate; /* establish new stacking context */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .banner {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .banner.banner-in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* transparent black box under the content */
@@ -23,7 +37,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--overlay-banner);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 35%, transparent), var(--overlay-banner) 70%);
   z-index: -1; /* between image and content */
 }
 
@@ -49,11 +63,29 @@
 .banner a.button:any-link {
   background-color: var(--color-primary);
   color: var(--background-color);
+  box-shadow: var(--shadow-lg);
 }
 
 .banner a.button:hover,
 .banner a.button:focus {
   background-color: var(--color-primary-dark);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .banner a.button:any-link {
+    animation: banner-cta-pulse 2.4s ease-in-out 3;
+  }
+}
+
+@keyframes banner-cta-pulse {
+  0%,
+  100% {
+    box-shadow: var(--shadow-lg), 0 0 0 0 color-mix(in srgb, var(--color-primary) 45%, transparent);
+  }
+
+  50% {
+    box-shadow: var(--shadow-lg), 0 0 0 10px color-mix(in srgb, var(--color-primary) 0%, transparent);
+  }
 }
 
 .banner picture {
