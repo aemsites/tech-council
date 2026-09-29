@@ -6,7 +6,7 @@ main > .hero-quote-container {
 }
 
 .hero-quote {
-  padding: 48px 0 24px 0;
+  padding: 48px 0 24px;
 }
 
 .hero-quote blockquote {
@@ -20,7 +20,7 @@ main > .hero-quote-container {
   font-size: 28px;
   font-weight: 700;
   line-height: 1.25;
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
   color: var(--text-color);
   letter-spacing: -0.02em;
 }
@@ -36,7 +36,7 @@ main > .hero-quote-container {
 
 @media (width >= 600px) {
   .hero-quote {
-    padding: 56px 0 28px 0;
+    padding: 56px 0 28px;
   }
 
   .hero-quote blockquote {
@@ -56,7 +56,7 @@ main > .hero-quote-container {
 
 @media (width >= 900px) {
   .hero-quote {
-    padding: 64px 0 32px 0;
+    padding: 64px 0 32px;
   }
 
   .hero-quote blockquote {

@@ -71,4 +71,4 @@ export default function decorate(block) {
   }, { threshold: 0.1 });
 
   observer.observe(block);
-} 
+}
