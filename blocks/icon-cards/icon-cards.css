@@ -57,7 +57,46 @@
   color: var(--text-muted);
   line-height: 1.4;
   margin: 0;
-} 
+}
+
+/* CTA link inside the card body, styled as an accessible button (excludes the h3 title link) */
+.icon-cards .icon-cards-card-body > a,
+.icon-cards .icon-cards-card-body p a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  margin-top: var(--space-s);
+  padding: var(--space-s) var(--space-ml);
+  border-radius: var(--radius-m);
+  background-color: var(--link-color);
+  color: var(--background-color);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-s);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.icon-cards .icon-cards-card-body > a:hover {
+  background-color: var(--link-hover-color);
+}
+
+.icon-cards .icon-cards-card-body > a:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.icon-cards .icon-cards-card-body p a:hover {
+  background-color: var(--link-hover-color);
+}
+
+.icon-cards .icon-cards-card-body p a:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
 
 /* Data-source mode polish (does not affect authored icon-cards) */
 .icon-cards.icon-cards-data-source .icon-cards-carousel-wrapper .icon-cards-card {
@@ -176,9 +215,8 @@
   background-color: var(--background-color);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -197,6 +235,8 @@
   left: 0;
   right: 0;
   height: 3px;
+  border-top-left-radius: var(--radius-m);
+  border-top-right-radius: var(--radius-m);
   background: linear-gradient(90deg, var(--link-color), color-mix(in srgb, var(--link-color) 65%, white));
   transform: scaleX(0);
   transform-origin: left;
@@ -206,7 +246,7 @@
 .icon-cards-carousel-wrapper .icon-cards-card:hover,
 .icon-cards-carousel-wrapper .icon-cards-card:focus-within {
   transform: translateY(var(--card-hover-lift));
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .icon-cards-carousel-wrapper .icon-cards-card:hover::before {
@@ -399,7 +439,9 @@
   
   .icon-cards-carousel-wrapper .icon-cards-card,
   .icon-cards-nav-prev,
-  .icon-cards-nav-next {
+  .icon-cards-nav-next,
+  .icon-cards .icon-cards-card-body > a,
+  .icon-cards .icon-cards-card-body p a {
     transition: none;
   }
 }
