@@ -151,7 +151,7 @@
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFF 550px, #FFF 100%);
+  background: linear-gradient(to bottom, color-mix(in srgb, #E4C5F4 60%, white) 0, color-mix(in srgb, #B8A8E8 60%, white) 100px, color-mix(in srgb, #D4D8F4 60%, white) 320px, #FFF 550px, #FFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
