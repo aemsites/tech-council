@@ -192,6 +192,7 @@ export default async function decorate(block) {
     for (let i = contentStartIndex; i < rows.length; i += 1) {
       const row = rows[i];
       const cols = [...row.children];
+      // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
       if (cols.length < 2) continue;
 
       const col1 = cols[0];

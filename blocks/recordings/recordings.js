@@ -61,7 +61,8 @@ const RECORDINGS_SHEET_PATH = '/forms/recording-form/recordings.json?sheet=recor
 const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.live';
 
 /**
- * Resolves the recordings sheet URL so the request is always same-origin (avoids 403 on production).
+ * Resolves the recordings sheet URL so the request is always same-origin
+ * (avoids 403 on production).
  * - On EDS host (aem.page): full same-origin URL.
  * - On localhost: relative path (proxy forwards to EDS with auth).
  * - On production/custom domain (e.g. techcouncilindia.corp.adobe.com): relative path so the
@@ -72,7 +73,8 @@ function getRecordingsSheetUrl() {
   if (origin === RECORDINGS_SHEET_ORIGIN) {
     return `${origin}${RECORDINGS_SHEET_PATH}`;
   }
-  /* Use relative path for localhost and any other origin (e.g. production) so no cross-origin request */
+  /* Use relative path for localhost and any other origin (e.g. production)
+     so no cross-origin request */
   return RECORDINGS_SHEET_PATH;
 }
 
@@ -139,7 +141,10 @@ function createRecordingsCardIcon(recordingLink) {
   return wrapper;
 }
 
-/** Presentation icon (PowerPoint). Only shown when presentationLink is present and safe; wraps in link. */
+/**
+ * Presentation icon (PowerPoint). Only shown when presentationLink is
+ * present and safe; wraps in link.
+ */
 function createRecordingsCardPresentationIcon(presentationLink) {
   if (!presentationLink || !isSafeUrl(presentationLink)) return null;
   const img = document.createElement('img');
@@ -209,6 +214,7 @@ function getUniqueTags(data) {
   const set = new Set();
   data.forEach((row) => set.add(getRowTag(row)));
   const list = [...set];
+  // eslint-disable-next-line no-nested-ternary -- pre-existing, TECHCOM-104
   list.sort((a, b) => (a === TAG_OTHER ? 1 : b === TAG_OTHER ? -1 : a.localeCompare(b)));
   return list;
 }
@@ -518,7 +524,8 @@ function renderFromSheet(block, data) {
 }
 
 /**
- * Decorate recordings block: fetch data from EDS sheet and render. No fallback; block stays empty if fetch fails or returns no data.
+ * Decorate recordings block: fetch data from EDS sheet and render. No
+ * fallback; block stays empty if fetch fails or returns no data.
  */
 export default async function decorate(block) {
   const data = await fetchRecordingsData();

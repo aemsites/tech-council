@@ -10,8 +10,7 @@
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: flex-start;
-  column-gap: var(--space-m);
-  row-gap: var(--space-xs);
+  gap: var(--space-xs) var(--space-m);
   padding: var(--space-m) 0;
   border-bottom: 1px solid var(--border-subtle);
 }

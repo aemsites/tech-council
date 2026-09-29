@@ -242,8 +242,7 @@ function bindCarouselEvents(block) {
   }
 
   block.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); prevBtn?.click(); }
-    else if (e.key === 'ArrowRight') { e.preventDefault(); nextBtn?.click(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevBtn?.click(); } else if (e.key === 'ArrowRight') { e.preventDefault(); nextBtn?.click(); }
   });
 
   const container = block.querySelector('.events-carousel-container');

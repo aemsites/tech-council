@@ -1,3 +1,5 @@
+/* stylelint-disable no-descending-specificity, no-duplicate-selectors -- pre-existing, TECHCOM-104 */
+
 /* Carousel CTA Block — single-column content card styled like event cards */
 
 /* Remove underlines from all links */
@@ -61,7 +63,6 @@
     linear-gradient(135deg, color-mix(in srgb, var(--link-color) 6%, transparent), transparent 60%),
     var(--event-card-bg);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgb(255 255 255 / 50%);
   border-radius: var(--radius-m);
   box-shadow:
