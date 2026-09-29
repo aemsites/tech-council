@@ -20,7 +20,9 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .banner {
+  /* JS opts a banner into this pre-reveal hidden state; if the block's script
+     never runs, .banner stays visible by default instead of being stuck hidden. */
+  .banner.banner-pre-reveal {
     opacity: 0;
     transform: translateY(24px);
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -72,7 +74,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .banner a.button:any-link {
+  .banner.banner-in-view a.button:any-link {
     animation: banner-cta-pulse 2.4s ease-in-out 3;
   }
 }

@@ -34,6 +34,7 @@ export default function decorate(block) {
   }
 
   try {
+    block.classList.add('banner-pre-reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
