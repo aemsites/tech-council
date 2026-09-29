@@ -19,13 +19,13 @@ import { fetchPlaceholders } from '../../scripts/placeholders.js';
  * Update edge classes for decorative gradients and check if scrolling is needed
  */
 function updateEdgeClasses(block, ul) {
-  const scrollLeft = ul.scrollLeft;
+  const { scrollLeft } = ul;
   const maxScrollLeft = ul.scrollWidth - ul.clientWidth;
-  
+
   // Check if scrolling is needed
   const needsScroll = ul.scrollWidth > ul.clientWidth + 5;
   block.classList.toggle('has-scroll', needsScroll);
-  
+
   block.classList.toggle('at-start', scrollLeft <= 1);
   block.classList.toggle('at-end', scrollLeft >= maxScrollLeft - 1);
 }
@@ -36,7 +36,7 @@ function updateEdgeClasses(block, ul) {
 function bindCarouselEvents(block, ul, prevButton, nextButton) {
   // Update initial edge classes
   updateEdgeClasses(block, ul);
-  
+
   prevButton.addEventListener('click', () => {
     const page = ul.clientWidth;
     if (ul.scrollLeft <= 0) {
@@ -212,7 +212,7 @@ export default async function decorate(block) {
   // Navigation buttons
   const navButtons = document.createElement('div');
   navButtons.className = 'icon-cards-carousel-nav';
-  
+
   const prevButton = document.createElement('button');
   prevButton.type = 'button';
   prevButton.className = 'icon-cards-nav-prev';
@@ -244,7 +244,7 @@ export default async function decorate(block) {
 
   // Bind events
   bindCarouselEvents(block, ul, prevButton, nextButton);
-  
+
   // Update edge classes after layout is calculated
   setTimeout(() => {
     updateEdgeClasses(block, ul);

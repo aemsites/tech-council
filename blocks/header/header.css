@@ -1,3 +1,5 @@
+/* stylelint-disable no-descending-specificity -- pre-existing, TECHCOM-104 */
+
 /* Skip link for accessibility */
 header .skip-link {
   position: absolute;
@@ -9,7 +11,7 @@ header .skip-link {
   color: white;
   text-decoration: none;
   font-weight: 600;
-  border-radius: 0 0 8px 0;
+  border-radius: 0 0 8px;
   transition: top 0.2s ease;
 }
 
@@ -26,7 +28,6 @@ header .nav-wrapper {
   z-index: 100;
   position: fixed;
   backdrop-filter: saturate(180%) blur(10px);
-  -webkit-backdrop-filter: saturate(180%) blur(10px);
   box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
