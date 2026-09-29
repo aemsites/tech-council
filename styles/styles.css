@@ -12,7 +12,7 @@
 
 :root {
   /* colors */
-  --background-color: #ffffff;
+  --background-color: #fff;
   --light-color: #f3f3f3;
   --dark-color: #001d26;
   --text-color: #1d1d1d;
@@ -32,10 +32,12 @@
   --color-primary: #ec0f1a;
   --color-primary-dark: #b30b13;
   --color-secondary: #001d26;
-  --color-surface: #ffffff;
+  --color-surface: #fff;
+
   /* gradient colors */
   --color-gradient-purple: #6a38ff;
-  --color-brand-pure-white: #ffffff;
+  --color-brand-pure-white: #fff;
+
   /* spacing scale */
   --space-xs: 4px;
   --space-s: 8px;
@@ -149,7 +151,7 @@
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(to bottom, #EEDBF9 0, #D2C7F0 100px, #E7E9F9 320px, #FFFFFF 550px, #FFFFFF 100%);
+  background: linear-gradient(to bottom, #EEDBF9 0, #D2C7F0 100px, #E7E9F9 320px, #FFF 550px, #FFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);

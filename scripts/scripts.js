@@ -37,8 +37,8 @@ function highlightFromQuery(root) {
     const isSkippableContainer = (el) => {
       if (!el) return true;
       const tag = el.tagName;
-      return ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'SVG'].includes(tag) ||
-        el.closest('.hlx-highlight');
+      return ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'SVG'].includes(tag)
+        || el.closest('.hlx-highlight');
     };
 
     const walker = document.createTreeWalker(
@@ -61,12 +61,14 @@ function highlightFromQuery(root) {
     while (walker.nextNode()) {
       const textNode = walker.currentNode;
       const textContent = textNode.nodeValue;
+      // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
       if (!textContent) continue;
 
       const fragment = document.createDocumentFragment();
       let lastIndex = 0;
       regex.lastIndex = 0;
       let match;
+      // eslint-disable-next-line no-cond-assign -- pre-existing, TECHCOM-104
       while ((match = regex.exec(textContent))) {
         const matchStart = match.index;
         const matchEnd = match.index + match[0].length;
@@ -76,6 +78,7 @@ function highlightFromQuery(root) {
         const span = document.createElement('span');
         span.className = 'hlx-highlight';
         span.style.backgroundColor = 'yellow';
+        // eslint-disable-next-line prefer-destructuring -- pre-existing, TECHCOM-104
         span.textContent = match[0];
         fragment.appendChild(span);
         highlights.push(span);

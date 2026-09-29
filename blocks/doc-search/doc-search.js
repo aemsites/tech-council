@@ -119,7 +119,7 @@ function mapRecordingToSearchDoc(row) {
   const presentationLink = String(row.presentationLink || '').trim();
   const description = [speaker, tag].filter(Boolean).join(' | ') || 'Recording';
   // Keep destination on /recordings while making each entry unique for de-dupe.
-  const path = `/recordings`;
+  const path = '/recordings';
   return {
     title,
     description,
@@ -161,7 +161,7 @@ function mapEventToSearchDoc(row) {
   const meetingRoom = String(row.meetingRoom || '').trim();
   const description = [speaker, tag].filter(Boolean).join(' | ') || 'Event';
   // Keep destination on /events while making each entry unique for de-dupe.
-  const path = `/events`;
+  const path = '/events';
   return {
     title,
     description,

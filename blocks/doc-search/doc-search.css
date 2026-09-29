@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity -- pre-existing, TECHCOM-104 */
 .doc-search {
     padding: var(--space-xl) 0;
   }
@@ -43,6 +44,7 @@
     border-radius: var(--radius-m);
     background-color: var(--background-color);
     color: var(--text-color);
+
     /* reserve space: right for icon and clear button */
     padding: 16px 90px 16px 24px;
     font: inherit;
@@ -54,7 +56,6 @@
 
   /* hide native cancel icon to avoid double "x" (Safari/WebKit) */
   .doc-search form input[type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
     appearance: none;
     height: 0;
     width: 0;
