@@ -129,6 +129,13 @@
   box-shadow: 0 2px 8px rgb(106 56 255 / 25%);
 }
 
+.tools-filter:disabled,
+.tools-filter.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Grid */
 .tools-list {
   list-style: none;
