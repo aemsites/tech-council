@@ -363,56 +363,122 @@
     grid-area: cat;
   }
 
+  /* Recent searches */
   .doc-search .doc-search-results > li.doc-search-recent-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
-    border-top: 1px solid var(--border-subtle);
+    padding: 14px 20px 6px;
   }
 
   .doc-search .doc-search-results > li.doc-search-recent-heading span {
     color: var(--text-soft);
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.06em;
+  }
+
+  .doc-search .doc-search-recent-clear {
+    padding: 4px 8px;
+    margin-right: -8px;
+    border: none;
+    border-radius: 6px;
+    background: none;
+    color: var(--link-color);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .doc-search .doc-search-recent-clear:hover,
+  .doc-search .doc-search-recent-clear:focus-visible {
+    background-color: rgb(106 56 255 / 10%);
+    color: var(--link-hover-color);
   }
 
   .doc-search .doc-search-results > li.doc-search-recent-item {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 6px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .doc-search .doc-search-results > li.doc-search-recent-item:last-child {
+    margin-bottom: 8px;
+  }
+
+  .doc-search .doc-search-results > li.doc-search-recent-item:hover,
+  .doc-search .doc-search-results > li.doc-search-recent-item:focus-within {
+    background-color: var(--light-color);
   }
 
   .doc-search .doc-search-recent-query {
     flex: 1 1 auto;
-    display: block;
-    padding: 14px 16px;
-    color: unset;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px 10px 14px;
+    border-radius: 8px;
+    color: var(--text-color);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
     text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* clock icon */
+  .doc-search .doc-search-recent-query::before {
+    content: '';
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    background-color: var(--text-soft-muted);
+    mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>') center / contain no-repeat;
     transition: background-color 0.2s ease;
   }
 
-  .doc-search .doc-search-recent-query:hover,
-  .doc-search .doc-search-recent-query:focus {
-    background-color: var(--light-color);
+  .doc-search .doc-search-recent-query:hover::before,
+  .doc-search .doc-search-recent-query:focus-visible::before {
+    background-color: var(--link-color);
   }
 
-  .doc-search .doc-search-recent-remove,
-  .doc-search .doc-search-recent-clear {
+  .doc-search .doc-search-recent-query:focus-visible,
+  .doc-search .doc-search-recent-remove:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: -2px;
+  }
+
+  .doc-search .doc-search-recent-remove {
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-right: 8px;
+    padding: 0;
     border: none;
+    border-radius: 50%;
     background: none;
-    padding: 0 16px;
-    color: var(--text-soft);
+    color: var(--text-soft-muted);
     font: inherit;
+    font-size: 12px;
+    line-height: 1;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .doc-search .doc-search-recent-remove:hover,
-  .doc-search .doc-search-recent-remove:focus,
-  .doc-search .doc-search-recent-clear:hover,
-  .doc-search .doc-search-recent-clear:focus {
-    color: var(--link-color);
+  .doc-search .doc-search-recent-remove:focus-visible {
+    background-color: var(--border-subtle);
+    color: var(--text-color);
   }
