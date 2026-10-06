@@ -938,7 +938,9 @@ export default async function decorate(block) {
     search.focus();
     if (!isHomepage) fadeOut(results);
   });
+  let blurTimer;
   search.addEventListener('focus', () => {
+    clearTimeout(blurTimer);
     search.dataset.rotate = false;
     forceStop(search);
     search.placeholder = 'Search events and recordings';
@@ -956,7 +958,10 @@ export default async function decorate(block) {
   }
   search.addEventListener('blur', () => {
     if (search.value === '' && isHomepage && placeholders.length > 0) {
-      setTimeout(() => {
+      clearTimeout(blurTimer);
+      blurTimer = setTimeout(() => {
+        // a recent-search click/remove can refocus or fill the input before this fires
+        if (search === document.activeElement || search.value) return;
         search.dataset.rotate = true;
         rotatePlaceholder(
           generateIndex(-1, placeholders.length),
@@ -976,7 +981,7 @@ export default async function decorate(block) {
     if (key === 'ArrowDown') {
       const link = findResultLink(results);
       if (link) link.focus();
-    } else if (key === 'Escape') {
+    } else if (key === 'Escape' && isHomepage) {
       fadeOut(results);
     }
   });
