@@ -869,7 +869,7 @@ function findResultLink(results) {
   const links = results.querySelectorAll('a[href]:not(.doc-search-recent-query)');
   const result = links[links.length - 1];
   // only return link if visible to user
-  return result.offsetParent ? result : null;
+  return result?.offsetParent ? result : null;
 }
 
 export default async function decorate(block) {
@@ -981,8 +981,9 @@ export default async function decorate(block) {
   search.addEventListener('keyup', (e) => {
     const { key } = e;
     if (key === 'ArrowDown') {
-      const link = findResultLink(results);
-      if (link) link.focus();
+      // fall back to the first recent search when only the recent view is showing
+      const link = findResultLink(results) || results.querySelector('.doc-search-recent-query');
+      if (link?.offsetParent) link.focus();
     } else if (key === 'Escape' && isHomepage) {
       fadeOut(results);
     }
