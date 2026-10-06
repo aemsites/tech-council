@@ -944,6 +944,16 @@ export default async function decorate(block) {
     search.placeholder = 'Search events and recordings';
     if (isHomepage && !search.value.trim()) renderRecentSearches(results, rerunRecentSearch);
   });
+  if (isHomepage) {
+    // dismiss the recent-searches view when clicking anywhere outside the search bar
+    document.addEventListener('click', (e) => {
+      // composedPath is captured at dispatch, so it still works if the clicked node was re-rendered
+      const path = e.composedPath();
+      if (path.includes(form) || path.includes(results)) return;
+      if (results.getAttribute('aria-hidden') === 'true') return;
+      if (results.querySelector('.doc-search-recent-heading')) fadeOut(results);
+    });
+  }
   search.addEventListener('blur', () => {
     if (search.value === '' && isHomepage && placeholders.length > 0) {
       setTimeout(() => {
