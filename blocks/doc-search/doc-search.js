@@ -962,6 +962,8 @@ export default async function decorate(block) {
       blurTimer = setTimeout(() => {
         // a recent-search click/remove can refocus or fill the input before this fires
         if (search === document.activeElement || search.value) return;
+        // the recent-searches view is still open (e.g. after remove / Clear all); don't replace it
+        if (results.querySelector('.doc-search-recent-heading') && results.getAttribute('aria-hidden') !== 'true') return;
         search.dataset.rotate = true;
         rotatePlaceholder(
           generateIndex(-1, placeholders.length),
