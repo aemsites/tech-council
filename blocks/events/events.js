@@ -140,6 +140,13 @@ function buildNoUpcomingBanner() {
   const banner = document.createElement('div');
   banner.className = 'events-no-upcoming-banner';
 
+  const iconWrap = document.createElement('span');
+  iconWrap.className = 'events-no-upcoming-icon';
+  const calIcon = document.createElement('span');
+  calIcon.className = 'icon icon-calendar';
+  iconWrap.append(calIcon);
+  banner.append(iconWrap);
+
   const text = document.createElement('p');
   text.className = 'events-no-upcoming-text';
   text.append(document.createTextNode('No upcoming events right now - catch up on past sessions in '));
@@ -151,6 +158,7 @@ function buildNoUpcomingBanner() {
   text.append(link);
 
   banner.append(text);
+  decorateIcons(banner);
   return banner;
 }
 

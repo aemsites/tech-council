@@ -116,23 +116,52 @@
 
 /* No-upcoming-events banner */
 .events-no-upcoming-banner {
-  margin: 0 var(--carousel-padding-mobile) var(--space-m);
-  padding: var(--space-xs) var(--space-s);
-  background: rgb(255 255 255 / 90%);
-  color: var(--text-muted);
-  border: 1px solid rgb(0 29 38 / 8%);
-  border-radius: var(--radius-xs);
-  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  margin: 0 calc(var(--carousel-padding-mobile) + var(--space-xs)) var(--space-ml);
+  padding: var(--space-m) var(--space-18);
+  background: var(--event-card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-left: 4px solid var(--link-color);
+  border-radius: var(--radius-m);
+  box-shadow:
+    0 1px 2px rgb(0 29 38 / 5%),
+    0 4px 16px rgb(0 29 38 / 4%);
+}
+
+.events-no-upcoming-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--link-color) 12%, white);
+}
+
+.events-no-upcoming-icon .icon {
+  width: 20px;
+  height: 20px;
 }
 
 .events-no-upcoming-text {
   margin: 0;
   font-family: var(--body-font-family);
-  font-size: var(--body-font-size-xs);
+  font-size: var(--body-font-size-s);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text-color);
 }
 
 .events-no-upcoming-link {
+  font-weight: 700;
   color: var(--link-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
 }
 
 .events-no-upcoming-link:hover,
@@ -397,7 +426,8 @@
   }
 
   .events-no-upcoming-banner {
-    margin: 0 var(--carousel-padding-tablet) var(--space-m);
+    margin: 0 calc(var(--carousel-padding-tablet) + 8px) var(--space-ml);
+    padding: var(--heading-margin-bottom) var(--space-ml);
   }
 }
 
@@ -425,7 +455,8 @@
   }
 
   .events-no-upcoming-banner {
-    margin: 0 var(--carousel-padding-desktop) var(--space-m);
+    margin: 0 calc(var(--carousel-padding-desktop) + 12px) var(--space-ml);
+    padding: var(--heading-margin-bottom) var(--space-28);
   }
 }
 
