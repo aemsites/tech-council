@@ -3,6 +3,7 @@ import { fetchPlaceholders } from '../../scripts/placeholders.js';
 
 const EVENTS_SHEET_PATH = '/forms/events-form/events.json?sheet=events';
 const EVENTS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
+const RECORDINGS_PATH = '/recordings';
 
 function getEventsSheetUrl() {
   const { origin } = window.location;
@@ -117,7 +118,48 @@ function filterAndSortEvents(data) {
   if (result.length < maxEvents) {
     result.push(...noDates.slice(0, maxEvents - result.length));
   }
-  return result;
+  return { events: result, hasUpcoming: upcoming.length > 0 };
+}
+
+/** Whole-day difference between `date` and today, using local-midnight boundaries. */
+function daysUntil(date) {
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.round((dayStart - todayStart) / 86400000);
+}
+
+function formatRelativeBadge(date) {
+  const diff = daysUntil(date);
+  if (diff <= 0) return 'Today';
+  if (diff === 1) return 'Tomorrow';
+  return `In ${diff} days`;
+}
+
+function buildNoUpcomingBanner() {
+  const banner = document.createElement('div');
+  banner.className = 'events-no-upcoming-banner';
+
+  const iconWrap = document.createElement('span');
+  iconWrap.className = 'events-no-upcoming-icon';
+  const calIcon = document.createElement('span');
+  calIcon.className = 'icon icon-calendar';
+  iconWrap.append(calIcon);
+  banner.append(iconWrap);
+
+  const text = document.createElement('p');
+  text.className = 'events-no-upcoming-text';
+  text.append(document.createTextNode('No upcoming events right now - catch up on past sessions in '));
+
+  const link = document.createElement('a');
+  link.className = 'events-no-upcoming-link';
+  link.href = RECORDINGS_PATH;
+  link.textContent = 'Recordings';
+  text.append(link);
+
+  banner.append(text);
+  decorateIcons(banner);
+  return banner;
 }
 
 function buildEventCard(row) {
@@ -129,7 +171,7 @@ function buildEventCard(row) {
 
   const badge = document.createElement('span');
   badge.className = 'events-card-badge';
-  badge.textContent = isUpcoming ? 'Upcoming' : 'Past';
+  badge.textContent = isUpcoming ? formatRelativeBadge(row.parsedDate) : 'Past';
   badge.setAttribute('aria-hidden', 'true');
   li.prepend(badge);
 
@@ -285,7 +327,7 @@ export default async function decorate(block) {
     return;
   }
 
-  const events = filterAndSortEvents(data);
+  const { events, hasUpcoming } = filterAndSortEvents(data);
 
   const cards = events.map((row) => buildEventCard(row));
 
@@ -324,6 +366,9 @@ export default async function decorate(block) {
   carouselWrapper.appendChild(slidesContainer);
 
   block.textContent = '';
+  if (!hasUpcoming) {
+    block.appendChild(buildNoUpcomingBanner());
+  }
   block.appendChild(carouselWrapper);
   block.dataset.currentSlide = '0';
   block.classList.add('at-start');
