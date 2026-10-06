@@ -336,6 +336,7 @@ function buildRecordingsCard(row, rowIdx) {
     const newBadge = document.createElement('span');
     newBadge.className = 'recordings-card-badge-new';
     newBadge.textContent = 'New';
+    li.classList.add('has-new-badge');
     li.append(newBadge);
   }
 

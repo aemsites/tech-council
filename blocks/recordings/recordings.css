@@ -416,6 +416,11 @@
   color: var(--link-color);
 }
 
+/* Keep the title clear of the absolutely-positioned "New" badge in the card's top-right corner */
+.recordings-list > li.has-new-badge .recordings-title {
+  padding-right: 44px;
+}
+
 .recordings .recordings-card-body .recordings-speaker {
   font-size: var(--body-font-size-xs);
   color: #64748b;
