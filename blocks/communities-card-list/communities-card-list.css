@@ -25,14 +25,12 @@
   display: flex;
   flex-direction: column;
   border: 1px solid rgb(106 56 255 / 12%);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.communities-card-list-card:hover,
-.communities-card-list-card:focus-within {
+.communities-card-list-card:hover {
   border-color: rgb(106 56 255 / 30%);
-  box-shadow: var(--shadow-md);
-  transform: translateY(var(--card-hover-lift));
+  box-shadow: 0 8px 24px rgb(106 56 255 / 10%);
 }
 
 /* Photo */
@@ -252,11 +250,6 @@
   .communities-card-list-link,
   .communities-card-list-add-btn {
     transition: none;
-  }
-
-  .communities-card-list-card:hover,
-  .communities-card-list-card:focus-within {
-    transform: none;
   }
 
   .communities-card-list-add-btn:hover {
