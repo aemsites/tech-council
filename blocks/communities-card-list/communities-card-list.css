@@ -134,15 +134,18 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--link-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease, text-decoration-thickness 0.2s ease;
 }
 
 .communities-card-list-link:hover,
 .communities-card-list-link:focus-visible {
   color: var(--link-hover-color);
+  text-decoration-thickness: 2px;
 }
 
 .communities-card-list-link .icon {
@@ -244,6 +247,7 @@
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .communities-card-list-card,
+  .communities-card-list-link,
   .communities-card-list-add-btn {
     transition: none;
   }
