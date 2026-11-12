@@ -70,7 +70,7 @@ header nav[aria-expanded='true'] {
   min-height: 100dvh;
 }
 
-@media (width >= 900px) {
+@media (width >= 1100px) {
   header nav {
     display: flex;
     justify-content: flex-start;
@@ -172,7 +172,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-@media (width >= 900px) {
+@media (width >= 1100px) {
   header nav .nav-hamburger {
     display: none;
     visibility: hidden;
@@ -189,7 +189,7 @@ header .nav-brand {
   white-space: nowrap;
 }
 
-@media (width >= 900px) {
+@media (width >= 1100px) {
   header .nav-brand {
     margin-right: 100px;
     flex-shrink: 0;
@@ -238,7 +238,7 @@ header nav .nav-brand a:hover img {
   filter: drop-shadow(0 2px 4px rgb(0 0 0 / 12%));
 }
 
-@media (width >= 900px) {
+@media (width >= 1100px) {
   header .nav-brand .nav-brand-text {
     font-size: 20px;
   }
@@ -282,7 +282,7 @@ header nav .nav-sections ul > li > ul > li {
   font-weight: 400;
 }
 
-@media (width >= 900px) {
+@media (width >= 1100px) {
   header nav .nav-sections {
     display: block;
     visibility: visible;
@@ -415,7 +415,7 @@ header nav .nav-tools {
 }
 
 /* mobile menu styles: larger tap targets and separators (mobile only) */
-@media (width < 900px) {
+@media (width < 1100px) {
   header nav[aria-expanded='true'] .nav-sections ul > li {
     padding: 12px 0;
     border-bottom: 1px solid var(--border-subtle);

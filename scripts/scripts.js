@@ -173,6 +173,10 @@ export function decorateMain(main) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  await Promise.all([
+    loadCSS(`${window.hlx.codeBasePath}/tokens.css`),
+    loadCSS(`${window.hlx.codeBasePath}/styles/redesign.css`),
+  ]);
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');

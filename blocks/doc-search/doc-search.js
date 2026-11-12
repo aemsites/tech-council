@@ -585,10 +585,13 @@ function findDoc(query, docs = [], findMultiple = false) {
     const faqDocs = [];
     docs.forEach((doc) => (doc.title ? indexDocs.push(doc) : faqDocs.push(doc)));
 
-    // split the query into terms, trimming and filtering out 1-2 letter and unhelpful words
-    const filterOut = ['and', 'but', 'can', 'eds', 'for', 'how', 'the', 'use', 'what', 'aem'];
-    const terms = query.toLowerCase().split(' ').map((e) => e.trim()).filter((e) => e.length > 2 && !filterOut.includes(e));
+    // Keep technical abbreviations such as AI, UI, AEM, and EDS searchable.
+    const filterOut = ['and', 'but', 'can', 'for', 'how', 'the', 'use', 'what'];
+    const terms = query.toLowerCase().split(/\s+/).filter((e) => e.length >= 2 && !filterOut.includes(e));
     if (!terms.length) return { terms, match: [] }; // eject if no valid search terms
+    const matchesTerm = (text, term) => (term.length === 2
+      ? text.toLowerCase().split(/[^a-z0-9]+/).includes(term)
+      : text.toLowerCase().includes(term));
 
     // Search through faq and index docs and return both matches
     const perfectMatches = new Set();
@@ -597,12 +600,12 @@ function findDoc(query, docs = [], findMultiple = false) {
 
     // find "perfect" matches (every term matches title or faq question)
     indexDocs.forEach((doc) => {
-      if (terms.every((term) => doc.title.toLowerCase().includes(term))) {
+      if (terms.every((term) => matchesTerm(doc.title, term))) {
         perfectMatches.add(doc);
       }
     });
     faqDocs.forEach((doc) => {
-      if ([...doc.querySelectorAll('h3')].some((q) => terms.every((term) => q.textContent.toLowerCase().includes(term)))) {
+      if ([...doc.querySelectorAll('h3')].some((q) => terms.every((term) => matchesTerm(q.textContent, term)))) {
         perfectMatches.add(createSearchResultObject(doc, terms, 'faq'));
       }
     });
@@ -611,12 +614,12 @@ function findDoc(query, docs = [], findMultiple = false) {
 
     // find strong matches (some terms match title or faq question)
     indexDocs.forEach((doc) => {
-      if (terms.some((term) => doc.title.toLowerCase().includes(term))) {
+      if (terms.some((term) => matchesTerm(doc.title, term))) {
         strongMatches.add(doc);
       }
     });
     faqDocs.forEach((doc) => {
-      if ([...doc.querySelectorAll('h3')].some((q) => terms.some((term) => q.textContent.toLowerCase().includes(term)))) {
+      if ([...doc.querySelectorAll('h3')].some((q) => terms.some((term) => matchesTerm(q.textContent, term)))) {
         strongMatches.add(createSearchResultObject(doc, terms, 'faq'));
       }
     });
@@ -627,12 +630,12 @@ function findDoc(query, docs = [], findMultiple = false) {
 
     // find weaker/fallback matches (some terms match content or faq answer}
     indexDocs.forEach((doc) => {
-      if (terms.some((term) => `${doc.title} ${doc.content}`.toLowerCase().includes(term))) {
+      if (terms.some((term) => matchesTerm(`${doc.title} ${doc.content}`, term))) {
         fallbackMatches.add(doc);
       }
     });
     faqDocs.forEach((doc) => {
-      if ([...doc.querySelectorAll('p')].some((p) => terms.some((term) => p.textContent.toLowerCase().includes(term)))) {
+      if ([...doc.querySelectorAll('p')].some((p) => terms.some((term) => matchesTerm(p.textContent, term)))) {
         fallbackMatches.add(createSearchResultObject(doc, terms, 'faq'));
       }
     });
@@ -663,9 +666,13 @@ function searchQuery(search, docs, results, isHomepage) {
     // search for matching document
     const { match, terms } = findDoc(search, docs, !isHomepage);
     if (match) {
-      const uniqueMatches = Array.isArray(match)
-        ? [...new Map(match.map((item) => [item.path, item])).values()]
-        : match;
+      const seen = new Set();
+      const uniqueMatches = match.filter((item) => {
+        const key = `${item.path}|${item.title}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
       if (isHomepage) {
         displayResults(uniqueMatches.slice(0, 3), terms, results, isHomepage);
       } else {
@@ -886,11 +893,15 @@ export default async function decorate(block) {
   row.innerHTML = '';
 
   // build search bar
-  const form = createTag('form');
-  const search = createTag('input', { type: 'search', 'aria-label': 'Search the documentation' });
-  const clear = createTag('button', { type: 'reset' }, '✕');
+  const form = createTag('form', { role: 'search' });
+  const searchId = `doc-search-${document.querySelectorAll('.doc-search-label').length}`;
+  const label = createTag('label', { for: searchId, class: 'doc-search-label' }, 'Search events and recordings');
+  const search = createTag('input', {
+    type: 'search', id: searchId, placeholder: 'Search by topic, session, or speaker',
+  });
+  const clear = createTag('button', { type: 'reset', 'aria-label': 'Clear search' }, '✕');
   const icon = buildSearchIcon();
-  form.append(icon, search, clear);
+  form.append(label, icon, search, clear);
   row.append(form);
 
   // build results container
@@ -1013,6 +1024,9 @@ export default async function decorate(block) {
         search.addEventListener('input', debounce(() => {
           searchQuery(search.value, docs, results, isHomepage);
         }, 200));
+        if (isHomepage && search.value.trim()) {
+          searchQuery(search.value, docs, results, isHomepage);
+        }
         if (!isHomepage) loadSearch(search, docs, results, isHomepage, clear);
       });
     }

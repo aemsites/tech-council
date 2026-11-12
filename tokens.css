@@ -1,0 +1,82 @@
+/* Adobe Tech Council: shared visual tokens, light and system dark themes. */
+:root {
+  color-scheme: light dark;
+
+  --color-paper: oklch(98.5% 0.002 25deg);
+  --color-paper-2: oklch(96% 0.003 25deg);
+  --color-paper-3: oklch(93% 0.004 25deg);
+  --color-ink: oklch(23% 0.006 25deg);
+  --color-ink-2: oklch(46% 0.008 25deg);
+  --color-rule: oklch(86% 0.005 25deg);
+  --color-accent: oklch(51% 0.2 27deg);
+  --color-accent-hover: oklch(43% 0.17 27deg);
+  --color-accent-soft: oklch(95% 0.023 27deg);
+  --color-on-accent: oklch(99% 0.002 25deg);
+  --color-image-paper: oklch(99% 0.002 25deg);
+  --color-focus: oklch(51% 0.2 27deg);
+  --font-display: 'Council Display', roboto, sans-serif;
+  --font-body: roboto, roboto-fallback, 'Segoe UI', sans-serif;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-2xl: 80px;
+  --space-3xl: 112px;
+  --text-display: clamp(2.75rem, 1.4rem + 4.5vw, 4.75rem);
+  --text-section: clamp(2rem, 1.5rem + 1.4vw, 2.75rem);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --radius-card: 8px;
+  --radius-control: 6px;
+  --z-header: 100;
+  --z-skip: 200;
+
+  /* Existing EDS blocks consume these aliases. */
+  --background-color: var(--color-paper);
+  --light-color: var(--color-paper-2);
+  --dark-color: var(--color-ink);
+  --text-color: var(--color-ink);
+  --text-muted: var(--color-ink-2);
+  --text-soft: var(--color-ink-2);
+  --text-soft-muted: var(--color-ink-2);
+  --link-color: var(--color-accent);
+  --link-hover-color: var(--color-accent-hover);
+  --color-primary: var(--color-accent);
+  --color-primary-dark: var(--color-accent-hover);
+  --color-secondary: var(--color-ink);
+  --color-surface: var(--color-paper);
+  --surface-muted: var(--color-paper-2);
+  --surface-tint-light: var(--color-paper-2);
+  --surface-tint-lighter: var(--color-rule);
+  --border-subtle: var(--color-rule);
+  --event-card-bg: var(--color-paper);
+  --event-card-bg-hover: var(--color-paper-2);
+  --body-font-family: var(--font-body);
+  --heading-font-family: var(--font-display);
+  --body-font-size-m: 1.0625rem;
+  --body-font-size-s: 1rem;
+  --body-font-size-xs: 0.875rem;
+  --nav-height: 76px;
+  --container-max-width: 1280px;
+  --radius-m: var(--radius-card);
+  --radius-l: var(--radius-card);
+  --focus-ring: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(18% 0.004 25deg);
+    --color-paper-2: oklch(22% 0.005 25deg);
+    --color-paper-3: oklch(27% 0.006 25deg);
+    --color-ink: oklch(95% 0.003 25deg);
+    --color-ink-2: oklch(76% 0.006 25deg);
+    --color-rule: oklch(38% 0.006 25deg);
+    --color-accent: oklch(75% 0.14 27deg);
+    --color-accent-hover: oklch(82% 0.1 27deg);
+    --color-accent-soft: oklch(27% 0.04 27deg);
+    --color-on-accent: oklch(18% 0.004 25deg);
+    --color-focus: var(--color-accent);
+  }
+}

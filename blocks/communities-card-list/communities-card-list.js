@@ -160,6 +160,43 @@ function formatSlackChannelText(text) {
   return t.startsWith('#') ? t : `#${t}`;
 }
 
+function addCommunityFilter(wrapper, grid) {
+  const cards = [...grid.querySelectorAll('.communities-card-list-card:not(.communities-card-list-add)')];
+  if (cards.length < 2) return;
+  const filter = document.createElement('div');
+  filter.className = 'community-filter';
+  const label = document.createElement('label');
+  const input = document.createElement('input');
+  input.id = `${grid.closest('.section')?.id || 'community'}-filter-${document.querySelectorAll('.community-filter').length}`;
+  input.type = 'search';
+  input.placeholder = 'Search by community or lead';
+  label.htmlFor = input.id;
+  label.textContent = 'Find your community';
+  const status = document.createElement('p');
+  status.className = 'community-filter-status';
+  status.setAttribute('role', 'status');
+  const empty = document.createElement('p');
+  empty.className = 'community-filter-empty';
+  empty.textContent = 'No matching communities. Try a different topic or clear your search.';
+  empty.hidden = true;
+  const update = () => {
+    const query = input.value.trim().toLocaleLowerCase();
+    let count = 0;
+    cards.forEach((card) => {
+      const matches = card.textContent.toLocaleLowerCase().includes(query);
+      card.hidden = !matches;
+      if (matches) count += 1;
+    });
+    status.textContent = `${count} ${count === 1 ? 'community' : 'communities'}${query ? ' found' : ' to explore'}`;
+    empty.hidden = count !== 0;
+  };
+  input.addEventListener('input', update);
+  filter.append(label, input, status);
+  wrapper.prepend(filter);
+  grid.before(empty);
+  update();
+}
+
 /**
  * Decorates the Communities Card List block.
  * Same authoring as communities block: 2 columns, Photo+Name | Leads list + Slack + Events links.
@@ -305,7 +342,7 @@ export default async function decorate(block) {
     addText.className = 'communities-card-list-add-text';
     addText.textContent = placeholders.doYouWantToStartCommunity || 'Do you want to start a community?';
     const addBtn = document.createElement('a');
-    addBtn.href = '/communities/new-community';
+    addBtn.href = addCommunityLink || '/communities/new-community';
     addBtn.className = 'communities-card-list-add-btn button primary';
     addBtn.textContent = placeholders.submitProposal || 'Submit Proposal';
     addBody.appendChild(addText);
@@ -321,6 +358,7 @@ export default async function decorate(block) {
     wrapper.className = 'communities-card-list-wrapper';
     wrapper.appendChild(grid);
     block.appendChild(wrapper);
+    addCommunityFilter(wrapper, grid);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Failed to decorate communities-card-list block:', error);

@@ -252,7 +252,7 @@ function createCarouselControls(placeholders) {
   return navButtons;
 }
 
-function updateCarousel(block, slideIndex) {
+function updateCarousel(block, slideIndex, behavior = 'smooth') {
   const container = block.querySelector('.events-carousel-container');
   const slides = block.querySelectorAll('.events-carousel-slide');
   if (!container || slides.length === 0) return;
@@ -262,7 +262,12 @@ function updateCarousel(block, slideIndex) {
   if (idx < 0) idx = maxIndex;
   else if (idx > maxIndex) idx = 0;
 
-  container.scrollTo({ left: slides[idx].offsetLeft, behavior: 'smooth' });
+  container.style.height = `${slides[idx].querySelector('.events-carousel-slide-content').offsetHeight}px`;
+  slides.forEach((slide, i) => { slide.inert = i !== idx; });
+  container.scrollTo({
+    left: slides[idx].offsetLeft,
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : behavior,
+  });
   block.classList.toggle('at-start', idx === 0);
   block.classList.toggle('at-end', idx === maxIndex);
   block.dataset.currentSlide = idx;
@@ -304,9 +309,7 @@ function bindCarouselEvents(block) {
             closestIndex = i;
           }
         });
-        block.classList.toggle('at-start', closestIndex === 0);
-        block.classList.toggle('at-end', closestIndex === slides.length - 1);
-        block.dataset.currentSlide = closestIndex;
+        updateCarousel(block, closestIndex, 'instant');
       }, 100);
     });
   }
@@ -338,7 +341,7 @@ export default async function decorate(block) {
   }
 
   const carouselWrapper = document.createElement('div');
-  carouselWrapper.className = 'events-carousel-wrapper';
+  carouselWrapper.className = 'events-carousel-wrapper loaded';
 
   const slidesContainer = document.createElement('div');
   slidesContainer.className = 'events-carousel-slides-container';
@@ -350,7 +353,7 @@ export default async function decorate(block) {
     const slide = document.createElement('div');
     slide.className = 'events-carousel-slide';
     slide.dataset.slideIndex = slideIdx;
-    const slideContent = document.createElement('div');
+    const slideContent = document.createElement('ul');
     slideContent.className = 'events-carousel-slide-content';
     slideCards.forEach((card) => slideContent.appendChild(card));
     slide.appendChild(slideContent);
@@ -376,5 +379,11 @@ export default async function decorate(block) {
   if (slides.length > 1) {
     bindCarouselEvents(block);
     updateCarousel(block, 0);
+    const observer = new ResizeObserver(() => {
+      updateCarousel(block, Number(block.dataset.currentSlide || 0), 'instant');
+    });
+    block.querySelectorAll('.events-carousel-slide-content').forEach((content) => {
+      observer.observe(content);
+    });
   }
 }
