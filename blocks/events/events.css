@@ -455,6 +455,48 @@
   }
 }
 
+/* Grid variant: all events in a static grid instead of a carousel */
+.events.grid {
+  overflow: visible;
+}
+
+.events-grid {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs) var(--carousel-padding-mobile);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-m);
+}
+
+.events.grid .events-no-upcoming-banner {
+  margin: 0 var(--carousel-padding-mobile) var(--space-m);
+}
+
+@media (width >= 600px) {
+  .events-grid {
+    padding-inline: var(--carousel-padding-tablet);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--heading-margin-bottom);
+  }
+
+  .events.grid .events-no-upcoming-banner {
+    margin: 0 var(--carousel-padding-tablet) var(--space-m);
+  }
+}
+
+@media (width >= 1200px) {
+  .events-grid {
+    padding-inline: var(--carousel-padding-desktop);
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--card-gap);
+  }
+
+  .events.grid .events-no-upcoming-banner {
+    margin: 0 var(--carousel-padding-desktop) var(--space-m);
+  }
+}
+
 /* Animation */
 @keyframes events-fade-in-up {
   from {
