@@ -1,6 +1,6 @@
-/* Adobe Tech Council: shared visual tokens, light and system dark themes. */
+/* Adobe Tech Council: shared visual tokens, light by default. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
   --color-paper: oklch(98.5% 0.002 25deg);
   --color-paper-2: oklch(96% 0.003 25deg);
@@ -65,18 +65,18 @@
   --focus-ring: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-paper: oklch(18% 0.004 25deg);
-    --color-paper-2: oklch(22% 0.005 25deg);
-    --color-paper-3: oklch(27% 0.006 25deg);
-    --color-ink: oklch(95% 0.003 25deg);
-    --color-ink-2: oklch(76% 0.006 25deg);
-    --color-rule: oklch(38% 0.006 25deg);
-    --color-accent: oklch(75% 0.14 27deg);
-    --color-accent-hover: oklch(82% 0.1 27deg);
-    --color-accent-soft: oklch(27% 0.04 27deg);
-    --color-on-accent: oklch(18% 0.004 25deg);
-    --color-focus: var(--color-accent);
-  }
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-paper: oklch(18% 0.004 25deg);
+  --color-paper-2: oklch(22% 0.005 25deg);
+  --color-paper-3: oklch(27% 0.006 25deg);
+  --color-ink: oklch(95% 0.003 25deg);
+  --color-ink-2: oklch(76% 0.006 25deg);
+  --color-rule: oklch(38% 0.006 25deg);
+  --color-accent: oklch(75% 0.14 27deg);
+  --color-accent-hover: oklch(82% 0.1 27deg);
+  --color-accent-soft: oklch(27% 0.04 27deg);
+  --color-on-accent: oklch(18% 0.004 25deg);
+  --color-focus: var(--color-accent);
 }

@@ -148,6 +148,17 @@ function autolinkModals(element) {
 function buildAutoBlocks(main) {
   try {
     buildHeroBlock(main);
+    if (window.location.pathname === '/') {
+      const authoredSearch = main.querySelector('.fjsearch, .backend-search');
+      main.querySelectorAll('.doc-search.homepage').forEach((block) => {
+        if (authoredSearch) {
+          block.remove();
+        } else {
+          const variants = [...block.classList].filter((name) => !['doc-search', 'homepage'].includes(name));
+          block.className = ['backend-search', ...variants].join(' ');
+        }
+      });
+    }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -173,6 +184,12 @@ export function decorateMain(main) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  doc.documentElement.dataset.theme = 'light';
+  try {
+    if (localStorage.getItem('tc-theme') === 'dark') doc.documentElement.dataset.theme = 'dark';
+  } catch {
+    // Keep the light default when browser storage is unavailable.
+  }
   await Promise.all([
     loadCSS(`${window.hlx.codeBasePath}/tokens.css`),
     loadCSS(`${window.hlx.codeBasePath}/styles/redesign.css`),
@@ -240,6 +257,14 @@ async function loadLazy(doc) {
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+
+  try {
+    const { default: installChatWidget } = await import('./chat-widget.js');
+    await installChatWidget();
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn('Chat widget could not load.');
+  }
 
   // Back-to-top button
   try {

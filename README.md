@@ -37,6 +37,51 @@ If port 3000 is already in use, run `aem up --port 3001 --no-open --no-stop-othe
 and open http://localhost:3001/. If the proxy reports an expired token, open
 http://localhost:3001/.aem/cli/login and complete Adobe sign-in.
 
+### Search and chat together
+
+Use the sibling [Express backend](https://github.com/Adobe-Tech-Community/tech-commuity-backend)
+to serve the site and `/api` on the same local origin. From this frontend:
+
+```sh
+aem up --port 3001 --no-open --no-stop-other \
+  --html-folder test/fixtures --html-mount /dev
+```
+
+In another terminal, from the backend directory:
+
+```sh
+npm ci
+npm run dev:site -- --api-config /path/to/fj-tech.sh --auth-config /path/to/fj.sh
+```
+
+Open http://localhost:8081/ for the site, or
+http://localhost:8081/dev/knowledge for the authored search/chat fixture.
+The optional API config reads only literal `API_URL`, `FJ_ACCESS_TOKEN` and
+`FJ_PACK_UUID` assignments; it never executes the script or copies credentials
+into the frontend. Alternatively configure the backend's `.env`.
+The auth config reads the supplied Okta token endpoint and service credentials
+without executing its shell commands. Access tokens are acquired and renewed
+automatically in backend memory; the browser never receives them.
+Without AI credentials, chat explicitly offers resource search instead of
+claiming to generate AI answers. Configured credentials must remain valid;
+health reports configuration, not successful upstream authentication.
+
+The floating icon-only **Tech Council assistant** launcher appears on every page;
+no SharePoint change is needed for it. It opens a responsive native modal dialog,
+supports Close and Escape, and restores focus to its launcher. Closing stops
+pending work but retains completed replies and the current draft until reload.
+The full chat block and its stylesheet load only on first open.
+Icon controls have accessible names and tooltips. Animated waiting dots give way
+to actual streamed text; the conversation scrolls independently of the composer.
+Search shows animated result placeholders followed by a short staggered reveal.
+Both components honor reduced motion and inherit the site's light/dark theme.
+Answers support semantic Markdown lists, headings, quotes, code, and tables.
+Only links matching returned Tech Council sources are clickable; raw HTML and
+images are never injected. The standalone Markdown lexer is vendored from
+`marked@18.2.0` under `scripts/vendor/` with its MIT license; when upgrading,
+copy `node_modules/marked/lib/marked.esm.js` to `scripts/vendor/marked.js` and
+`node_modules/marked/LICENSE` to `scripts/vendor/marked.LICENSE`.
+
 ## SharePoint authoring for the redesign
 
 The redesign reuses the site's existing EDS blocks. No new block library,
@@ -54,7 +99,7 @@ this order. A paragraph containing only `---` separates sections.
 | Block or section | What to author |
 | --- | --- |
 | `Hero Quote` | A two-column table with one content row: the headline in the left cell and one mission paragraph in the right cell. Keep a single slide on the homepage. The community artwork and two discovery links are supplied by the code. |
-| `Doc Search (contained, homepage)` | Keep the existing link to `/docpages-index.json` in its content cell. Events and recordings are also included automatically. |
+| `Fjsearch` | The authored homepage `Fjsearch (contained, homepage)` uses the new backend search; the old homepage Doc Search is suppressed to avoid duplicates. No configuration is required. An optional second row can contain `endpoint` with an empty value to use the default. `Backend Search` is also supported. See the [search service guide](services/search/README.md) for exact SharePoint and fragment steps. |
 | `Section Heading` | A one-column table: first content row `Events`; optional second content row is a short description. |
 | `Fragment` | A one-column table with a hyperlink to `/fragments/events-fragment`. |
 | `Section Heading` | First content row `Communities`; optional second row is a short description. |
@@ -86,6 +131,34 @@ hyperlink readable channel-name text rather than a raw URL. Supply meaningful
 image alt text. The search box and result count are generated automatically.
 Keep this fragment shared between the homepage and `/communities/`.
 
+### Optional inline AI Chat
+
+The floating launcher is already global. To also embed chat within a page or
+fragment, add a two-column Word table and merge its first row:
+
+| AI Chat | |
+| --- | --- |
+| title | Ask Tech Council |
+| endpoint | |
+
+Use `AI Chat` as the merged block name. Both configuration rows are optional;
+an empty endpoint uses same-origin `/api/chat`. For a fragment, create the
+document at your chosen `/fragments/` path, preview it, and reference that path
+from an existing `Fragment` block.
+
+The browser sends only the question and up to five completed exchanges; it
+never receives provider credentials. Replies stream as text, with site-only
+source links. Answer links become clickable only when they match returned site
+sources; unverified references remain plain text instead of broken local links.
+Conversation stays in memory and clears on reload; the upstream
+provider has its own data-retention policy.
+
+On a direct EDS preview without an `/api` proxy, an inline block can explicitly
+author the approved HTTPS API endpoint, and the backend must allow that exact
+preview origin. The global launcher uses same-origin `/api/chat`, so use the
+local gateway or corporate reverse proxy for it. Authoring/publishing content
+does not deploy the backend.
+
 ### Events, recordings, and resources
 
 The `Events` and `Recordings` blocks read existing Excel feeds; adding Word card
@@ -98,11 +171,12 @@ headings exactly.
 | `/forms/recording-form/recordings.json?sheet=recordings` | `title`, `speaker`, `date`, `tag`; `recordingLink` and optional `presentationLink` must be accessible to the intended employees. |
 | The JSON link in the existing `Tools` block on `/resources` | Keep that source unchanged. Maintain `title`, `description`, `link`, and `type` (`skill`, `agent`, or `app`) in its workbook. |
 
-Homepage search currently uses the separate
+Legacy Doc Search variants use the separate
 `/forms/events-form/events-data.json` and
 `/forms/recording-form/recordings-data.json` feeds. Update and preview their source
-workbooks as well when changing events or recordings; otherwise search and the
-listing pages can disagree. Do not create competing feeds with new names.
+workbooks as well when using those legacy variants. The new homepage backend
+search reads the canonical feeds above instead, including resources; it does not
+depend on these duplicate search feeds. Do not create competing feeds with new names.
 
 Upcoming events are ordered automatically. If none are upcoming, a recordings
 link is shown instead; add real scheduled events rather than placeholder dates.

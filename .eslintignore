@@ -1,3 +1,4 @@
 helix-importer-ui
 blocks/form/rules/**
 blocks/form/rules-doc/**
+scripts/vendor/marked.js

@@ -205,6 +205,7 @@ function addCommunityFilter(wrapper, grid) {
  */
 export default async function decorate(block) {
   try {
+    if (window.location.pathname === '/') block.classList.add('homepage');
     const placeholders = await fetchPlaceholders();
     const rows = [...block.children];
 
