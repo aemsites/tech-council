@@ -102,7 +102,7 @@ function handleFranklinSpecialCases(item) {
   item.required = (item.required === 'x' || item.required === true);
 
   if (item.Max || item.Min || item?.constraintMessages?.max || item?.constraintMessages?.min) {
-    if (item.fieldType === 'number-input' || item.fieldType === 'date' || item.fieldType === 'range') {
+    if (item.fieldType === 'number-input' || item.fieldType === 'date' || item.fieldType === 'datetime-local-input' || item.fieldType === 'range') {
       item.maximum = item.Max;
       item.minimum = item.Min;
       setProperty(item.constraintMessages, 'maximum', item?.constraintMessages?.max);
@@ -168,12 +168,13 @@ export default class DocBasedFormToAF {
     'Pattern Error Message': 'constraintMessages.pattern',
     'Min Error Message': 'constraintMessages.min',
     'Max Error Message': 'constraintMessages.max',
+    'Custom Type': ':type',
   };
 
   fieldMapping = new Map([
     ['text', 'text-input'],
     ['number', 'number-input'],
-    ['datetime-local', 'date-input'],
+    ['datetime-local', 'datetime-local-input'],
     ['file', 'file-input'],
     ['select', 'drop-down'],
     ['radio-group', 'radio-group'],

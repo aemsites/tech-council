@@ -5,7 +5,7 @@
 
 .section-heading h2 {
   margin: 0 0 var(--space-s) 0;
-  font-size: var(--heading-font-size-xl);
+  font-size: var(--heading-font-size-l);
   font-family: var(--heading-font-family);
 }
 

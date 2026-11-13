@@ -9,3 +9,6 @@ helix-importer-ui
 .idea
 
 eds-extension/*
+services/search/.env
+.playwright-mcp/
+/chat-modern-light.png

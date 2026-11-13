@@ -2,8 +2,11 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import createTag from '../../utils/tag.js';
 
 const CURSOR_BLINK = 580; // in milliseconds
-const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json?sheet=recordings';
+const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json';
+const EVENTS_SOURCE = '/forms/events-form/events-data.json';
 const DEFAULT_IMAGE = '/icons/genai-doc.svg';
+const RECENT_SEARCHES_KEY = 'tc-recent-searches';
+const MAX_RECENT_SEARCHES = 5;
 
 /**
  * Debounces a function by given delay.
@@ -69,6 +72,11 @@ export async function fetchSourceData(index, faq = '') {
     if (recordings.length) {
       window.docs.push(...recordings);
     }
+    // eslint-disable-next-line no-use-before-define
+    const events = await fetchEventsData(EVENTS_SOURCE);
+    if (events.length) {
+      window.docs.push(...events);
+    }
     return window.docs;
   } catch (error) {
     return [];
@@ -113,7 +121,7 @@ function mapRecordingToSearchDoc(row) {
   const presentationLink = String(row.presentationLink || '').trim();
   const description = [speaker, tag].filter(Boolean).join(' | ') || 'Recording';
   // Keep destination on /recordings while making each entry unique for de-dupe.
-  const path = `/recordings`;
+  const path = '/recordings';
   return {
     title,
     description,
@@ -135,6 +143,48 @@ export async function fetchRecordingsData(index) {
     const json = await resp.json();
     const rows = Array.isArray(json?.data) ? json.data : [];
     return rows.map(mapRecordingToSearchDoc).filter(Boolean);
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Converts an events feed row into a searchable doc entry.
+ * @param {Object} row - Event row from JSON feed.
+ * @returns {Object|null} Search doc entry.
+ */
+function mapEventToSearchDoc(row) {
+  if (!row || typeof row !== 'object') return null;
+  const title = String(row.title || '').trim();
+  if (!title) return null;
+  const speaker = String(row.speaker || '').trim();
+  const dateTime = String(row.dateTime || '').trim();
+  const tag = String(row.tag || '').trim();
+  const meetingRoom = String(row.meetingRoom || '').trim();
+  const description = [speaker, tag].filter(Boolean).join(' | ') || 'Event';
+  // Keep destination on /events while making each entry unique for de-dupe.
+  const path = '/events';
+  return {
+    title,
+    description,
+    path,
+    image: DEFAULT_IMAGE,
+    content: `${title} ${speaker} ${dateTime} ${tag} ${meetingRoom}`.toLowerCase(),
+    source: 'events',
+  };
+}
+
+/**
+ * Fetches events index and maps it into search docs.
+ * @param {string} index - Relative events JSON endpoint.
+ * @returns {Array} Searchable events entries.
+ */
+export async function fetchEventsData(index) {
+  try {
+    const resp = await fetch(index);
+    const json = await resp.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    return rows.map(mapEventToSearchDoc).filter(Boolean);
   } catch (error) {
     return [];
   }
@@ -205,6 +255,62 @@ function toggleClearButton(input, clearButton) {
   }
 }
 
+/**
+ * Reads the stored list of recent searches from localStorage.
+ * @returns {Array} List of recent search queries, most-recent-first.
+ */
+function getRecentSearches() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY));
+    if (!Array.isArray(stored)) return [];
+    return stored
+      .filter((entry) => typeof entry === 'string' && entry.trim())
+      .slice(0, MAX_RECENT_SEARCHES);
+  } catch (error) {
+    return [];
+  }
+}
+
+/**
+ * Persists the given list of recent searches to localStorage.
+ * @param {Array} list - List of recent search queries to store.
+ */
+function setRecentSearches(list) {
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(list));
+  } catch (error) {
+    // ignore write errors (e.g. storage disabled or full)
+  }
+}
+
+/**
+ * Records a search query as a recent search, de-duplicating and capping the list.
+ * @param {string} query - Search query to save.
+ */
+function saveRecentSearch(query) {
+  const trimmed = (query || '').trim();
+  if (!trimmed) return;
+  const existing = getRecentSearches()
+    .filter((entry) => entry.toLowerCase() !== trimmed.toLowerCase());
+  existing.unshift(trimmed);
+  setRecentSearches(existing.slice(0, MAX_RECENT_SEARCHES));
+}
+
+/**
+ * Removes a single query from the stored recent searches.
+ * @param {string} query - Search query to remove.
+ */
+function removeRecentSearch(query) {
+  setRecentSearches(getRecentSearches().filter((entry) => entry !== query));
+}
+
+/**
+ * Clears all stored recent searches.
+ */
+function clearRecentSearches() {
+  setRecentSearches([]);
+}
+
 function loadSearch(input, docs, resultsContainer, isHomepage, clearButton) {
   let searchTerm;
   if (/[?&]q=/.test(window.location.search)) {
@@ -218,6 +324,20 @@ function loadSearch(input, docs, resultsContainer, isHomepage, clearButton) {
     // eslint-disable-next-line no-use-before-define
     searchQuery(searchTerm, docs, resultsContainer, isHomepage);
   }
+}
+
+/**
+ * Resolves a display category label for a match, only for events,
+ * recordings and communities. Returns empty string otherwise.
+ * @param {Object} match - Matching document object.
+ * @returns {string} Category label to show, or '' to hide.
+ */
+function resolveCategory(match) {
+  if (match?.source === 'events') return 'Events';
+  if (match?.source === 'recordings') return 'Recordings';
+  const path = (match?.path || '').toLowerCase();
+  if (path === '/communities' || path.startsWith('/communities/')) return 'Communities';
+  return '';
 }
 
 /**
@@ -259,10 +379,15 @@ function buildResult(match, terms, isHomepage) {
   const desc = createTag('p', {}, truncate(match.description));
   highlightTerms(terms, [title, desc]);
   const imageSrc = getSafeImageSrc(match.image);
+  const category = resolveCategory(match);
+  const categoryTag = category
+    ? createTag('span', { class: 'doc-search-result-category' }, category)
+    : null;
 
   if (isHomepage) {
     const image = createOptimizedPicture(imageSrc, '', false, [{ width: '20' }]);
     result.append(image, title, desc);
+    if (categoryTag) result.append(categoryTag);
     const li = createTag('li', { class: 'doc-search-result' });
     li.append(result);
     return li;
@@ -277,6 +402,7 @@ function buildResult(match, terms, isHomepage) {
   const h3 = createTag('h3', {}, span);
   const p = createTag('p', {}, desc);
   cardBody.append(h3, p);
+  if (categoryTag) cardBody.append(categoryTag);
   result.append(cardImage, cardBody);
   return result;
 }
@@ -316,6 +442,87 @@ export function displayResults(matches, terms, container, isHomepage) {
   });
   container.classList.add('open');
   if (!isHomepage) container.closest('aside').classList.add('expand');
+}
+
+/**
+ * Removes all dynamically rendered live-result and recent-search entries from the
+ * container, leaving persistent elements (e.g. the "no result" message) in place.
+ * @param {HTMLElement} container - Results container.
+ */
+function clearDynamicResults(container) {
+  container.querySelectorAll('.doc-search-result, .doc-search-recent-heading, .doc-search-recent-item')
+    .forEach((el) => el.remove());
+}
+
+/**
+ * Builds a single recent-search list item.
+ * @param {string} query - Recent search query to render.
+ * @param {Function} onSelect - Called with the query when the entry is selected.
+ * @param {Function} onRemove - Called with the query when the entry is removed.
+ * @returns {HTMLElement} List item for the recent search entry.
+ */
+function buildRecentSearchItem(query, onSelect, onRemove) {
+  const link = createTag('a', { href: '#', class: 'doc-search-recent-query' });
+  link.textContent = query;
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    onSelect(query);
+  });
+  const remove = createTag(
+    'button',
+    {
+      type: 'button',
+      class: 'doc-search-recent-remove',
+      'aria-label': `Remove "${query}" from recent searches`,
+    },
+    '✕',
+  );
+  remove.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onRemove(query);
+  });
+  const li = createTag('li', { class: 'doc-search-recent-item' });
+  li.append(link, remove);
+  return li;
+}
+
+/**
+ * Renders the "Recent searches" view into the results dropdown.
+ * @param {HTMLElement} results - Results container.
+ * @param {Function} rerun - Called with a stored query when it is selected.
+ */
+function renderRecentSearches(results, rerun) {
+  clearDynamicResults(results);
+  results.querySelector('.doc-search-no-result').setAttribute('aria-hidden', true);
+  const queries = getRecentSearches();
+  if (!queries.length) {
+    // eslint-disable-next-line no-use-before-define
+    hideResults(results);
+    return;
+  }
+
+  const label = createTag('span', {}, 'Recent searches');
+  const clearAll = createTag('button', { type: 'button', class: 'doc-search-recent-clear' }, 'Clear all');
+  clearAll.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    clearRecentSearches();
+    renderRecentSearches(results, rerun);
+  });
+  const heading = createTag('li', { class: 'doc-search-recent-heading' });
+  heading.append(label, clearAll);
+  results.append(heading);
+
+  queries.forEach((query) => {
+    results.append(buildRecentSearchItem(query, rerun, (removed) => {
+      removeRecentSearch(removed);
+      renderRecentSearches(results, rerun);
+    }));
+  });
+
+  results.setAttribute('aria-hidden', false);
+  results.classList.add('open');
 }
 
 /**
@@ -378,10 +585,13 @@ function findDoc(query, docs = [], findMultiple = false) {
     const faqDocs = [];
     docs.forEach((doc) => (doc.title ? indexDocs.push(doc) : faqDocs.push(doc)));
 
-    // split the query into terms, trimming and filtering out 1-2 letter and unhelpful words
-    const filterOut = ['and', 'but', 'can', 'eds', 'for', 'how', 'the', 'use', 'what', 'aem'];
-    const terms = query.toLowerCase().split(' ').map((e) => e.trim()).filter((e) => e.length > 2 && !filterOut.includes(e));
+    // Keep technical abbreviations such as AI, UI, AEM, and EDS searchable.
+    const filterOut = ['and', 'but', 'can', 'for', 'how', 'the', 'use', 'what'];
+    const terms = query.toLowerCase().split(/\s+/).filter((e) => e.length >= 2 && !filterOut.includes(e));
     if (!terms.length) return { terms, match: [] }; // eject if no valid search terms
+    const matchesTerm = (text, term) => (term.length === 2
+      ? text.toLowerCase().split(/[^a-z0-9]+/).includes(term)
+      : text.toLowerCase().includes(term));
 
     // Search through faq and index docs and return both matches
     const perfectMatches = new Set();
@@ -390,12 +600,12 @@ function findDoc(query, docs = [], findMultiple = false) {
 
     // find "perfect" matches (every term matches title or faq question)
     indexDocs.forEach((doc) => {
-      if (terms.every((term) => doc.title.toLowerCase().includes(term))) {
+      if (terms.every((term) => matchesTerm(doc.title, term))) {
         perfectMatches.add(doc);
       }
     });
     faqDocs.forEach((doc) => {
-      if ([...doc.querySelectorAll('h3')].some((q) => terms.every((term) => q.textContent.toLowerCase().includes(term)))) {
+      if ([...doc.querySelectorAll('h3')].some((q) => terms.every((term) => matchesTerm(q.textContent, term)))) {
         perfectMatches.add(createSearchResultObject(doc, terms, 'faq'));
       }
     });
@@ -404,12 +614,12 @@ function findDoc(query, docs = [], findMultiple = false) {
 
     // find strong matches (some terms match title or faq question)
     indexDocs.forEach((doc) => {
-      if (terms.some((term) => doc.title.toLowerCase().includes(term))) {
+      if (terms.some((term) => matchesTerm(doc.title, term))) {
         strongMatches.add(doc);
       }
     });
     faqDocs.forEach((doc) => {
-      if ([...doc.querySelectorAll('h3')].some((q) => terms.some((term) => q.textContent.toLowerCase().includes(term)))) {
+      if ([...doc.querySelectorAll('h3')].some((q) => terms.some((term) => matchesTerm(q.textContent, term)))) {
         strongMatches.add(createSearchResultObject(doc, terms, 'faq'));
       }
     });
@@ -420,12 +630,12 @@ function findDoc(query, docs = [], findMultiple = false) {
 
     // find weaker/fallback matches (some terms match content or faq answer}
     indexDocs.forEach((doc) => {
-      if (terms.some((term) => `${doc.title} ${doc.content}`.toLowerCase().includes(term))) {
+      if (terms.some((term) => matchesTerm(`${doc.title} ${doc.content}`, term))) {
         fallbackMatches.add(doc);
       }
     });
     faqDocs.forEach((doc) => {
-      if ([...doc.querySelectorAll('p')].some((p) => terms.some((term) => p.textContent.toLowerCase().includes(term)))) {
+      if ([...doc.querySelectorAll('p')].some((p) => terms.some((term) => matchesTerm(p.textContent, term)))) {
         fallbackMatches.add(createSearchResultObject(doc, terms, 'faq'));
       }
     });
@@ -448,7 +658,7 @@ function searchQuery(search, docs, results, isHomepage) {
   if (docs.length && search.trim()) {
     // clear previous results
     if (isHomepage) {
-      results.querySelectorAll('.doc-search-result').forEach((r) => r.remove());
+      clearDynamicResults(results);
     } else {
       results.querySelectorAll('.article-card').forEach((r) => r.remove());
     }
@@ -456,9 +666,13 @@ function searchQuery(search, docs, results, isHomepage) {
     // search for matching document
     const { match, terms } = findDoc(search, docs, !isHomepage);
     if (match) {
-      const uniqueMatches = Array.isArray(match)
-        ? [...new Map(match.map((item) => [item.path, item])).values()]
-        : match;
+      const seen = new Set();
+      const uniqueMatches = match.filter((item) => {
+        const key = `${item.path}|${item.title}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
       if (isHomepage) {
         displayResults(uniqueMatches.slice(0, 3), terms, results, isHomepage);
       } else {
@@ -659,10 +873,10 @@ function rotatePlaceholder(currIndex, input, results, placeholders, isHomepage) 
  * @returns {HTMLAnchorElement|null} Last visible link if exists, otherwise null.
  */
 function findResultLink(results) {
-  const links = results.querySelectorAll('a[href]');
+  const links = results.querySelectorAll('a[href]:not(.doc-search-recent-query)');
   const result = links[links.length - 1];
   // only return link if visible to user
-  return result.offsetParent ? result : null;
+  return result?.offsetParent ? result : null;
 }
 
 export default async function decorate(block) {
@@ -679,11 +893,15 @@ export default async function decorate(block) {
   row.innerHTML = '';
 
   // build search bar
-  const form = createTag('form');
-  const search = createTag('input', { type: 'search', 'aria-label': 'Search the documentation' });
-  const clear = createTag('button', { type: 'reset' }, '✕');
+  const form = createTag('form', { role: 'search' });
+  const searchId = `doc-search-${document.querySelectorAll('.doc-search-label').length}`;
+  const label = createTag('label', { for: searchId, class: 'doc-search-label' }, 'Search events and recordings');
+  const search = createTag('input', {
+    type: 'search', id: searchId, placeholder: 'Search by topic, session, or speaker',
+  });
+  const clear = createTag('button', { type: 'reset', 'aria-label': 'Clear search' }, '✕');
   const icon = buildSearchIcon();
-  form.append(icon, search, clear);
+  form.append(label, icon, search, clear);
   row.append(form);
 
   // build results container
@@ -698,12 +916,19 @@ export default async function decorate(block) {
   const noResults = createTag(
     'li',
     { class: 'doc-search-no-result', 'aria-hidden': true },
-    'We didn\'t find a good match. <a href="/docs/">Visit our documentation page</a> for more.',
+    'No matching events or recordings found. Try a different search.',
   );
   results.append(noResults);
   // add functionality to search bar
+  const rerunRecentSearch = (query) => {
+    search.value = query;
+    toggleClearButton(search, clear);
+    searchQuery(query, window.docs || [], results, isHomepage);
+    search.focus();
+  };
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (isHomepage) saveRecentSearch(search.value);
     // on form submit, send user to most relevant result
     const link = findResultLink(results);
     if (link) {
@@ -713,20 +938,43 @@ export default async function decorate(block) {
       }, 65);
     }
   });
+  results.addEventListener('click', (e) => {
+    if (isHomepage && e.target.closest('li.doc-search-result a[href]')) saveRecentSearch(search.value);
+  });
   clear.addEventListener('click', () => {
     search.value = '';
     toggleClearButton(search, clear);
+    // focus synchronously re-renders the recent-searches view on homepage (see 'focus'
+    // listener below); fading it out here would immediately undo that.
     search.focus();
-    fadeOut(results);
+    if (!isHomepage) fadeOut(results);
   });
+  let blurTimer;
   search.addEventListener('focus', () => {
+    clearTimeout(blurTimer);
     search.dataset.rotate = false;
     forceStop(search);
-    search.placeholder = 'Search the documentation';
+    search.placeholder = 'Search events and recordings';
+    if (isHomepage && !search.value.trim()) renderRecentSearches(results, rerunRecentSearch);
   });
+  if (isHomepage) {
+    // dismiss the recent-searches view when clicking anywhere outside the search bar
+    document.addEventListener('click', (e) => {
+      // composedPath is captured at dispatch, so it still works if the clicked node was re-rendered
+      const path = e.composedPath();
+      if (path.includes(form) || path.includes(results)) return;
+      if (results.getAttribute('aria-hidden') === 'true') return;
+      if (results.querySelector('.doc-search-recent-heading')) fadeOut(results);
+    });
+  }
   search.addEventListener('blur', () => {
     if (search.value === '' && isHomepage && placeholders.length > 0) {
-      setTimeout(() => {
+      clearTimeout(blurTimer);
+      blurTimer = setTimeout(() => {
+        // a recent-search click/remove can refocus or fill the input before this fires
+        if (search === document.activeElement || search.value) return;
+        // the recent-searches view is still open (e.g. after remove / Clear all); don't replace it
+        if (results.querySelector('.doc-search-recent-heading') && results.getAttribute('aria-hidden') !== 'true') return;
         search.dataset.rotate = true;
         rotatePlaceholder(
           generateIndex(-1, placeholders.length),
@@ -744,8 +992,11 @@ export default async function decorate(block) {
   search.addEventListener('keyup', (e) => {
     const { key } = e;
     if (key === 'ArrowDown') {
-      const link = findResultLink(results);
-      if (link) link.focus();
+      // fall back to the first recent search when only the recent view is showing
+      const link = findResultLink(results) || results.querySelector('.doc-search-recent-query');
+      if (link?.offsetParent) link.focus();
+    } else if (key === 'Escape' && isHomepage) {
+      fadeOut(results);
     }
   });
 
@@ -773,6 +1024,9 @@ export default async function decorate(block) {
         search.addEventListener('input', debounce(() => {
           searchQuery(search.value, docs, results, isHomepage);
         }, 200));
+        if (isHomepage && search.value.trim()) {
+          searchQuery(search.value, docs, results, isHomepage);
+        }
         if (!isHomepage) loadSearch(search, docs, results, isHomepage, clear);
       });
     }

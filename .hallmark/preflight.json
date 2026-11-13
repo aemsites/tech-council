@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-12",
+  "framework": "AEM Edge Delivery Services; native ES modules and CSS",
+  "fonts": "Self-hosted Roboto body and Roboto Condensed display",
+  "palette": "Adobe red, neutral surfaces, system dark theme",
+  "motion": "Static discovery surfaces, press feedback only",
+  "preserved": ["Authored content", "Routes", "EDS blocks", "JSON feeds", "Existing brand assets"],
+  "sources": ["head.html", "styles/styles.css", "styles/fonts.css", "README.md"]
+}

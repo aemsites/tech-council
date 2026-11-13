@@ -12,7 +12,7 @@
 
 :root {
   /* colors */
-  --background-color: #ffffff;
+  --background-color: #fff;
   --light-color: #f3f3f3;
   --dark-color: #001d26;
   --text-color: #1d1d1d;
@@ -32,10 +32,12 @@
   --color-primary: #ec0f1a;
   --color-primary-dark: #b30b13;
   --color-secondary: #001d26;
-  --color-surface: #ffffff;
+  --color-surface: #fff;
+
   /* gradient colors */
   --color-gradient-purple: #6a38ff;
-  --color-brand-pure-white: #ffffff;
+  --color-brand-pure-white: #fff;
+
   /* spacing scale */
   --space-xs: 4px;
   --space-s: 8px;
@@ -106,7 +108,7 @@
 
   /* fonts */
   --body-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
-  --heading-font-family: roboto-condensed, roboto-condensed-fallback, roboto, sans-serif;
+  --heading-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
 
   /* body sizes */
   --body-font-size-m: clamp(17px, 1.2vw, 19px);
@@ -134,12 +136,6 @@
 
 /* fallback fonts */
 @font-face {
-  font-family: roboto-condensed-fallback;
-  size-adjust: 88.82%;
-  src: local('Adobe Clean');
-}
-
-@font-face {
   font-family: roboto-fallback;
   size-adjust: 99.529%;
   src: local('Adobe Clean');
@@ -155,7 +151,7 @@
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFFFFF 550px, #FFFFFF 100%);
+  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFF 550px, #FFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
@@ -187,6 +183,50 @@ footer .footer {
 header .header[data-block-status="loaded"],
 footer .footer[data-block-status="loaded"] {
   visibility: visible;
+}
+
+/* Section skeleton loading
+ * While a below-the-fold section loads, JS adds .section-loading to reserve its
+ * slot (so nothing pops in above it) and show a shimmer placeholder. The
+ * placeholder is delayed ~200ms so fast sections never flash a skeleton, and
+ * the shimmer only animates when the user has no reduced-motion preference. */
+main .section.section-loading {
+  position: relative;
+  min-height: 220px;
+}
+
+/* hide the section's raw, not-yet-decorated content behind the skeleton */
+main .section.section-loading > * {
+  visibility: hidden;
+}
+
+main .section.section-loading::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 12px;
+  background-color: #eef1f6;
+  opacity: 0;
+  animation: section-skeleton-appear 0.2s ease-out 0.2s forwards;
+}
+
+@keyframes section-skeleton-appear {
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  main .section.section-loading::after {
+    background-image: linear-gradient(100deg, #eef1f6 40%, #f6f9fc 50%, #eef1f6 60%);
+    background-size: 200% 100%;
+    animation:
+      section-skeleton-appear 0.2s ease-out 0.2s forwards,
+      section-skeleton-shimmer 1.4s linear 0.2s infinite;
+  }
+}
+
+@keyframes section-skeleton-shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -150% 0; }
 }
 
 h1,

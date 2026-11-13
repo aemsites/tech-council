@@ -50,7 +50,7 @@ main .section.hero-video-container > div {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px);
+  padding: clamp(24px, 4vw, 48px);
 }
 
 .hero-video .hero-video-media {

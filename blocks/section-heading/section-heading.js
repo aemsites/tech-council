@@ -19,7 +19,20 @@ export default function decorate(block) {
   if (titleText) {
     const h2 = document.createElement('h2');
     h2.textContent = titleText;
+    const authoredId = titleRow.querySelector('[id]')?.id;
+    if (authoredId) h2.id = authoredId;
     container.append(h2);
+
+    if (window.location.pathname === '/') {
+      const destinations = { Events: '/events', Communities: '/communities/' };
+      if (destinations[titleText]) {
+        const link = document.createElement('a');
+        link.className = 'section-heading-link';
+        link.href = destinations[titleText];
+        link.textContent = `View all ${titleText.toLowerCase()}`;
+        container.append(link);
+      }
+    }
   }
 
   if (descText) {
@@ -30,4 +43,4 @@ export default function decorate(block) {
 
   block.textContent = '';
   block.append(container);
-} 
+}

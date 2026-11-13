@@ -2,7 +2,7 @@ import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
-const isDesktop = window.matchMedia('(min-width: 900px)');
+const isDesktop = window.matchMedia('(min-width: 1100px)');
 const DEFAULT_BRAND_LOGO = '/icons/tc-logo.png';
 
 function closeOnEscape(e) {
@@ -76,6 +76,7 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
   button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
+  button.setAttribute('aria-expanded', String(!expanded));
   // enable nav dropdown keyboard accessibility
   const navDrops = navSections.querySelectorAll('.nav-drop');
   if (isDesktop.matches) {
@@ -161,14 +162,16 @@ function decorateBrand(nav) {
     logo.classList.add('nav-brand-logo');
   }
 
-  const textNodes = [...brandLink.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  const textNodes = [...brandLink.childNodes]
+    .filter((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
   const text = textNodes.length
     ? textNodes.map((node) => node.textContent.trim()).join(' ')
     : brandLink.textContent.trim() || 'Tech Council';
   textNodes.forEach((node) => node.remove());
   if (!brandLink.querySelector('.nav-brand-text')) {
     brandLink.textContent = '';
-    brandLink.append(createBrandTextSpan(text));
+    // eslint-disable-next-line no-use-before-define -- function declaration is hoisted
+    brandLink.append(logo, createBrandTextSpan(text));
   }
 }
 
@@ -195,35 +198,10 @@ function createBrandTextSpan(text) {
  * @param {Element} navWrapper The nav wrapper element
  */
 function handleScrollBehavior(navWrapper) {
-  let lastScroll = 0;
-  const scrollThreshold = 100;
-
-  window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    // Add shadow when scrolled
-    if (currentScroll > 10) {
-      navWrapper.classList.add('scrolled');
-    } else {
-      navWrapper.classList.remove('scrolled');
-    }
-
-    // Hide/show header on scroll (optional - can be enabled if desired)
-    // Uncomment below for auto-hide behavior
-    /*
-    if (currentScroll > scrollThreshold) {
-      if (currentScroll > lastScroll && !navWrapper.classList.contains('scroll-down')) {
-        navWrapper.classList.add('scroll-down');
-        navWrapper.classList.remove('scroll-up');
-      } else if (currentScroll < lastScroll && navWrapper.classList.contains('scroll-down')) {
-        navWrapper.classList.remove('scroll-down');
-        navWrapper.classList.add('scroll-up');
-      }
-    }
-    */
-    
-    lastScroll = currentScroll;
+  const observer = new IntersectionObserver(([entry]) => {
+    navWrapper.classList.toggle('scrolled', !entry.isIntersecting);
   });
+  observer.observe(navWrapper.closest('header'));
 }
 
 /**
@@ -238,21 +216,58 @@ function addSkipLink(block) {
   block.prepend(skipLink);
 }
 
+function createThemeToggle() {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'nav-theme-toggle';
+  button.setAttribute('aria-label', 'Dark mode');
+  button.innerHTML = `
+    <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true" focusable="false">
+      <path d="M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z"/>
+    </svg>
+    <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/>
+    </svg>`;
+  const update = () => {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    button.setAttribute('aria-pressed', String(dark));
+    button.title = `Switch to ${dark ? 'light' : 'dark'} mode`;
+  };
+  button.addEventListener('click', () => {
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = theme;
+    update();
+    try {
+      localStorage.setItem('tc-theme', theme);
+    } catch {
+      // Theme switching still works when browser storage is unavailable.
+    }
+  });
+  update();
+  return button;
+}
+
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
-  // Add skip link for accessibility
-  addSkipLink(block);
-
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
   const fragment = await loadFragment(navPath);
+  if (!fragment) return;
 
   // decorate nav DOM
   block.textContent = '';
+  addSkipLink(block);
+  const main = document.querySelector('main');
+  if (main) {
+    if (!main.id) main.id = 'main';
+    main.setAttribute('tabindex', '-1');
+    block.querySelector('.skip-link').href = `#${main.id}`;
+  }
   const nav = document.createElement('nav');
   nav.id = 'nav';
   nav.setAttribute('role', 'navigation');
@@ -289,6 +304,7 @@ export default async function decorate(block) {
     </button>`;
   hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
   nav.prepend(hamburger);
+  nav.append(createThemeToggle());
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
   toggleMenu(nav, navSections, isDesktop.matches);

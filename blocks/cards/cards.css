@@ -4,7 +4,7 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
-  grid-gap: var(--card-gap);
+  gap: var(--card-gap);
 }
 
 .cards > ul > li {
@@ -63,7 +63,7 @@
    ========================================= */
 .cards.objectives > ul {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  grid-gap: var(--card-gap);
+  gap: var(--card-gap);
 }
 
 .cards.objectives .cards-card-image {

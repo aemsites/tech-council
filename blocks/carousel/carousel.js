@@ -89,6 +89,7 @@ function bindEvents(block) {
   const AUTOPLAY_MS = 6000;
   if (!prefersReducedMotion) {
     const startAutoplay = () => {
+      // eslint-disable-next-line no-use-before-define -- const below; safe (deferred call)
       stopAutoplay();
       const id = window.setInterval(() => {
         showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);

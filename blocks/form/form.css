@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity -- pre-existing, TECHCOM-104 */
 :root {
     --background-color-primary: var(--background-color);
     --label-color: var(--text-color);

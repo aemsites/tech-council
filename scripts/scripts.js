@@ -9,8 +9,8 @@ import {
   decorateTemplateAndTheme,
   waitForFirstImage,
   loadSection,
-  loadSections,
   loadCSS,
+  sampleRUM,
 } from './aem.js';
 
 /**
@@ -37,8 +37,8 @@ function highlightFromQuery(root) {
     const isSkippableContainer = (el) => {
       if (!el) return true;
       const tag = el.tagName;
-      return ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'SVG'].includes(tag) ||
-        el.closest('.hlx-highlight');
+      return ['SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT', 'EMBED', 'SVG'].includes(tag)
+        || el.closest('.hlx-highlight');
     };
 
     const walker = document.createTreeWalker(
@@ -61,12 +61,14 @@ function highlightFromQuery(root) {
     while (walker.nextNode()) {
       const textNode = walker.currentNode;
       const textContent = textNode.nodeValue;
+      // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
       if (!textContent) continue;
 
       const fragment = document.createDocumentFragment();
       let lastIndex = 0;
       regex.lastIndex = 0;
       let match;
+      // eslint-disable-next-line no-cond-assign -- pre-existing, TECHCOM-104
       while ((match = regex.exec(textContent))) {
         const matchStart = match.index;
         const matchEnd = match.index + match[0].length;
@@ -76,6 +78,7 @@ function highlightFromQuery(root) {
         const span = document.createElement('span');
         span.className = 'hlx-highlight';
         span.style.backgroundColor = 'yellow';
+        // eslint-disable-next-line prefer-destructuring -- pre-existing, TECHCOM-104
         span.textContent = match[0];
         fragment.appendChild(span);
         highlights.push(span);
@@ -145,6 +148,17 @@ function autolinkModals(element) {
 function buildAutoBlocks(main) {
   try {
     buildHeroBlock(main);
+    if (window.location.pathname === '/') {
+      const authoredSearch = main.querySelector('.fjsearch, .backend-search');
+      main.querySelectorAll('.doc-search.homepage').forEach((block) => {
+        if (authoredSearch) {
+          block.remove();
+        } else {
+          const variants = [...block.classList].filter((name) => !['doc-search', 'homepage'].includes(name));
+          block.className = ['backend-search', ...variants].join(' ');
+        }
+      });
+    }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -170,6 +184,16 @@ export function decorateMain(main) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
+  doc.documentElement.dataset.theme = 'light';
+  try {
+    if (localStorage.getItem('tc-theme') === 'dark') doc.documentElement.dataset.theme = 'dark';
+  } catch {
+    // Keep the light default when browser storage is unavailable.
+  }
+  await Promise.all([
+    loadCSS(`${window.hlx.codeBasePath}/tokens.css`),
+    loadCSS(`${window.hlx.codeBasePath}/styles/redesign.css`),
+  ]);
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
@@ -195,9 +219,34 @@ async function loadEager(doc) {
  */
 async function loadLazy(doc) {
   autolinkModals(doc);
-  
+
   const main = doc.querySelector('main');
-  await loadSections(main);
+
+  // Header and footer are not in the LCP path; kick them off up front so they
+  // load in parallel with the section content instead of queued behind it.
+  loadHeader(doc.querySelector('header'));
+  loadFooter(doc.querySelector('footer'));
+
+  // Reserve space for every below-the-fold section up front with a skeleton
+  // placeholder, then load them all concurrently and swap each skeleton for its
+  // real content as soon as it is ready ("show data as it loads"). Because each
+  // section already holds its slot in document order, a faster lower section
+  // simply fills its own reserved space -- it can never pop in above a slower
+  // section that sits above it (no reordering, minimal layout shift). The
+  // skeleton itself only appears if a section takes longer than ~200ms (see the
+  // .section-loading CSS), so fast sections show content directly with no flash.
+  const pending = [...main.querySelectorAll('.section')]
+    .filter((section) => section.dataset.sectionStatus !== 'loaded');
+  pending.forEach((section) => {
+    section.style.display = '';
+    section.classList.add('section-loading');
+    section.setAttribute('aria-busy', 'true');
+  });
+  await Promise.all(pending.map((section, i) => loadSection(section).then(() => {
+    section.classList.remove('section-loading');
+    section.removeAttribute('aria-busy');
+    if (i === 0 && sampleRUM.enhance) sampleRUM.enhance();
+  })));
 
   // Highlight and optionally scroll to matches from ?highlight= query param
   if (main) highlightFromQuery(main);
@@ -206,11 +255,16 @@ async function loadLazy(doc) {
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
 
-  loadHeader(doc.querySelector('header'));
-  loadFooter(doc.querySelector('footer'));
-
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+
+  try {
+    const { default: installChatWidget } = await import('./chat-widget.js');
+    await installChatWidget();
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn('Chat widget could not load.');
+  }
 
   // Back-to-top button
   try {

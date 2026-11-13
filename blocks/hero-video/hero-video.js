@@ -1,6 +1,7 @@
 /*
  * Hero Video block — full-width hero with video background.
- * Video path: configurable via block table (video | URL) or defaults to /assets/@tech-council/assets/file.webm
+ * Video path: configurable via block table (video | URL) or defaults to
+ * /assets/@tech-council/assets/file.webm
  */
 import { readBlockConfig } from '../../scripts/aem.js';
 
@@ -29,11 +30,13 @@ function extractContent(block) {
   let title = '';
   let description = '';
 
+  // eslint-disable-next-line no-restricted-syntax -- pre-existing, TECHCOM-104
   for (const row of rows) {
     const cols = [...row.children];
     const firstCell = cols[0];
     const secondCell = cols[1];
     const key = (firstCell?.textContent?.trim() || '').toLowerCase();
+    // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
     if (key === 'video' || key === 'hero-video') continue;
 
     const h2 = firstCell?.querySelector('h2');
@@ -44,10 +47,12 @@ function extractContent(block) {
     }
     if (key === 'title' || key === 'heading') {
       title = secondCell?.textContent?.trim() || secondCell?.innerHTML?.trim() || '';
+      // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
       continue;
     }
     if (key === 'description') {
       description = secondCell?.innerHTML?.trim() || secondCell?.textContent?.trim() || '';
+      // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
       continue;
     }
     if (firstCell && secondCell && !key.match(/^(video|cta|button)$/)) {
@@ -66,7 +71,9 @@ function extractContent(block) {
 }
 
 export default function decorate(block) {
-  const { title, description, cta, video: configVideo } = extractContent(block);
+  const {
+    title, description, cta, video: configVideo,
+  } = extractContent(block);
   const rawPath = (configVideo && configVideo.trim()) ? configVideo.trim() : DEFAULT_VIDEO_PATH;
   const videoUrl = toAbsoluteVideoUrl(rawPath);
 

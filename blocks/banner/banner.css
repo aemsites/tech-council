@@ -75,6 +75,7 @@
   .banner {
     padding: var(--space-xl) var(--space-l);
   }
+
   .banner p {
     font-size: var(--body-font-size-s);
   }

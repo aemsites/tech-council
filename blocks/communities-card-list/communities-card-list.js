@@ -96,39 +96,55 @@ function getAddCommunityLinkFromRow(row) {
 }
 
 /**
- * Parses column 2 into leads, slack URL/text, and events URL.
+ * Parses column 2 into leads, description, slack link, and a generic (e.g. wiki) link.
  * @param {HTMLElement} col
- * @returns {{ leads: string[], slackUrl: string|null, slackText: string|null, eventsUrl: string|null }}
+ * @returns {{
+ *   leads: string[], description: string,
+ *   slackUrl: string|null, slackText: string|null,
+ *   wikiUrl: string|null, wikiText: string|null
+ * }}
  */
 function parseDetailsColumn(col) {
-  const result = { leads: [], slackUrl: null, slackText: null, eventsUrl: null };
+  const result = {
+    leads: [], description: '', slackUrl: null, slackText: null, wikiUrl: null, wikiText: null,
+  };
   if (!col) return result;
 
-  const links = [...col.querySelectorAll('a[href]')];
   const listItems = col.querySelectorAll('ul li, ol li');
   const leadItems = [...listItems].filter((li) => !li.querySelector('a[href]'));
   if (leadItems.length > 0) {
     result.leads = leadItems.map((li) => (li.textContent || '').trim()).filter(Boolean);
   } else {
     const clone = col.cloneNode(true);
-    clone.querySelectorAll('a').forEach((a) => a.remove());
+    clone.querySelectorAll('a, p').forEach((el) => el.remove());
     const parts = (clone.textContent || '').split(/\n|•|[-–—]/).map((s) => s.trim()).filter(Boolean);
     if (parts.length > 0) result.leads = parts;
   }
 
+  const descParts = [...col.querySelectorAll('p')]
+    .map((p) => {
+      const clone = p.cloneNode(true);
+      clone.querySelectorAll('a').forEach((a) => a.remove());
+      return (clone.textContent || '').trim();
+    })
+    .filter(Boolean);
+  result.description = descParts.join(' ');
+
+  const links = [...col.querySelectorAll('a[href]')];
   if (links.length >= 2) {
+    const wikiHref = links[0].getAttribute('href');
+    result.wikiUrl = wikiHref && isSafeUrl(wikiHref) ? normalizeLink(wikiHref) : null;
+    result.wikiText = (links[0].textContent || '').trim() || null;
+
+    const slackHref = links[1].getAttribute('href');
+    result.slackUrl = slackHref && isSafeUrl(slackHref) ? normalizeLink(slackHref) : null;
+    result.slackText = (links[1].textContent || '').trim() || null;
+  } else if (links.length === 1) {
     const slackHref = links[0].getAttribute('href');
-    const eventsHref = links[1].getAttribute('href');
     result.slackUrl = slackHref && isSafeUrl(slackHref) ? normalizeLink(slackHref) : null;
     result.slackText = (links[0].textContent || '').trim() || null;
-    result.eventsUrl = eventsHref && isSafeUrl(eventsHref) ? normalizeLink(eventsHref) : null;
-  } else if (links.length === 1) {
-    const href = links[0].getAttribute('href');
-    const linkText = (links[0].textContent || '').trim().toLowerCase();
-    result.slackUrl = linkText.includes('slack') && href && isSafeUrl(href) ? normalizeLink(href) : null;
-    result.slackText = result.slackUrl ? (links[0].textContent || '').trim() || null : null;
-    result.eventsUrl = !result.slackUrl && href && isSafeUrl(href) ? normalizeLink(href) : null;
   }
+
   return result;
 }
 
@@ -144,6 +160,43 @@ function formatSlackChannelText(text) {
   return t.startsWith('#') ? t : `#${t}`;
 }
 
+function addCommunityFilter(wrapper, grid) {
+  const cards = [...grid.querySelectorAll('.communities-card-list-card:not(.communities-card-list-add)')];
+  if (cards.length < 2) return;
+  const filter = document.createElement('div');
+  filter.className = 'community-filter';
+  const label = document.createElement('label');
+  const input = document.createElement('input');
+  input.id = `${grid.closest('.section')?.id || 'community'}-filter-${document.querySelectorAll('.community-filter').length}`;
+  input.type = 'search';
+  input.placeholder = 'Search by community or lead';
+  label.htmlFor = input.id;
+  label.textContent = 'Find your community';
+  const status = document.createElement('p');
+  status.className = 'community-filter-status';
+  status.setAttribute('role', 'status');
+  const empty = document.createElement('p');
+  empty.className = 'community-filter-empty';
+  empty.textContent = 'No matching communities. Try a different topic or clear your search.';
+  empty.hidden = true;
+  const update = () => {
+    const query = input.value.trim().toLocaleLowerCase();
+    let count = 0;
+    cards.forEach((card) => {
+      const matches = card.textContent.toLocaleLowerCase().includes(query);
+      card.hidden = !matches;
+      if (matches) count += 1;
+    });
+    status.textContent = `${count} ${count === 1 ? 'community' : 'communities'}${query ? ' found' : ' to explore'}`;
+    empty.hidden = count !== 0;
+  };
+  input.addEventListener('input', update);
+  filter.append(label, input, status);
+  wrapper.prepend(filter);
+  grid.before(empty);
+  update();
+}
+
 /**
  * Decorates the Communities Card List block.
  * Same authoring as communities block: 2 columns, Photo+Name | Leads list + Slack + Events links.
@@ -152,6 +205,7 @@ function formatSlackChannelText(text) {
  */
 export default async function decorate(block) {
   try {
+    if (window.location.pathname === '/') block.classList.add('homepage');
     const placeholders = await fetchPlaceholders();
     const rows = [...block.children];
 
@@ -176,6 +230,7 @@ export default async function decorate(block) {
     for (let i = contentStartIndex; i < rows.length; i += 1) {
       const row = rows[i];
       const cols = [...row.children];
+      // eslint-disable-next-line no-continue -- pre-existing, TECHCOM-104
       if (cols.length < 2) continue;
 
       const col1 = cols[0];
@@ -210,18 +265,13 @@ export default async function decorate(block) {
         nameText = (clone.textContent || '').trim();
       }
 
-      const { leads, slackUrl, slackText, eventsUrl } = parseDetailsColumn(col2);
+      const {
+        leads, description, slackUrl, slackText, wikiUrl, wikiText,
+      } = parseDetailsColumn(col2);
 
-      const nameEl = document.createElement(eventsUrl && isSafeUrl(eventsUrl) ? 'a' : 'h3');
+      const nameEl = document.createElement('h3');
       nameEl.className = 'communities-card-list-name';
       nameEl.textContent = nameText || 'Community';
-      if (eventsUrl && isSafeUrl(eventsUrl)) {
-        nameEl.href = eventsUrl;
-        if (isExternalUrl(eventsUrl)) {
-          nameEl.setAttribute('target', '_blank');
-          nameEl.setAttribute('rel', 'noopener');
-        }
-      }
       body.appendChild(nameEl);
 
       if (leads.length > 0) {
@@ -235,22 +285,49 @@ export default async function decorate(block) {
         body.appendChild(leadsList);
       }
 
-      if (slackUrl) {
+      if (description) {
+        const descEl = document.createElement('p');
+        descEl.className = 'communities-card-list-description';
+        descEl.textContent = description;
+        body.appendChild(descEl);
+      }
+
+      if (slackUrl || wikiUrl) {
         const links = document.createElement('div');
         links.className = 'communities-card-list-links';
-        const a = document.createElement('a');
-        a.href = slackUrl;
-        a.className = 'communities-card-list-link';
-        if (isExternalUrl(slackUrl)) {
-          a.setAttribute('target', '_blank');
-          a.setAttribute('rel', 'noopener');
+
+        if (wikiUrl) {
+          const a = document.createElement('a');
+          a.href = wikiUrl;
+          a.className = 'communities-card-list-link';
+          if (isExternalUrl(wikiUrl)) {
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+          }
+          const icon = document.createElement('span');
+          icon.className = 'icon icon-community-link';
+          icon.setAttribute('aria-hidden', 'true');
+          a.appendChild(icon);
+          a.appendChild(document.createTextNode(wikiText || 'Wiki'));
+          links.appendChild(a);
         }
-        const icon = document.createElement('span');
-        icon.className = 'icon icon-slack';
-        icon.setAttribute('aria-hidden', 'true');
-        a.appendChild(icon);
-        a.appendChild(document.createTextNode(formatSlackChannelText(slackText) || 'Slack'));
-        links.appendChild(a);
+
+        if (slackUrl) {
+          const a = document.createElement('a');
+          a.href = slackUrl;
+          a.className = 'communities-card-list-link';
+          if (isExternalUrl(slackUrl)) {
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+          }
+          const icon = document.createElement('span');
+          icon.className = 'icon icon-slack';
+          icon.setAttribute('aria-hidden', 'true');
+          a.appendChild(icon);
+          a.appendChild(document.createTextNode(formatSlackChannelText(slackText) || 'Slack'));
+          links.appendChild(a);
+        }
+
         body.appendChild(links);
       }
 
@@ -266,7 +343,7 @@ export default async function decorate(block) {
     addText.className = 'communities-card-list-add-text';
     addText.textContent = placeholders.doYouWantToStartCommunity || 'Do you want to start a community?';
     const addBtn = document.createElement('a');
-    addBtn.href = '/communities/new-community';
+    addBtn.href = addCommunityLink || '/communities/new-community';
     addBtn.className = 'communities-card-list-add-btn button primary';
     addBtn.textContent = placeholders.submitProposal || 'Submit Proposal';
     addBody.appendChild(addText);
@@ -282,6 +359,7 @@ export default async function decorate(block) {
     wrapper.className = 'communities-card-list-wrapper';
     wrapper.appendChild(grid);
     block.appendChild(wrapper);
+    addCommunityFilter(wrapper, grid);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Failed to decorate communities-card-list block:', error);

@@ -259,7 +259,7 @@ export function extractIdFromUrl(url) {
 }
 const constraintsDef = Object.entries({
   'password|tel|email|text': [['maxLength', 'maxlength'], ['minLength', 'minlength'], 'pattern'],
-  'number|range|date': [['maximum', 'Max'], ['minimum', 'Min'], 'step'],
+  'number|range|date|datetime-local': [['maximum', 'Max'], ['minimum', 'Min'], 'step'],
   file: ['accept', 'Multiple'],
   panel: [['maxOccur', 'data-max'], ['minOccur', 'data-min']],
 }).flatMap(([types, constraintDef]) => types.split('|')

@@ -69,7 +69,7 @@ function getFieldValue(fe, payload) {
 
 function constructPayload(form) {
   const uniqueId = generateUnique();
-  const payload = { __id__: uniqueId  , id: uniqueId };
+  const payload = { __id__: uniqueId, id: uniqueId };
   [...form.elements].forEach((fe) => {
     if (fe.name && !fe.matches('button') && !fe.disabled && fe.tagName !== 'FIELDSET') {
       const value = getFieldValue(fe, payload);
@@ -88,7 +88,7 @@ async function prepareRequest(form) {
   const headers = {
     'Content-Type': 'application/json',
     // eslint-disable-next-line comma-dangle
-    'x-adobe-form-hostname': "main--tech-council--aemsites.aem.live"
+    'x-adobe-form-hostname': 'main--tech-council--aemsites.aem.live'
   };
   const body = { data: payload };
   let url;
