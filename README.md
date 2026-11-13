@@ -2,6 +2,7 @@
 A platform for technical collaboration and knowledge sharing within Adobe, built on AEM Edge Delivery Services.
 
 ## Environments
+- Management preview: https://v2--tech-council--aemsites.aem.live/
 - Preview: https://main--tech-council--aemsites.aem.page/
 - Live: https://main--tech-council--aemsites.aem.live/
 
@@ -102,7 +103,7 @@ this order. A paragraph containing only `---` separates sections.
 | Block or section | What to author |
 | --- | --- |
 | `Hero Quote` | A two-column table with one content row: the headline in the left cell and one mission paragraph in the right cell. Keep a single slide on the homepage. The community artwork and two discovery links are supplied by the code. |
-| `Fjsearch` | The authored homepage `Fjsearch (contained, homepage)` uses the new backend search; the old homepage Doc Search is suppressed to avoid duplicates. No configuration is required. An optional second row can contain `endpoint` with an empty value to use the default. `Backend Search` is also supported. See [search authoring](#search-authoring) for SharePoint and fragment steps. |
+| `Fjsearch` | The authored homepage `Fjsearch (contained, homepage)` reuses Doc Search while typing. Enter or the search icon requests a sourced AI answer, with a bottom Continue in chat button. The old homepage Doc Search is suppressed to avoid duplicates, or upgraded to Fjsearch when no search block is authored. No configuration is required. `Backend Search` remains the index/API-only alternative. See [search authoring](#search-authoring) for SharePoint and fragment steps. |
 | `Section Heading` | A one-column table: first content row `Events`; optional second content row is a short description. |
 | `Fragment` | A one-column table with a hyperlink to `/fragments/events-fragment`. |
 | `Section Heading` | First content row `Communities`; optional second row is a short description. |
@@ -127,22 +128,44 @@ An optional second row can configure the endpoint:
 | --- | --- |
 | endpoint | |
 
-Leave the endpoint value empty to use same-origin `/api/search`. Do not add a
-separate Key/Value header or placeholder text. Replace the old homepage
-Doc Search table rather than adding a second search block; `Backend Search`
-is also supported.
+Leave the endpoint value empty to use same-origin `/api/chat` for the explicit
+AI request. Previously authored Fjsearch endpoints targeting `/api/search` must
+be updated to `/api/chat`; `Backend Search` continues to use `/api/search`.
+Typing uses the existing Doc Search matching, recent searches, events feed, and
+recordings feed, without an AI request. Optional `source` and `faq` rows configure
+the document index and FAQ; `source` defaults to `/docpages-index.json`.
+Do not add a separate Key/Value header or placeholder text. Replace the old
+homepage Doc Search table rather than adding a second search block.
+
+Enter or the search icon opens AI Search Results below the field, with streamed
+Markdown, verified site sources, cancellation, and retry guidance. Editing or
+clearing the query cancels the answer and returns to document results.
+Continue in chat opens the floating assistant with the completed question and
+answer as its initial exchange; it does not send the question again. Follow-ups
+include that exchange in conversation history. If AI is unconfigured, results
+are explicitly labeled as resource search instead.
 
 For shared content, create `fragments/search.docx` containing this table, then
 reference `/fragments/search` from a `Fragment` block. Preview the fragment
 before its pages, and publish both once the backend is available.
 
-Direct EDS previews without an `/api` proxy can explicitly author
-`https://techcouncil.corp.adobe.com/api/search`; the separate backend must allow
+The exact `v2--tech-council--aemsites.aem.live` and `.aem.page` HTTPS origins
+automatically use `https://techcouncil.corp.adobe.com/api/chat` for AI search
+and the assistant (and `/api/search` for Backend Search). Other origins,
+including local development and `main`, keep same-origin API URLs.
+The corporate backend must allow both exact preview origins in `ALLOWED_ORIGINS`.
+The preview still requires authorized EDS access and corporate network/VPN
+access to the API. If the browser requests Local Network access, allow it for
+this preview. API routing does not remove EDS authentication.
+
+Other direct EDS previews without an `/api` proxy can explicitly author
+`https://techcouncil.corp.adobe.com/api/chat`; the separate backend must allow
 that exact preview origin. HTTPS pages require an HTTPS endpoint. Publishing
 Word content does not deploy the backend or configure nginx.
 
-Search starts after three trimmed characters with a 300 ms debounce.
-Search/Enter submits immediately; editing or clearing cancels obsolete requests.
+Fjsearch preserves Doc Search's 200 ms typing debounce; its explicit AI query
+requires 2-500 characters. Backend Search retains its three-character minimum
+and 300 ms debounce. Editing or clearing cancels obsolete AI requests.
 Only Tech Council result links are displayed. For API configuration and
 deployment, use the [backend documentation](https://github.com/Adobe-Tech-Community/tech-commuity-backend/blob/v2/README.md).
 
@@ -185,10 +208,11 @@ sources; unverified references remain plain text instead of broken local links.
 Conversation stays in memory and clears on reload; the upstream
 provider has its own data-retention policy.
 
-On a direct EDS preview without an `/api` proxy, an inline block can explicitly
+On other direct EDS previews without an `/api` proxy, an inline block can explicitly
 author the approved HTTPS API endpoint, and the backend must allow that exact
-preview origin. The global launcher uses same-origin `/api/chat`, so use the
-local gateway or corporate reverse proxy for it. Authoring/publishing content
+preview origin. The global launcher uses the corporate API on the exact `v2`
+previews and same-origin `/api/chat` elsewhere, so use the local gateway or
+corporate reverse proxy on other origins. Authoring/publishing content
 does not deploy the backend.
 
 ### Events, recordings, and resources

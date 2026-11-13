@@ -1,5 +1,5 @@
 import { readBlockConfig } from '../../scripts/aem.js';
-import { readEvents, resolveEndpoint, sitePath } from '../../scripts/knowledge-api.js';
+import { readReply, resolveEndpoint, sitePath } from '../../scripts/knowledge-api.js';
 import renderAnswer from '../../scripts/chat-answer.js';
 
 let count = 0;
@@ -19,7 +19,7 @@ function button(className, text) {
   return node;
 }
 
-function appendSources(container, sources) {
+export function appendSources(container, sources) {
   const list = element('ol', 'ai-chat-sources');
   const seen = new Set();
   sources.slice(0, 10).forEach((source) => {
@@ -37,19 +37,6 @@ function appendSources(container, sources) {
     disclosure.append(element('summary', '', `${list.children.length} ${list.children.length === 1 ? 'source' : 'sources'}`), list);
     container.append(disclosure);
   }
-}
-
-async function readReply(response, onText) {
-  if (!response.ok) throw new Error('Chat is unavailable.');
-  if (!response.headers.get('content-type')?.includes('text/event-stream')) return response.json();
-  // eslint-disable-next-line no-restricted-syntax -- Consume SSE without buffering the answer.
-  for await (const event of readEvents(response.body)) {
-    const data = JSON.parse(event.data);
-    if (event.event === 'token' && typeof data.text === 'string') onText(data.text);
-    if (event.event === 'done') return data;
-    if (event.event === 'error') throw new Error('Chat could not finish this reply.');
-  }
-  throw new Error('Chat returned an incomplete reply.');
 }
 
 export default function decorate(block) {
@@ -177,6 +164,14 @@ export default function decorate(block) {
     };
     active = request;
     let timedOut = false;
+    let streamedText = '';
+    let renderFrame;
+    const renderStream = () => {
+      renderFrame = null;
+      if (active !== request) return;
+      renderAnswer(answer, streamedText, []);
+      log.scrollTop = log.scrollHeight;
+    };
     const timer = setTimeout(() => {
       timedOut = true;
       controller.abort();
@@ -195,8 +190,8 @@ export default function decorate(block) {
         if (!text) return;
         activity.hidden = true;
         assistant.classList.add('is-streaming');
-        answer.append(document.createTextNode(text));
-        log.scrollTop = log.scrollHeight;
+        streamedText += text;
+        if (renderFrame == null) renderFrame = requestAnimationFrame(renderStream);
         block.dataset.state = 'streaming';
         status.textContent = 'Receiving the answer...';
       });
@@ -204,6 +199,7 @@ export default function decorate(block) {
       if (typeof result.reply !== 'string' || !result.reply.trim() || !Array.isArray(result.sources)) {
         throw new Error('Chat returned an invalid answer.');
       }
+      cancelAnimationFrame(renderFrame);
       activity.remove();
       assistant.classList.remove('is-streaming');
       renderAnswer(answer, result.reply, result.sources);
@@ -211,6 +207,7 @@ export default function decorate(block) {
         assistant.append(element('span', 'ai-chat-mode', 'Resource search. AI chat is not configured.'));
       }
       appendSources(assistant, result.sources);
+      log.scrollTop = log.scrollHeight;
       turns.push({ message, reply: result.reply });
       block.dataset.state = 'success';
       status.textContent = result.meta?.mode === 'chat'
@@ -227,6 +224,7 @@ export default function decorate(block) {
         ? 'The assistant took too long. Retry your question.'
         : 'Chat could not finish this reply. Retry your question.';
     } finally {
+      cancelAnimationFrame(renderFrame);
       clearTimeout(timer);
       if (active === request) {
         active = null;
@@ -270,7 +268,7 @@ export default function decorate(block) {
     input.focus();
   });
   retry.addEventListener('click', () => { if (failed) send(failed); });
-  reset.addEventListener('click', () => {
+  const resetConversation = () => {
     active?.controller.abort();
     active = null;
     failed = null;
@@ -284,5 +282,24 @@ export default function decorate(block) {
     block.dataset.state = 'idle';
     status.textContent = 'New conversation started.';
     input.focus();
+  };
+  reset.addEventListener('click', resetConversation);
+  block.addEventListener('chat:continue', ({ detail }) => {
+    if (typeof detail?.message !== 'string' || typeof detail.reply !== 'string'
+      || !Array.isArray(detail.sources)) return;
+    resetConversation();
+    const user = element('div', 'ai-chat-message ai-chat-user');
+    user.append(element('p', 'ai-chat-speaker', 'You'), element('p', '', detail.message));
+    const assistant = element('div', 'ai-chat-message ai-chat-assistant');
+    const answer = element('div', 'ai-chat-answer');
+    renderAnswer(answer, detail.reply, detail.sources);
+    assistant.append(element('p', 'ai-chat-speaker', 'Tech Council'), answer);
+    appendSources(assistant, detail.sources);
+    log.append(user, assistant);
+    turns.push({ message: detail.message, reply: detail.reply });
+    idleControls();
+    block.dataset.state = 'success';
+    log.scrollTop = log.scrollHeight;
+    status.textContent = 'Search answer loaded. Ask a follow-up.';
   });
 }

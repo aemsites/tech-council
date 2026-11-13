@@ -155,7 +155,7 @@ function buildAutoBlocks(main) {
           block.remove();
         } else {
           const variants = [...block.classList].filter((name) => !['doc-search', 'homepage'].includes(name));
-          block.className = ['backend-search', ...variants].join(' ');
+          block.className = ['fjsearch', 'homepage', ...variants].join(' ');
         }
       });
     }

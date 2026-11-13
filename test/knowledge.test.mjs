@@ -7,6 +7,8 @@ function dom() {
   window.location = new URL('https://techcouncil.corp.adobe.com/');
   globalThis.window = window;
   globalThis.document = document;
+  globalThis.requestAnimationFrame = (callback) => setImmediate(callback);
+  globalThis.cancelAnimationFrame = (frame) => clearImmediate(frame);
   return { window, document };
 }
 
@@ -16,7 +18,10 @@ const { default: decorateSearch } = await import('../blocks/backend-search/backe
 const { default: installChatWidget } = await import('../scripts/chat-widget.js');
 const { default: renderAnswer } = await import('../scripts/chat-answer.js');
 const { readEvents, resolveEndpoint, sitePath } = await import('../scripts/knowledge-api.js');
-const tick = () => new Promise((resolve) => setImmediate(resolve));
+const tick = async () => {
+  await new Promise((resolve) => setImmediate(resolve));
+  await new Promise((resolve) => setImmediate(resolve));
+};
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function chatBlock(t, fetchImpl) {
@@ -135,6 +140,25 @@ test('API URLs stay same-origin by default and foreign source links are rejected
   assert.equal(sitePath('https://techcouncil.corp.adobe.com.evil.example/events'), null);
 });
 
+test('only the exact v2 EDS previews use the corporate API by default', () => {
+  dom();
+  for (const suffix of ['live', 'page']) {
+    window.location = new URL(`https://v2--tech-council--aemsites.aem.${suffix}/resources`);
+    assert.equal(resolveEndpoint('', '/api/chat'), 'https://techcouncil.corp.adobe.com/api/chat');
+    assert.equal(resolveEndpoint('/api/search', '/api/search'), 'https://techcouncil.corp.adobe.com/api/search');
+    assert.equal(resolveEndpoint('https://approved.example/chat', '/api/chat'), 'https://approved.example/chat');
+    assert.throws(() => resolveEndpoint('http://external.example/chat', '/api/chat'));
+  }
+  for (const origin of [
+    'https://main--tech-council--aemsites.aem.live',
+    'https://v2--tech-council--aemsites.aem.live.evil.example',
+    'http://localhost:8081',
+  ]) {
+    window.location = new URL(`${origin}/`);
+    assert.equal(resolveEndpoint('', '/api/chat'), `${origin}/api/chat`);
+  }
+});
+
 test('event reader handles fragmented UTF-8, CRLF and a final frame without a blank line', async () => {
   const bytes = new TextEncoder().encode('event: token\r\ndata: {"text":"日本語"}\r\n');
   const body = new ReadableStream({
@@ -165,7 +189,7 @@ test('chat renders safe streamed answers and sends completed exchanges on follow
   assert.equal(calls[0].options.headers.Authorization, undefined);
   assert.deepEqual(JSON.parse(calls[0].options.body), { message: 'What is MCP?', history: [], limit: 6 });
   assert.equal(block.querySelectorAll('.ai-chat-sources a').length, 1);
-  assert.equal(log.scrollTop, 100);
+  assert.equal(log.scrollTop, 1000);
   assert.equal(block.querySelector('.ai-chat-answer img'), null);
   assert.equal(block.querySelector('a[href*="sharepoint"]'), null);
   assert.equal(block.querySelector('a[href^="/spaces/"]'), null);
@@ -205,11 +229,16 @@ test('waiting feedback becomes real incremental text before completion and contr
   frame('token', { text: '' });
   await tick();
   assert.equal(block.dataset.state, 'loading');
-  frame('token', { text: 'MCP connects' });
+  frame('token', { text: '**MCP' });
+  await tick();
+  assert.equal(block.querySelector('.ai-chat-answer').textContent, '**MCP');
+  frame('token', { text: '** connects' });
   await tick();
   assert.equal(block.dataset.state, 'streaming');
   assert.equal(block.querySelector('.ai-chat-activity').hidden, true);
   assert.equal(block.querySelector('.ai-chat-answer').textContent, 'MCP connects');
+  assert.equal(block.querySelector('.ai-chat-answer strong').textContent, 'MCP');
+  assert.equal(block.querySelector('.ai-chat-answer p').textContent, 'MCP connects');
   assert.ok(block.querySelector('.is-streaming'));
   frame('token', { text: ' tools.' });
   await tick();

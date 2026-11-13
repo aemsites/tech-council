@@ -1,1 +1,187 @@
-@import url('../backend-search/backend-search.css');
+@import url('../doc-search/doc-search.css');
+@import url('../ai-chat/ai-chat.css');
+
+body .fjsearch .fjsearch-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid var(--color-ink-2);
+  background: transparent;
+  color: var(--color-ink);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+body .fjsearch .doc-search {
+  padding: 0;
+}
+
+body .fjsearch .doc-search-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+body .fjsearch .doc-search form input {
+  min-height: 60px;
+  padding: 14px 58px;
+  border: 1px solid color-mix(in oklch, var(--color-ink-2) 75%, var(--color-paper));
+  background: var(--color-paper);
+  font-size: 1rem;
+  line-height: 1.5;
+  transition: none;
+}
+
+body .fjsearch .doc-search form input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+body .fjsearch .doc-search form button {
+  min-height: 44px;
+  padding: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-ink);
+  transition: none;
+}
+
+body .fjsearch .fjsearch-actions button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+body .fjsearch .doc-search form button:hover {
+  background: var(--color-paper-3);
+  transform: none;
+}
+
+body .fjsearch .doc-search form button.fjsearch-submit {
+  inset: auto auto 8px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+body .fjsearch-submit::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  background: currentcolor;
+  mask: url('../../icons/assistant/search.svg') center / contain no-repeat;
+  forced-color-adjust: none;
+}
+
+body .fjsearch .doc-search form button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+body .fjsearch-help,
+body .fjsearch-disclaimer,
+body .fjsearch-status {
+  margin-block: 10px 0;
+  color: var(--color-ink-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+body .fjsearch .doc-search .doc-search-results {
+  animation: none;
+}
+
+body .fjsearch[data-mode='ai'] .doc-search-results,
+body .fjsearch [hidden] {
+  display: none;
+}
+
+body .fjsearch-ai {
+  margin-top: 32px;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-card);
+  background: var(--color-paper-2);
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body .fjsearch-heading {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  letter-spacing: normal;
+}
+
+body .fjsearch .ai-chat-answer {
+  max-width: 80ch;
+  margin-top: 20px;
+  font-size: 0.9375rem;
+}
+
+body .fjsearch .ai-chat-answer h3 {
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+body .fjsearch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+body .fjsearch .fjsearch-actions button.fjsearch-continue {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+body .fjsearch-continue::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background: currentcolor;
+  mask: url('../../icons/chat.svg') center / contain no-repeat;
+  forced-color-adjust: none;
+}
+
+body .fjsearch .fjsearch-actions button[hidden] {
+  display: none;
+}
+
+body .fjsearch[data-state='error'] .fjsearch-status {
+  color: var(--color-accent);
+}
+
+body .fjsearch[data-state='streaming'] .ai-chat-answer::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 1em;
+  margin-inline-start: 4px;
+  background: var(--color-accent);
+  vertical-align: text-bottom;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body .fjsearch[data-state='streaming'] .ai-chat-answer::after {
+    animation: chat-activity 1.4s ease-in-out infinite;
+  }
+}
+
+@media (width <= 600px) {
+  body .fjsearch-ai {
+    margin-top: 24px;
+    padding: 20px 16px;
+  }
+}

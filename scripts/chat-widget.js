@@ -1,7 +1,9 @@
 import { loadCSS } from './aem.js';
 
+let openChat;
+
 export default async function installChatWidget() {
-  if (document.querySelector('.chat-launcher')) return;
+  if (document.querySelector('.chat-launcher')) return openChat;
   const base = window.hlx?.codeBasePath || '';
   await loadCSS(`${base}/styles/chat-widget.css`);
   const launcher = document.createElement('button');
@@ -23,8 +25,8 @@ export default async function installChatWidget() {
 
   let dialog;
   let opening = false;
-  launcher.addEventListener('click', async () => {
-    if (opening) return;
+  openChat = async (conversation) => {
+    if (opening) return false;
     opening = true;
     status.textContent = '';
     launcher.setAttribute('aria-busy', 'true');
@@ -60,12 +62,21 @@ export default async function installChatWidget() {
         launcher.setAttribute('aria-controls', panel.id);
       }
       dialog.showModal();
+      if (conversation) {
+        dialog.querySelector('.ai-chat').dispatchEvent(new CustomEvent('chat:continue', {
+          detail: conversation,
+        }));
+      }
       launcher.setAttribute('aria-expanded', 'true');
+      return true;
     } catch {
       status.textContent = 'Chat could not open. Please try again.';
+      return false;
     } finally {
       opening = false;
       launcher.removeAttribute('aria-busy');
     }
-  });
+  };
+  launcher.addEventListener('click', () => openChat());
+  return openChat;
 }

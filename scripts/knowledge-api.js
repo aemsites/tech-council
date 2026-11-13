@@ -1,5 +1,10 @@
 export function resolveEndpoint(endpoint, fallback) {
-  const url = new URL(endpoint || fallback, window.location);
+  const preview = [
+    'https://v2--tech-council--aemsites.aem.live',
+    'https://v2--tech-council--aemsites.aem.page',
+  ].includes(window.location.origin);
+  const base = preview ? 'https://techcouncil.corp.adobe.com' : window.location;
+  const url = new URL(endpoint || fallback, base);
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password
     || (window.location.protocol === 'https:' && url.protocol !== 'https:')) {
     throw new Error('Use a valid HTTPS API endpoint.');
@@ -51,10 +56,24 @@ export async function* readEvents(body) {
           event = line.slice(6).trim();
         }
       }
+
       if (done) break;
     }
   } finally {
     await reader.cancel().catch(() => {});
     reader.releaseLock();
   }
+}
+
+export async function readReply(response, onText) {
+  if (!response.ok) throw new Error('Chat is unavailable.');
+  if (!response.headers.get('content-type')?.includes('text/event-stream')) return response.json();
+  // eslint-disable-next-line no-restricted-syntax -- Consume SSE without buffering the answer.
+  for await (const event of readEvents(response.body)) {
+    const data = JSON.parse(event.data);
+    if (event.event === 'token' && typeof data.text === 'string') onText(data.text);
+    if (event.event === 'done') return data;
+    if (event.event === 'error') throw new Error('Chat could not finish this reply.');
+  }
+  throw new Error('Chat returned an incomplete reply.');
 }
