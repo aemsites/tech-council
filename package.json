@@ -5,6 +5,7 @@
   "description": "Starter project for Adobe Helix",
   "scripts": {
     "test:knowledge": "node --test test/knowledge.test.mjs test/fjsearch.test.mjs",
+    "test:homepage": "node --test test/homepage.test.mjs",
     "lint:js": "eslint .",
     "lint:css": "stylelint \"blocks/**/*.css\" \"styles/*.css\"",
     "lint": "npm run lint:js && npm run lint:css",

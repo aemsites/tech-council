@@ -113,5 +113,13 @@ export default async function decorate(block) {
     if (cta) {
       card.append(cta);
     }
+
+    if (window.location.pathname === '/') {
+      card.querySelectorAll(':scope > p').forEach((paragraph) => {
+        if (!paragraph.textContent.trim() && !paragraph.querySelector('img, picture, a, button, svg')) {
+          paragraph.remove();
+        }
+      });
+    }
   });
 }

@@ -1,4 +1,4 @@
-/* Hallmark | macrostructure: Ecosystem Index | tone: technical editorial
+/* Hallmark | macrostructure: Ecosystem Index | tone: spacious technical editorial
  * Adobe brand evolution | nav: N1b, existing destinations | footer: Ft1
  * Pre-emit critique: philosophy 4, hierarchy 5, execution 4, specificity 5, restraint 5, variety 4.
  */
@@ -1213,4 +1213,190 @@ body header .skip-link {
 :root[data-theme='dark'] .icon-cards-card-icon img,
 :root[data-theme='dark'] .events-card .icon img {
   filter: invert(0.8);
+}
+
+body.home-page {
+  --text-section: clamp(2.25rem, 1.5rem + 2.4vw, 3.25rem);
+}
+
+body.home-page main > .section {
+  margin: 0;
+  padding-block: var(--space-2xl);
+  border-top: 1px solid var(--color-rule);
+}
+
+body.home-page main > .hero-quote-container {
+  padding-block: 0;
+  border: 0;
+}
+
+body.home-page .hero-quote {
+  padding-block: var(--space-2xl);
+}
+
+body.home-page .hero-quote-carousel {
+  overflow: visible;
+}
+
+body.home-page :is(.fjsearch-wrapper, .backend-search-wrapper) {
+  margin-bottom: var(--space-2xl);
+}
+
+body.home-page .section-heading-wrapper {
+  margin-bottom: var(--space-l);
+}
+
+body.home-page .default-content-wrapper > h2 {
+  margin-block: 0 var(--space-l);
+  font-size: var(--text-section);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+body.home-page .section-heading-link {
+  font-size: 0.875rem;
+}
+
+body.home-page .events-card-body {
+  padding-block: var(--space-l);
+  column-gap: var(--space-l);
+}
+
+body.home-page .events-card-title {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+body.home-page .events-card-badge,
+body.home-page .events-card.is-past .events-card-badge {
+  top: var(--space-l);
+}
+
+body.home-page main > .section:has(.communities-card-list) {
+  background: var(--color-paper-2);
+}
+
+body.home-page .community-filter {
+  margin-bottom: var(--space-l);
+}
+
+body.home-page .community-filter :is(label, input) {
+  font-size: 0.875rem;
+}
+
+body.home-page .communities-card-list.homepage .communities-card-list-grid {
+  gap: var(--space-lg);
+}
+
+body.home-page .communities-card-list.homepage .communities-card-list-card:not(.communities-card-list-add) {
+  padding: var(--space-lg);
+  gap: var(--space-md);
+}
+
+body.home-page .communities-card-list.homepage .communities-card-list-name {
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+body.home-page .communities-card-list.homepage :is(.communities-card-list-leads, .communities-card-list-description) {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+body.home-page .icon-cards .icon-cards-card-body p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+body.home-page .icon-cards .icon-cards-card-body > p:first-child {
+  font-size: 1rem;
+}
+
+body.home-page .icon-cards .icon-cards-card {
+  padding-block: var(--space-l);
+}
+
+body.home-page .carousel-cta-wrapper + .default-content-wrapper {
+  margin-top: var(--space-2xl);
+}
+
+body.home-page .carousel-cta .carousel-slide {
+  padding-block: 0;
+}
+
+body.home-page .carousel-cta .carousel-cta-card {
+  padding: var(--space-l);
+  background: var(--color-paper-2);
+}
+
+body.home-page .carousel-cta .carousel-cta-title {
+  font-size: 1.5rem;
+}
+
+body.home-page .carousel-cta .carousel-cta-button {
+  margin: 0;
+  white-space: nowrap;
+}
+
+body.home-page .carousel-cta .carousel-cta-description {
+  font-size: 0.875rem;
+}
+
+@media (width >= 1024px) {
+  body.home-page main > .section:not(.hero-quote-container) {
+    padding-block: var(--space-3xl);
+  }
+}
+
+@media (width < 640px) {
+  body.home-page header .nav-brand .nav-brand-text {
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+
+  body.home-page main > .section:not(.hero-quote-container) {
+    padding-block: var(--space-xl);
+  }
+
+  body.home-page .section-heading.block > .section-heading {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  body.home-page .hero-quote {
+    padding-block: var(--space-xl);
+  }
+
+  body.home-page .hero-home-actions {
+    gap: var(--space-sm);
+  }
+
+  body.home-page .hero-home-actions .button {
+    padding-inline: var(--space-md);
+    white-space: nowrap;
+  }
+
+  body.home-page .communities-card-list.homepage .communities-card-list-card:not(.communities-card-list-add) {
+    padding: var(--space-md);
+  }
+
+  body.home-page .communities-card-list.homepage .communities-card-list-body {
+    display: contents;
+  }
+
+  body.home-page .communities-card-list.homepage .communities-card-list-name {
+    align-self: center;
+  }
+
+  body.home-page .communities-card-list.homepage :is(.communities-card-list-leads, .communities-card-list-description, .communities-card-list-links) {
+    grid-column: 1 / -1;
+  }
+
+  body.home-page .carousel-cta .carousel-cta-card {
+    padding: var(--space-lg);
+  }
 }

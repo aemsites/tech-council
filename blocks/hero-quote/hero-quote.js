@@ -28,6 +28,7 @@ function createCommunityArtwork() {
 function decorateHomepage(block) {
   const content = block.querySelector('blockquote');
   if (!content) return;
+  document.body.classList.add('home-page');
   const layout = document.createElement('div');
   layout.className = 'hero-home-layout';
   const eyebrow = document.createElement('p');

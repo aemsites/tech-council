@@ -1,5 +1,23 @@
 [
   {
+    "date": "2026-11-13",
+    "macrostructure": "Ecosystem Index",
+    "theme": "Adobe brand evolution",
+    "enrichment": "Restored community artwork",
+    "nav": "N1b (preserved)",
+    "footer": "Ft1 (preserved)",
+    "brief": "Restore illustrated hero and visible content; clarify sections with generous spacing and stronger heading-to-data contrast"
+  },
+  {
+    "date": "2026-11-13",
+    "macrostructure": "Index-First",
+    "theme": "Adobe brand evolution",
+    "enrichment": "none",
+    "nav": "N1b (preserved)",
+    "footer": "Ft1 (preserved)",
+    "brief": "Search-first Adobe homepage with compact discovery and on-demand community details"
+  },
+  {
     "date": "2026-11-12",
     "macrostructure": "Ecosystem Index",
     "theme": "Adobe brand evolution",
