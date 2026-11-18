@@ -414,6 +414,43 @@ header nav .nav-tools {
   grid-area: tools;
 }
 
+header nav .nav-account {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+}
+
+header nav .nav-account-name {
+  max-width: 20ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-color);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+header nav .nav-account a:any-link {
+  color: var(--link-color);
+  font-weight: 600;
+}
+
+header nav .nav-account a:hover {
+  text-decoration: underline;
+}
+
+@media (width < 600px) {
+  header nav .nav-account-name {
+    display: none;
+  }
+}
+
+@media (width >= 900px) {
+  header nav .nav-tools {
+    margin-left: auto;
+  }
+}
+
 /* mobile menu styles: larger tap targets and separators (mobile only) */
 @media (width < 900px) {
   header nav[aria-expanded='true'] .nav-sections ul > li {

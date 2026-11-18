@@ -349,9 +349,9 @@
 }
 
 .recordings .recordings-like[aria-pressed='true'] {
-  color: #d7373f;
-  border-color: rgb(215 55 63 / 35%);
-  background: rgb(215 55 63 / 6%);
+  color: var(--link-color);
+  border-color: rgb(106 56 255 / 40%);
+  background: rgb(106 56 255 / 8%);
 }
 
 .recordings .recordings-like[aria-pressed='true'] svg {
@@ -359,7 +359,7 @@
 }
 
 .recordings .recordings-like:active svg {
-  transform: scale(1.2);
+  transform: scale(1.15) rotate(-8deg);
 }
 
 .recordings .recordings-like:focus-visible {
