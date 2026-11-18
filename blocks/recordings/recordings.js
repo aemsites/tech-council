@@ -606,6 +606,21 @@ async function renderTalkSummary(article, value) {
     if (!fragment) throw new Error('Summary fragment could not be loaded');
     const content = document.createElement('div');
     content.className = 'recordings-summary-content';
+    content.tabIndex = 0;
+    content.setAttribute('role', 'region');
+    content.setAttribute('aria-label', 'Talk summary');
+    const headings = [...fragment.querySelectorAll('h1, h2, h3, h4, h5, h6')];
+    const firstLevel = Math.min(...headings.map((item) => Number(item.tagName[1])));
+    const baseLevel = Number(heading.tagName[1]) + 1;
+    headings.forEach((item) => {
+      const level = Math.min(6, baseLevel + Number(item.tagName[1]) - firstLevel);
+      const replacement = document.createElement(`h${level}`);
+      [...item.attributes].forEach(({ name, value: attributeValue }) => {
+        replacement.setAttribute(name, attributeValue);
+      });
+      replacement.append(...item.childNodes);
+      item.replaceWith(replacement);
+    });
     content.append(...fragment.childNodes);
     section.append(content);
   } catch {
