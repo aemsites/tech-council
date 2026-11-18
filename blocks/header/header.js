@@ -246,6 +246,48 @@ function addSkipLink(block) {
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
+/**
+ * Shows the signed-in user with Sign out, or Sign in, from the Tech Council backend.
+ * Without the backend (e.g. aem.page) nothing is shown.
+ */
+async function decorateAccount(nav) {
+  let resp;
+  try {
+    resp = await fetch('/api/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
+  } catch {
+    return;
+  }
+  const account = document.createElement('div');
+  account.className = 'nav-account';
+  if (resp.ok) {
+    const me = await resp.json().catch(() => null);
+    if (!me) return;
+    const name = document.createElement('span');
+    name.className = 'nav-account-name';
+    name.textContent = me.name || (me.email || '').split('@')[0];
+    if (me.email) name.title = me.email;
+    const signOut = document.createElement('a');
+    signOut.href = '/api/auth/logout';
+    signOut.textContent = 'Sign out';
+    account.append(name, signOut);
+  } else if (resp.status === 401) {
+    const signIn = document.createElement('a');
+    const here = `${window.location.pathname}${window.location.search}`;
+    signIn.href = `/api/auth/login?rd=${encodeURIComponent(here)}`;
+    signIn.textContent = 'Sign in';
+    account.append(signIn);
+  } else {
+    return;
+  }
+  let tools = nav.querySelector('.nav-tools');
+  if (!tools) {
+    tools = document.createElement('div');
+    tools.className = 'nav-tools';
+    nav.append(tools);
+  }
+  tools.append(account);
+}
+
 export default async function decorate(block) {
   // Add skip link for accessibility
   addSkipLink(block);
@@ -308,4 +350,6 @@ export default async function decorate(block) {
 
   // Add scroll behavior
   handleScrollBehavior(navWrapper);
+
+  decorateAccount(nav);
 }
