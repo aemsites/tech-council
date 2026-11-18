@@ -113,13 +113,7 @@ async function fetchRecordingsData() {
   }
 }
 
-/** Base path for icons (e.g. '' or '/path'). */
-function getRecordingsIconBase() {
-  return (typeof window !== 'undefined' && window.hlx?.codeBasePath) || '';
-}
-
-/** Shared recording icon (play circle). If recordingLink is provided, wraps icon in a link. */
-function createRecordingsCardIcon(recordingLink) {
+function createRecordingsCardIcon() {
   const wrapper = document.createElement('div');
   wrapper.className = 'recordings-card-icon';
   wrapper.innerHTML = `
@@ -127,52 +121,20 @@ function createRecordingsCardIcon(recordingLink) {
       <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="rgba(106, 56, 255, 0.08)"/>
       <path d="M26 22v20l18-10-18-10z" fill="currentColor"/>
     </svg>`;
-  if (recordingLink && isSafeUrl(recordingLink)) {
-    const a = document.createElement('a');
-    a.href = recordingLink;
-    a.className = 'recordings-card-icon-link';
-    a.setAttribute('target', '_blank');
-    a.setAttribute('rel', 'noopener');
-    a.setAttribute('aria-label', 'Watch recording');
-    a.dataset.tooltip = 'Watch recording';
-    a.append(wrapper);
-    return a;
-  }
   return wrapper;
 }
 
-/**
- * Presentation icon (PowerPoint). Only shown when presentationLink is
- * present and safe; wraps in link.
- */
-function createRecordingsCardPresentationIcon(presentationLink) {
-  if (!presentationLink || !isSafeUrl(presentationLink)) return null;
-  const img = document.createElement('img');
-  img.src = `${getRecordingsIconBase()}/icons/powerpoint.svg`;
-  img.alt = '';
-  img.width = 28;
-  img.height = 28;
-  img.className = 'recordings-card-presentation-icon';
-  img.setAttribute('aria-hidden', 'true');
-  const a = document.createElement('a');
-  a.href = presentationLink;
-  a.className = 'recordings-card-presentation-link';
-  a.setAttribute('target', '_blank');
-  a.setAttribute('rel', 'noopener');
-  a.setAttribute('aria-label', 'View presentation');
-  a.dataset.tooltip = 'View presentation';
-  a.append(img);
-  return a;
-}
-
-/** Column of play icon and optional presentation icon below it. */
-function createRecordingsCardIcons(recordingLink, presentationLink) {
-  const col = document.createElement('div');
-  col.className = 'recordings-card-icons';
-  col.append(createRecordingsCardIcon(recordingLink));
-  const presentationEl = createRecordingsCardPresentationIcon(presentationLink);
-  if (presentationEl) col.append(presentationEl);
-  return col;
+function createDetailIcon(name) {
+  const icon = document.createElement('span');
+  icon.className = 'recordings-detail-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  const paths = {
+    back: '<path d="m14 6-6 6 6 6M8 12h12"/>',
+    play: '<path d="m9 5 11 7-11 7z"/>',
+    slides: '<rect x="3" y="3" width="18" height="14" rx="2"/><path d="M12 17v4m-4 0h8M7 8h10M7 12h6"/>',
+  };
+  icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">${paths[name]}</svg>`;
+  return icon;
 }
 
 /** Get numeric date for sorting (Excel serial or timestamp). Returns 0 if missing/invalid. */
@@ -292,22 +254,22 @@ function buildRecordingsCard(row, rowIdx) {
   const li = document.createElement('li');
   li.style.setProperty('--i', String(rowIdx));
 
-  const recordingLink = normalizeField(row.recordingLink);
-  const presentationLink = normalizeField(row.presentationLink);
-
-  li.append(createRecordingsCardIcons(recordingLink, presentationLink));
+  const title = normalizeField(row.title);
+  const card = document.createElement(title ? 'a' : 'div');
+  card.className = 'recordings-card-link';
+  if (title) card.href = `/recordings?${new URLSearchParams({ talk: title })}`;
+  card.append(createRecordingsCardIcon());
 
   const body = document.createElement('div');
   body.className = 'recordings-card-body';
 
-  const title = normalizeField(row.title);
   const speaker = normalizeField(row.speaker);
   const dateStr = formatSheetDate(row.date);
   const tagRaw = normalizeField(row.tag);
 
   const titleEl = document.createElement('h3');
   titleEl.className = 'recordings-title';
-  titleEl.textContent = title || '';
+  titleEl.textContent = title;
   if (!title) titleEl.classList.add('is-empty');
   body.append(titleEl);
 
@@ -330,14 +292,15 @@ function buildRecordingsCard(row, rowIdx) {
     body.append(tagEl);
   }
 
-  li.append(body);
+  card.append(body);
+  li.append(card);
 
   if (isRecentRecording(row)) {
     const newBadge = document.createElement('span');
     newBadge.className = 'recordings-card-badge-new';
     newBadge.textContent = 'New';
     li.classList.add('has-new-badge');
-    li.append(newBadge);
+    card.append(newBadge);
   }
 
   return li;
@@ -524,13 +487,140 @@ function renderFromSheet(block, data) {
   updateRecordingsList(block);
 }
 
+async function renderTalkSummary(article, value) {
+  const summary = normalizeField(value);
+  if (!summary) return;
+
+  const section = document.createElement('section');
+  section.className = 'recordings-detail-summary';
+  const heading = document.createElement(article.querySelector('h1') ? 'h2' : 'h3');
+  heading.className = 'recordings-summary-title';
+  heading.textContent = 'Summary';
+  section.append(heading);
+  article.append(section);
+
+  try {
+    const url = new URL(summary, `${window.location.origin}/`);
+    if (url.origin !== window.location.origin) throw new Error('Summary must be a local fragment');
+    const path = url.pathname.replace(/(?:\.plain)?\.html$/, '');
+    const { loadFragment } = await import('../fragment/fragment.js');
+    const fragment = await loadFragment(path);
+    if (!fragment) throw new Error('Summary fragment could not be loaded');
+    const content = document.createElement('div');
+    content.className = 'recordings-summary-content';
+    content.append(...fragment.childNodes);
+    section.append(content);
+  } catch {
+    const message = document.createElement('p');
+    message.textContent = 'Summary is currently unavailable.';
+    section.append(message);
+  }
+}
+
+async function renderTalkDetail(block, data, talk) {
+  const row = data.find((recording) => normalizeField(recording.title) === talk);
+  const article = document.createElement('article');
+  article.className = 'recordings-detail';
+
+  const back = document.createElement('a');
+  back.href = '/recordings';
+  back.className = 'recordings-back';
+  back.textContent = 'Back to all recordings';
+  back.prepend(createDetailIcon('back'));
+  article.append(back);
+
+  const surface = document.createElement('div');
+  surface.className = 'recordings-detail-surface';
+  const header = document.createElement('div');
+  header.className = 'recordings-detail-header';
+  const intro = document.createElement('div');
+  intro.className = 'recordings-detail-intro';
+  const heading = document.createElement(document.querySelector('main h1') ? 'h2' : 'h1');
+  heading.className = 'recordings-detail-title';
+  heading.textContent = row ? normalizeField(row.title) : 'Talk not found';
+  intro.append(heading);
+  header.append(intro);
+  surface.append(header);
+  article.append(surface);
+
+  if (!row) {
+    const message = document.createElement('p');
+    message.textContent = 'This talk could not be found. Browse all recordings to find another talk.';
+    intro.append(message);
+    block.replaceChildren(article);
+    return;
+  }
+
+  document.title = `${normalizeField(row.title)} | Recordings`;
+
+  const metadata = document.createElement('dl');
+  metadata.className = 'recordings-detail-metadata';
+  [
+    ['Speaker', normalizeField(row.speaker)],
+    ['Date', formatSheetDate(row.date)],
+    ['Tag', normalizeField(row.tag)],
+  ].forEach(([label, value]) => {
+    if (!value) return;
+    const item = document.createElement('div');
+    const term = document.createElement('dt');
+    term.textContent = label;
+    const description = document.createElement('dd');
+    description.textContent = value;
+    item.append(term, description);
+    metadata.append(item);
+  });
+  if (metadata.children.length) intro.append(metadata);
+
+  const description = normalizeField(row.description);
+  if (description) {
+    const content = document.createElement('p');
+    content.className = 'recordings-detail-description';
+    content.textContent = description;
+    intro.append(content);
+  }
+
+  const resources = document.createElement('aside');
+  resources.className = 'recordings-detail-resources';
+  resources.setAttribute('aria-label', 'Talk resources');
+  const resourcesHeading = document.createElement(heading.tagName === 'H1' ? 'h2' : 'h3');
+  resourcesHeading.textContent = 'Talk resources';
+  const actions = document.createElement('div');
+  actions.className = 'recordings-detail-actions';
+  [
+    ['Watch recording', normalizeField(row.recordingLink), 'play'],
+    ['View presentation', normalizeField(row.presentationLink), 'slides'],
+  ].forEach(([label, url, icon]) => {
+    if (!isSafeUrl(url)) return;
+    const link = document.createElement('a');
+    link.href = url;
+    link.className = `button${icon === 'slides' ? ' secondary' : ''}`;
+    link.textContent = label;
+    link.prepend(createDetailIcon(icon));
+    link.target = '_blank';
+    link.rel = 'noopener';
+    actions.append(link);
+  });
+  if (actions.children.length) {
+    const note = document.createElement('p');
+    note.className = 'recordings-detail-resource-note';
+    note.textContent = 'Links open in a new tab.';
+    resources.append(resourcesHeading, actions, note);
+    header.append(resources);
+  }
+
+  block.replaceChildren(article);
+  await renderTalkSummary(surface, row.summary);
+}
+
 /**
- * Decorate recordings block: fetch data from EDS sheet and render. No
- * fallback; block stays empty if fetch fails or returns no data.
+ * Fetch the recordings sheet and render the listing or a query-selected talk.
  */
 export default async function decorate(block) {
   const data = await fetchRecordingsData();
-  if (data.length > 0) {
+  const talk = new URLSearchParams(window.location.search).get('talk')?.trim();
+  if (talk) {
+    await renderTalkDetail(block, data, talk);
+  } else if (data.length > 0) {
     renderFromSheet(block, data);
   } else {
     block.textContent = '';
