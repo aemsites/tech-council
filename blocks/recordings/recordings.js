@@ -197,6 +197,12 @@ function createLikeButton(item, title) {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ type: 'recording', item, liked: !wasLiked }),
       });
+      if (resp.status === 401) {
+        setLikeState(item, wasLiked, previousCount);
+        const { pathname, search, hash } = window.location;
+        window.location.assign(`/api/auth/login?rd=${encodeURIComponent(`${pathname}${search}${hash}`)}`);
+        return;
+      }
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const json = await resp.json();
       setLikeState(item, json.liked === true, Number(json.count) || 0);
