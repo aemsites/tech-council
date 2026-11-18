@@ -1,6 +1,7 @@
 function createCommunityArtwork() {
   const figure = document.createElement('figure');
   figure.className = 'hero-community-art';
+  figure.setAttribute('aria-label', 'Engineering communities');
   const communities = [
     ['mcp-community', 'MCP'],
     ['evals-community', 'Evals'],
@@ -25,16 +26,13 @@ function createCommunityArtwork() {
   return figure;
 }
 
-function decorateHomepage(block) {
+export function decorateHomepage(block) {
+  if (block.querySelector('.hero-home-layout')) return;
   const content = block.querySelector('blockquote');
   if (!content) return;
   document.body.classList.add('home-page');
   const layout = document.createElement('div');
   layout.className = 'hero-home-layout';
-  const eyebrow = document.createElement('p');
-  eyebrow.className = 'hero-home-eyebrow';
-  eyebrow.textContent = 'Adobe Tech Council';
-  content.prepend(eyebrow);
   const actions = document.createElement('div');
   actions.className = 'hero-home-actions';
   const communities = document.createElement('a');
@@ -49,6 +47,16 @@ function decorateHomepage(block) {
   content.append(actions);
   content.before(layout);
   layout.append(content, createCommunityArtwork());
+
+  const eventsSurface = document.querySelector('.events-wrapper');
+  if (eventsSurface && typeof IntersectionObserver === 'function') {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      eventsSurface.classList.add('home-surface-entered');
+      observer.disconnect();
+    }, { threshold: 0.1 });
+    observer.observe(eventsSurface);
+  }
 }
 
 export default function decorate(block) {

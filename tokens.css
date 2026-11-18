@@ -32,6 +32,20 @@
   --radius-control: 6px;
   --z-header: 100;
   --z-skip: 200;
+  --color-home-paper: oklch(98% 0.004 27deg);
+  --color-home-panel: oklch(95% 0.005 27deg);
+  --color-home-raised: oklch(91% 0.006 27deg);
+  --color-home-ink: oklch(22% 0.006 27deg);
+  --color-home-muted: oklch(44% 0.008 27deg);
+  --color-home-rule: oklch(82% 0.006 27deg);
+  --color-home-feature-paper: oklch(22% 0.006 27deg);
+  --color-home-feature-ink: oklch(96% 0.004 27deg);
+  --color-home-feature-muted: oklch(77% 0.006 27deg);
+  --color-home-feature-rule: oklch(45% 0.006 27deg);
+  --font-home-display: 'Council Display', roboto, sans-serif;
+  --radius-home-panel: 8px;
+  --radius-home-control: 6px;
+  --dur-home-entry: 400ms;
 
   /* Existing EDS blocks consume these aliases. */
   --background-color: var(--color-paper);
@@ -79,4 +93,14 @@
   --color-accent-soft: oklch(27% 0.04 27deg);
   --color-on-accent: oklch(18% 0.004 25deg);
   --color-focus: var(--color-accent);
+  --color-home-paper: oklch(17% 0.004 27deg);
+  --color-home-panel: oklch(23% 0.005 27deg);
+  --color-home-raised: oklch(29% 0.006 27deg);
+  --color-home-ink: oklch(96% 0.004 27deg);
+  --color-home-muted: oklch(77% 0.006 27deg);
+  --color-home-rule: oklch(40% 0.006 27deg);
+  --color-home-feature-paper: oklch(94% 0.005 27deg);
+  --color-home-feature-ink: oklch(22% 0.006 27deg);
+  --color-home-feature-muted: oklch(43% 0.008 27deg);
+  --color-home-feature-rule: oklch(75% 0.006 27deg);
 }
