@@ -27,6 +27,66 @@ npm run lint
 
 ## Local development
 
+### Content AI search
+
+The `content-ai-search` EDS block supports semantic search, Cards/List layouts,
+cursor pagination, and an AI Mode with source links. It requests AI answers only
+when AI Mode is selected. API keys stay in the server-side proxy, never in the
+block or authored page.
+
+For a **local demo using the live Fréscopa sample service**, start the AEM preview
+on port 3002, then run `node tools/content-ai-preview.mjs` and open
+`http://localhost:3003/search`. The local server maps `/search` to
+`drafts/content-ai-search.html` and relays only the two Content AI routes to the
+fixed sample endpoint. It listens on the loopback interface and accepts only
+the `frescopa` / `ACQUISITION` source. It forwards no browser credentials to
+Content AI and uses no API key. Queries go to the shared demo service:
+**do not enter internal, personal, or sensitive information**.
+
+This is real sample content, not a Tech Council index or mock responses.
+The sample service currently allows the Fréscopa browser origin only, so direct
+browser calls from Tech Council or localhost fail CORS. The local relay does
+not modify that service's allowed origins and is not a production proxy.
+
+To enable the dedicated page on EDS, author a `/search` page with a
+**Content AI Search** two-column block table:
+
+| Key | Value |
+| --- | --- |
+| Base URL | Approved proxy base URL (without `/search` or `/gensearch`) |
+| Content Source | Exact indexed source name |
+| Content Source Type | `AEM_PUBLISH` or `ACQUISITION` |
+| Placeholder | Ask a question or enter a topic |
+| Results Size | `10` (1–50) |
+| Results Layout | `card` or `list` |
+| AI Search Mode Enabled | `true` |
+| Gen Search Error Retry Visible | `true` |
+| Disclaimer Text | Approved AI disclaimer |
+| Notice Text | Optional visible source/privacy notice |
+
+The existing homepage `doc-search (homepage)` block can render this same search
+experience inline. Enable it with homepage metadata:
+
+| Metadata | Value |
+| --- | --- |
+| content-ai-search-base-url | Approved proxy base URL |
+| content-ai-search-source | Exact indexed source name |
+| content-ai-search-source-type | `AEM_PUBLISH` or `ACQUISITION` |
+| content-ai-search-placeholder | Optional input hint |
+| content-ai-search-notice | Optional visible source/privacy notice |
+
+Both base URL and source must be present. Without them, the existing index search
+is unchanged. Missing Content AI assets also fall back to the original search.
+The local relay supplies the Fréscopa metadata to the homepage automatically:
+open `http://localhost:3003/` to try results and AI answers without leaving home.
+It does not change the authored homepage or the normal port-3002 preview.
+
+Use the sample source only with an explicit Fréscopa demo notice. For production,
+configure a proxy with the required EDS origins, source allow-list, rate limits,
+and server-side credentials before enabling the homepage metadata. Publishing
+an authored `/search` page is separate from deploying block code; homepage
+search does not require that separate page.
+
 ### Dashboard block
 
 The existing `/admin/dashboard` page uses a one-column `Dashboard (Recordings)`
