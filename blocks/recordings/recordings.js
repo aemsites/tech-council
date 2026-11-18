@@ -124,6 +124,91 @@ function createRecordingsCardIcon() {
   return wrapper;
 }
 
+/** Likes come from the Tech Council backend; without it (e.g. aem.page) no buttons are shown. */
+const LIKES_API = '/api/likes';
+const likesState = { enabled: false, counts: {}, liked: new Set() };
+
+async function loadLikes() {
+  try {
+    const resp = await fetch(`${LIKES_API}?type=recording`, {
+      credentials: 'same-origin',
+      headers: { Accept: 'application/json' },
+    });
+    if (!resp.ok) return;
+    const json = await resp.json();
+    likesState.counts = json.counts && typeof json.counts === 'object' ? json.counts : {};
+    likesState.liked = new Set(Array.isArray(json.liked) ? json.liked : []);
+    likesState.enabled = true;
+  } catch {
+    // likes are optional
+  }
+}
+
+/** Recordings are liked by their recording link, so likes survive title edits. */
+function getLikeItem(row) {
+  const link = normalizeField(row.recordingLink);
+  return link.startsWith('https://') && isSafeUrl(link) ? link : '';
+}
+
+function getLikeCount(item) {
+  return Object.hasOwn(likesState.counts, item) ? Number(likesState.counts[item]) || 0 : 0;
+}
+
+function setLikeState(item, liked, count) {
+  likesState.counts[item] = Math.max(0, count);
+  if (liked) likesState.liked.add(item);
+  else likesState.liked.delete(item);
+}
+
+function renderLikeButton(button, item, title) {
+  const count = getLikeCount(item);
+  button.setAttribute('aria-pressed', String(likesState.liked.has(item)));
+  button.setAttribute('aria-label', `Like ${title || 'this recording'}, ${count} ${count === 1 ? 'like' : 'likes'}`);
+  button.querySelector('.recordings-like-count').textContent = String(count);
+}
+
+function createLikeButton(item, title) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'recordings-like';
+  button.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.3 4.5 6.9 4.5c2 0 3.3 1.1 5.1 3 1.8-1.9 3.1-3 5.1-3 3.6 0 5.5 3.5 4.2 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/>
+    </svg>`;
+  const count = document.createElement('span');
+  count.className = 'recordings-like-count';
+  button.append(count);
+  renderLikeButton(button, item, title);
+
+  button.addEventListener('click', async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (button.getAttribute('aria-busy') === 'true') return;
+    const wasLiked = likesState.liked.has(item);
+    const previousCount = getLikeCount(item);
+    setLikeState(item, !wasLiked, previousCount + (wasLiked ? -1 : 1));
+    renderLikeButton(button, item, title);
+    button.setAttribute('aria-busy', 'true');
+    try {
+      const resp = await fetch(LIKES_API, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ type: 'recording', item, liked: !wasLiked }),
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const json = await resp.json();
+      setLikeState(item, json.liked === true, Number(json.count) || 0);
+    } catch {
+      setLikeState(item, wasLiked, previousCount);
+    } finally {
+      button.removeAttribute('aria-busy');
+      renderLikeButton(button, item, title);
+    }
+  });
+  return button;
+}
+
 function createDetailIcon(name) {
   const icon = document.createElement('span');
   icon.className = 'recordings-detail-icon';
@@ -294,6 +379,12 @@ function buildRecordingsCard(row, rowIdx) {
 
   card.append(body);
   li.append(card);
+
+  const likeItem = getLikeItem(row);
+  if (likesState.enabled && likeItem) {
+    li.classList.add('has-like');
+    li.append(createLikeButton(likeItem, title));
+  }
 
   if (isRecentRecording(row)) {
     const newBadge = document.createElement('span');
@@ -571,6 +662,11 @@ async function renderTalkDetail(block, data, talk) {
   });
   if (metadata.children.length) intro.append(metadata);
 
+  const likeItem = getLikeItem(row);
+  if (likesState.enabled && likeItem) {
+    intro.append(createLikeButton(likeItem, normalizeField(row.title)));
+  }
+
   const description = normalizeField(row.description);
   if (description) {
     const content = document.createElement('p');
@@ -616,7 +712,7 @@ async function renderTalkDetail(block, data, talk) {
  * Fetch the recordings sheet and render the listing or a query-selected talk.
  */
 export default async function decorate(block) {
-  const data = await fetchRecordingsData();
+  const [data] = await Promise.all([fetchRecordingsData(), loadLikes()]);
   const talk = new URLSearchParams(window.location.search).get('talk')?.trim();
   if (talk) {
     await renderTalkDetail(block, data, talk);

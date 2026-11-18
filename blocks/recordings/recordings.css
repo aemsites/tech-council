@@ -316,6 +316,76 @@
   visibility: hidden;
 }
 
+.recordings .recordings-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--background-color);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--body-font-size-xs);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.recordings .recordings-like svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transition: transform 0.2s ease;
+}
+
+.recordings .recordings-like:hover {
+  color: var(--link-color);
+  border-color: rgb(106 56 255 / 35%);
+}
+
+.recordings .recordings-like[aria-pressed='true'] {
+  color: #d7373f;
+  border-color: rgb(215 55 63 / 35%);
+  background: rgb(215 55 63 / 6%);
+}
+
+.recordings .recordings-like[aria-pressed='true'] svg {
+  fill: currentcolor;
+}
+
+.recordings .recordings-like:active svg {
+  transform: scale(1.2);
+}
+
+.recordings .recordings-like:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.recordings .recordings-like[aria-busy='true'] {
+  cursor: progress;
+}
+
+.recordings-list > li > .recordings-like {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+}
+
+.recordings-list > li.has-like .recordings-card-body > :last-child {
+  padding-right: 72px;
+}
+
+.recordings-detail-intro > .recordings-like {
+  margin-top: var(--space-l);
+}
+
 .recordings .recordings-card-body .recordings-title {
   color: var(--text-color);
   font-size: clamp(15px, 1.2vw, 18px);
