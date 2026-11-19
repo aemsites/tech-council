@@ -42,6 +42,19 @@ function isSafeUrl(url) {
   }
 }
 
+function getRecordingEmbedUrl(value) {
+  try {
+    const url = new URL(normalizeField(value));
+    const allowedHosts = ['adobe.sharepoint.com', 'adobe-my.sharepoint.com'];
+    if (url.protocol !== 'https:' || !allowedHosts.includes(url.hostname)
+      || url.username || url.password
+      || !url.pathname.endsWith('/_layouts/15/embed.aspx')) return '';
+    return url.href;
+  } catch {
+    return '';
+  }
+}
+
 /**
  * Debounces a function so it runs only after `ms` ms of no further calls.
  * @param {(...args: unknown[]) => void} fn
@@ -826,6 +839,13 @@ async function renderTalkDetail(block, data, talk) {
 
   document.title = `${normalizeField(row.title)} | Recordings`;
 
+  const embedUrl = getRecordingEmbedUrl(row.embedUrl);
+  const details = embedUrl ? document.createElement('div') : intro;
+  if (embedUrl) {
+    article.classList.add('recordings-detail-embedded');
+    details.className = 'recordings-detail-sidebar';
+  }
+
   const metadata = document.createElement('dl');
   metadata.className = 'recordings-detail-metadata';
   [
@@ -842,11 +862,11 @@ async function renderTalkDetail(block, data, talk) {
     item.append(term, description);
     metadata.append(item);
   });
-  if (metadata.children.length) intro.append(metadata);
+  if (metadata.children.length) details.append(metadata);
 
   const likeItem = getLikeItem(row);
   if (likesState.enabled && likeItem) {
-    intro.append(createLikeButton(likeItem, normalizeField(row.title)));
+    details.append(createLikeButton(likeItem, normalizeField(row.title)));
   }
 
   const description = normalizeField(row.description);
@@ -865,7 +885,7 @@ async function renderTalkDetail(block, data, talk) {
   const actions = document.createElement('div');
   actions.className = 'recordings-detail-actions';
   [
-    ['Watch recording', normalizeField(row.recordingLink), 'play'],
+    ['Watch recording', embedUrl ? '' : normalizeField(row.recordingLink), 'play'],
     ['View presentation', normalizeField(row.presentationLink), 'slides'],
   ].forEach(([label, url, icon]) => {
     if (!isSafeUrl(url)) return;
@@ -883,7 +903,26 @@ async function renderTalkDetail(block, data, talk) {
     note.className = 'recordings-detail-resource-note';
     note.textContent = 'Links open in a new tab.';
     resources.append(resourcesHeading, actions, note);
-    header.append(resources);
+    if (embedUrl) details.append(resources);
+    else header.append(resources);
+  }
+
+  if (embedUrl) {
+    const stage = document.createElement('div');
+    stage.className = 'recordings-detail-stage';
+    const video = document.createElement('div');
+    video.className = 'recordings-detail-video';
+    const player = document.createElement('iframe');
+    player.src = embedUrl;
+    player.title = `${normalizeField(row.title)} recording`;
+    player.width = '800';
+    player.height = '450';
+    player.allow = 'fullscreen; picture-in-picture';
+    player.allowFullscreen = true;
+    video.append(player);
+    stage.append(video);
+    if (details.children.length) stage.append(details);
+    surface.append(stage);
   }
 
   block.replaceChildren(article);

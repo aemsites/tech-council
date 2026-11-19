@@ -382,8 +382,10 @@
   padding-right: 72px;
 }
 
-.recordings-detail-intro > .recordings-like {
-  margin-top: var(--space-l);
+.recordings-detail .recordings-like {
+  min-height: 44px;
+  margin-top: var(--space-ml);
+  box-sizing: border-box;
 }
 
 .recordings .recordings-card-body .recordings-title {
@@ -433,7 +435,7 @@
 }
 
 .recordings-detail-surface {
-  padding: clamp(24px, 4vw, 48px);
+  padding: clamp(20px, 3vw, 40px);
   background: var(--background-color);
   border-radius: var(--radius-xs);
 }
@@ -441,7 +443,7 @@
 .recordings-detail-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 248px;
-  gap: var(--space-xxl);
+  gap: var(--space-ml);
 }
 
 .recordings-detail-intro {
@@ -453,19 +455,19 @@
 }
 
 .recordings-detail-title {
-  max-width: 24ch;
+  max-width: 44ch;
   margin: 0;
-  font-size: clamp(32px, 4vw, 56px);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  font-size: clamp(1.75rem, 1.25rem + 1.4vw, 2.5rem);
+  line-height: 1.18;
+  letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
 .recordings-detail-metadata {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-ml) var(--space-l);
-  margin: var(--space-l) 0 0;
+  gap: var(--space-m) var(--space-ml);
+  margin: var(--space-ml) 0 0;
 }
 
 .recordings-detail-metadata > div {
@@ -487,7 +489,7 @@
 
 .recordings-detail-resources {
   align-self: start;
-  padding-left: var(--space-l);
+  padding-left: var(--space-ml);
   border-left: 1px solid var(--border-subtle);
 }
 
@@ -550,9 +552,78 @@
   line-height: 1.5;
 }
 
+.recordings-detail-embedded .recordings-detail-header {
+  display: block;
+}
+
+.recordings-detail-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 800px) minmax(180px, 1fr);
+  align-items: start;
+  gap: var(--space-ml);
+  margin-top: var(--space-ml);
+}
+
+.recordings-detail-video {
+  min-width: 0;
+  width: 100%;
+  max-width: 800px;
+}
+
+.recordings-detail-video:only-child {
+  grid-column: 1 / -1;
+  margin-inline: auto;
+}
+
+.recordings-detail-video iframe {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--dark-color);
+}
+
+.recordings-detail-sidebar {
+  min-width: 0;
+  padding-left: var(--space-ml);
+  border-left: 1px solid var(--border-subtle);
+}
+
+.recordings-detail-sidebar .recordings-detail-metadata {
+  display: grid;
+  gap: var(--space-ml);
+  margin: 0;
+}
+
+.recordings-detail-sidebar .recordings-detail-metadata dt {
+  font-size: 0.75rem;
+}
+
+.recordings-detail-sidebar .recordings-detail-metadata dd {
+  font-size: 0.9375rem;
+}
+
+.recordings-detail-sidebar .recordings-detail-resources {
+  margin-top: var(--space-ml);
+  padding: var(--space-ml) 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.recordings-detail-sidebar .recordings-detail-resources > :is(h2, h3) {
+  display: none;
+}
+
+.recordings-detail-sidebar .recordings-detail-actions a.button {
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
 .recordings-detail-summary {
-  margin-top: var(--space-xxl);
-  padding-top: var(--space-l);
+  margin-top: var(--space-l);
+  padding-top: var(--space-ml);
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -834,6 +905,7 @@
 }
 
 @media print {
+  .recordings-detail-video,
   .recordings-summary-toolbar .recordings-summary-toggle,
   .recordings-summary-meta,
   .recordings-summary-progress,
@@ -841,6 +913,15 @@
   .recordings-summary-jump,
   .recordings-summary-slot:empty {
     display: none;
+  }
+
+  .recordings-detail-stage {
+    display: block;
+  }
+
+  .recordings-detail-sidebar {
+    padding-left: 0;
+    border-left: 0;
   }
 
   .recordings-summary-reader {
@@ -884,6 +965,41 @@
 
   .recordings-detail-actions {
     flex-flow: row wrap;
+  }
+
+  .recordings-detail-stage {
+    grid-template-columns: 1fr;
+    gap: var(--space-ml);
+  }
+
+  .recordings-detail-sidebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .recordings-detail-sidebar .recordings-detail-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-m) var(--space-ml);
+    width: 100%;
+  }
+
+  .recordings-detail-sidebar .recordings-like,
+  .recordings-detail-sidebar .recordings-detail-resources {
+    margin: 0;
+  }
+
+  .recordings-detail-sidebar .recordings-detail-resources {
+    padding: 0;
+    border: 0;
+  }
+
+  .recordings-detail-sidebar .recordings-detail-resource-note {
+    margin-top: var(--space-s);
   }
 
   .recordings-detail-summary {
