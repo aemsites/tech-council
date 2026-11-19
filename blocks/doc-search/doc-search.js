@@ -1,4 +1,6 @@
-import { createOptimizedPicture } from '../../scripts/aem.js';
+import {
+  buildBlock, createOptimizedPicture, getMetadata, loadCSS,
+} from '../../scripts/aem.js';
 import createTag from '../../utils/tag.js';
 
 const CURSOR_BLINK = 580; // in milliseconds
@@ -873,6 +875,37 @@ function findResultLink(results) {
 }
 
 export default async function decorate(block) {
+  const aiBaseUrl = getMetadata('content-ai-search-base-url');
+  const aiSource = getMetadata('content-ai-search-source');
+  if (block.classList.contains('homepage') && aiBaseUrl && aiSource) {
+    const originalContent = [...block.childNodes];
+    try {
+      const [{ default: decorateContentAISearch }] = await Promise.all([
+        import('../content-ai-search/content-ai-search.js'),
+        loadCSS(`${window.hlx.codeBasePath}/blocks/content-ai-search/content-ai-search.css`),
+      ]);
+      const search = buildBlock('content-ai-search', [
+        ['base-url', aiBaseUrl],
+        ['content-source', aiSource],
+        ['content-source-type', getMetadata('content-ai-search-source-type') || 'AEM_PUBLISH'],
+        ['api-contract', getMetadata('content-ai-search-api-contract')],
+        ['display-mode', 'launcher'],
+        ['results-page', '/search'],
+        ['placeholder', getMetadata('content-ai-search-placeholder') || 'Ask a question or enter a topic'],
+        ['notice-text', getMetadata('content-ai-search-notice')],
+        ['results-size', '6'],
+      ].map(([key, value]) => [key, document.createTextNode(value)]));
+      block.replaceChildren(...search.childNodes);
+      block.classList.replace('doc-search', 'content-ai-search');
+      decorateContentAISearch(block);
+      return;
+    } catch {
+      // Preserve the authored index search if the optional enhancement cannot load.
+      block.replaceChildren(...originalContent);
+      block.classList.replace('content-ai-search', 'doc-search');
+    }
+  }
+
   // extract config
   const index = identifySource(block.querySelector('a[href]'));
   const faq = identifySource(block.querySelectorAll('a[href]')[1]) || '';
