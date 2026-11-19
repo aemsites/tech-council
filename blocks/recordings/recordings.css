@@ -551,9 +551,6 @@
 }
 
 .recordings-detail-summary {
-  display: grid;
-  grid-template-columns: 144px minmax(0, 1fr);
-  gap: var(--space-l);
   margin-top: var(--space-xxl);
   padding-top: var(--space-l);
   border-top: 1px solid var(--border-subtle);
@@ -561,42 +558,207 @@
 
 .recordings-summary-title {
   margin: 0;
-  font-size: 22px;
+  font-size: 1.25rem;
   line-height: 1.4;
   letter-spacing: -0.02em;
 }
 
-.recordings-summary-content {
-  max-width: 72ch;
+.recordings-summary-slot {
   min-width: 0;
-  max-height: min(60vh, 640px);
-  overflow: auto;
-  scrollbar-gutter: stable;
-  padding: clamp(16px, 2vw, 24px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xs);
-  font-size: var(--body-font-size-m);
-  line-height: 1.75;
-  overflow-wrap: anywhere;
 }
 
-.recordings-summary-content:focus-visible {
+.recordings-summary-reader {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--background-color);
+}
+
+.recordings-summary-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s) var(--space-m);
+  padding: 14px var(--space-ml);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.recordings-summary-caption {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-m);
+  min-width: 0;
+}
+
+.recordings-summary-meta {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.recordings-summary-toolbar .recordings-summary-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: var(--space-s);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--body-font-size-xs);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: normal;
+  box-shadow: none;
+  transform: none;
+  cursor: pointer;
+}
+
+.recordings-summary-toolbar .recordings-summary-toggle:hover {
+  color: var(--link-color);
+  border-color: var(--border-subtle);
+  background: var(--surface-tint-light);
+  transform: none;
+  box-shadow: none;
+}
+
+.recordings-summary-toolbar .recordings-summary-toggle:active {
+  background: var(--surface-tint-lighter);
+}
+
+.recordings-summary-toggle:focus-visible {
   outline: 2px solid var(--link-color);
   outline-offset: 3px;
 }
 
+.recordings-summary-progress {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border: 0;
+  appearance: none;
+  background: transparent;
+  color: var(--link-color);
+}
+
+.recordings-summary-progress[hidden] {
+  display: none;
+}
+
+.recordings-summary-progress::-webkit-progress-bar {
+  background: transparent;
+}
+
+.recordings-summary-progress::-webkit-progress-value {
+  background: var(--link-color);
+}
+
+.recordings-summary-progress::-moz-progress-bar {
+  background: var(--link-color);
+}
+
+.recordings-summary-stage {
+  display: flex;
+  min-height: 0;
+}
+
+.recordings-summary-outline {
+  box-sizing: border-box;
+  flex: 0 0 200px;
+  max-height: min(60vh, 640px);
+  padding: var(--space-ml) var(--space-m);
+  border-right: 1px solid var(--border-subtle);
+  overflow: auto;
+  background: var(--surface-muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.recordings-summary-outline > p {
+  margin: 0 0 12px 12px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.recordings-summary-outline a {
+  display: block;
+  margin-top: var(--space-xs);
+  padding: var(--space-s) 12px;
+  border-left: 2px solid transparent;
+  color: var(--text-muted);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.recordings-summary-outline a:hover {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.recordings-summary-outline a[aria-current] {
+  border-left-color: var(--link-color);
+  background: var(--surface-tint-light);
+  color: var(--link-color);
+  font-weight: 600;
+}
+
+.recordings-summary-jump {
+  display: none;
+}
+
+.recordings-summary-content {
+  box-sizing: border-box;
+  flex: 1;
+  min-width: 0;
+  max-height: min(60vh, 640px);
+  overflow: auto;
+  scrollbar-gutter: stable;
+  padding: clamp(20px, 3vw, 40px);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.recordings-summary-body {
+  max-width: 66ch;
+  margin-inline: auto;
+}
+
+.recordings-summary-content:focus-visible,
+.recordings-summary-outline a:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: -3px;
+}
+
+.recordings-summary-body :is(p, ul, ol) {
+  margin-block: 0 1.25em;
+}
+
+.recordings-summary-body strong {
+  font-weight: 600;
+}
+
 .recordings-summary-content :is(h3, h4, h5, h6) {
   margin: var(--space-l) 0 var(--space-s);
-  font-size: 22px;
+  font-size: 1.25rem;
   line-height: 1.4;
   letter-spacing: -0.02em;
 }
 
 .recordings-summary-content :is(h4, h5, h6) {
-  font-size: 18px;
+  font-size: 1.0625rem;
 }
 
-.recordings-summary-content > .section + .section {
+.recordings-summary-body :is(h3, h4, h5, h6):focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 4px;
+}
+
+.recordings-summary-body > .section + .section {
   margin-top: var(--space-l);
 }
 
@@ -608,7 +770,100 @@
   margin-bottom: 0;
 }
 
+.recordings-summary-content li + li {
+  margin-top: var(--space-s);
+}
+
+.recordings-summary-dialog {
+  box-sizing: border-box;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: clamp(12px, 3vw, 32px);
+  border: 0;
+  overflow: hidden;
+  background: var(--surface-muted);
+  color: var(--text-color);
+}
+
+.recordings-summary-dialog[open] {
+  display: flex;
+}
+
+.recordings-summary-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+.recordings-summary-dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: var(--overlay-dark);
+}
+
+.recordings-summary-dialog .recordings-summary-reader {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1140px;
+  min-height: 0;
+  margin-inline: auto;
+}
+
+.recordings-summary-dialog .recordings-summary-toolbar,
+.recordings-summary-dialog .recordings-summary-progress,
+.recordings-summary-dialog .recordings-summary-jump {
+  flex-shrink: 0;
+}
+
+.recordings-summary-dialog .recordings-summary-stage {
+  flex: 1;
+}
+
+.recordings-summary-dialog .recordings-summary-outline {
+  max-height: none;
+}
+
+.recordings-summary-dialog .recordings-summary-content {
+  min-height: 0;
+  max-height: none;
+  padding: clamp(20px, 4vw, 48px);
+  overscroll-behavior: contain;
+}
+
 @media print {
+  .recordings-summary-toolbar .recordings-summary-toggle,
+  .recordings-summary-meta,
+  .recordings-summary-progress,
+  .recordings-summary-outline,
+  .recordings-summary-jump,
+  .recordings-summary-slot:empty {
+    display: none;
+  }
+
+  .recordings-summary-reader {
+    max-width: none;
+    border: 0;
+  }
+
+  .recordings-summary-dialog[open] {
+    position: static;
+    display: block;
+    height: auto;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .recordings-summary-dialog .recordings-summary-reader {
+    display: block;
+  }
+
+  .recordings-summary-stage {
+    display: block;
+  }
+
   .recordings-summary-content {
     max-height: none;
     overflow: visible;
@@ -632,10 +887,43 @@
   }
 
   .recordings-detail-summary {
-    grid-template-columns: 1fr;
-    gap: var(--space-m);
     margin-top: var(--space-l);
     padding-top: var(--space-ml);
+  }
+
+  .recordings-summary-outline {
+    display: none;
+  }
+
+  .recordings-summary-jump {
+    display: block;
+    box-sizing: border-box;
+    width: calc(100% - 32px);
+    min-width: 0;
+    min-height: 44px;
+    margin: 12px var(--space-m);
+    padding: var(--space-s) 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xs);
+    background: var(--surface-muted);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.875rem;
+    text-overflow: ellipsis;
+  }
+
+  .recordings-summary-toolbar {
+    padding: 12px var(--space-m);
+  }
+
+  .recordings-summary-content {
+    font-size: 1rem;
+  }
+}
+
+@media print {
+  .recordings-summary-jump {
+    display: none;
   }
 }
 

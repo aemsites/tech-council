@@ -224,6 +224,8 @@ function createDetailIcon(name) {
     back: '<path d="m14 6-6 6 6 6M8 12h12"/>',
     play: '<path d="m9 5 11 7-11 7z"/>',
     slides: '<rect x="3" y="3" width="18" height="14" rx="2"/><path d="M12 17v4m-4 0h8M7 8h10M7 12h6"/>',
+    expand: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
+    collapse: '<path d="M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5"/>',
   };
   icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">${paths[name]}</svg>`;
   return icon;
@@ -585,6 +587,161 @@ function renderFromSheet(block, data) {
   updateRecordingsList(block);
 }
 
+function createSummaryReader(content, heading) {
+  const slot = document.createElement('div');
+  slot.className = 'recordings-summary-slot';
+  const reader = document.createElement('div');
+  reader.className = 'recordings-summary-reader';
+  const toolbar = document.createElement('div');
+  toolbar.className = 'recordings-summary-toolbar';
+  const title = document.createElement('div');
+  title.className = 'recordings-summary-caption';
+  const metadata = document.createElement('span');
+  metadata.className = 'recordings-summary-meta';
+  const wordCount = content.textContent.trim().split(/\s+/).filter(Boolean).length;
+  metadata.textContent = `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
+  title.append(heading, metadata);
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'recordings-summary-toggle';
+  const progress = document.createElement('progress');
+  progress.className = 'recordings-summary-progress';
+  progress.max = 100;
+  progress.value = 0;
+  progress.setAttribute('aria-label', 'Summary reading progress');
+  const dialog = document.createElement('dialog');
+  dialog.className = 'recordings-summary-dialog';
+  dialog.setAttribute('aria-label', 'Full-screen talk summary');
+  let scrollPosition = 0;
+  const stage = document.createElement('div');
+  stage.className = 'recordings-summary-stage';
+  const sections = [...content.querySelectorAll('h3, h4, h5, h6')];
+  const topLevel = Math.min(...sections.map((item) => Number(item.tagName[1])));
+  const targets = sections.filter((item) => Number(item.tagName[1]) === topLevel);
+  const outline = document.createElement('nav');
+  outline.className = 'recordings-summary-outline';
+  outline.setAttribute('aria-label', 'Summary sections');
+  const outlineTitle = document.createElement('p');
+  outlineTitle.textContent = 'In this summary';
+  outline.append(outlineTitle);
+  const jump = document.createElement('select');
+  jump.className = 'recordings-summary-jump';
+  jump.setAttribute('aria-label', 'Jump to summary section');
+  const links = targets.map((target, index) => {
+    if (!target.id) {
+      let suffix = index + 1;
+      while (document.getElementById(`summary-section-${suffix}`)
+        || content.querySelector(`#summary-section-${suffix}`)) suffix += 1;
+      target.id = `summary-section-${suffix}`;
+    }
+    target.tabIndex = -1;
+    const link = document.createElement('a');
+    link.href = `#${encodeURIComponent(target.id)}`;
+    link.textContent = target.textContent;
+    const option = document.createElement('option');
+    option.value = String(index);
+    option.textContent = target.textContent;
+    jump.append(option);
+    outline.append(link);
+    return link;
+  });
+  let activeSection = -1;
+
+  const goToSection = (index) => {
+    const target = targets[index];
+    content.scrollTop += target.getBoundingClientRect().top
+      - content.getBoundingClientRect().top - 24;
+    target.focus({ preventScroll: true });
+  };
+  links.forEach((link, index) => {
+    link.addEventListener('click', (event) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      goToSection(index);
+    });
+  });
+  jump.addEventListener('change', () => goToSection(Number(jump.value)));
+
+  const updateToggle = (expanded) => {
+    const label = expanded ? 'Exit full screen' : 'Read full screen';
+    toggle.setAttribute('aria-label', label);
+    toggle.title = label;
+    toggle.replaceChildren(createDetailIcon(expanded ? 'collapse' : 'expand'));
+    if (expanded) toggle.removeAttribute('aria-haspopup');
+    else toggle.setAttribute('aria-haspopup', 'dialog');
+  };
+  const updateProgress = () => {
+    if (!content.clientHeight) return;
+    scrollPosition = content.scrollTop;
+    const remaining = content.scrollHeight - content.clientHeight;
+    const percent = remaining > 1
+      ? Math.min(100, Math.max(0, Math.round((content.scrollTop / remaining) * 100))) : 100;
+    progress.value = percent;
+    progress.hidden = remaining <= 1;
+    const top = content.getBoundingClientRect().top + 48;
+    let current = 0;
+    targets.forEach((target, index) => {
+      if (target.getBoundingClientRect().top <= top) current = index;
+    });
+    if (remaining > 1 && content.scrollTop >= remaining - 2) current = targets.length - 1;
+    if (current !== activeSection) {
+      activeSection = current;
+      links.forEach((link, index) => {
+        if (index === current) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+      jump.value = String(current);
+      if (links[current] && outline.clientHeight) {
+        const bounds = outline.getBoundingClientRect();
+        const active = links[current].getBoundingClientRect();
+        if (active.top < bounds.top) outline.scrollTop += active.top - bounds.top;
+        else if (active.bottom > bounds.bottom) outline.scrollTop += active.bottom - bounds.bottom;
+      }
+    }
+  };
+
+  toggle.addEventListener('click', () => {
+    if (dialog.open) {
+      updateProgress();
+      dialog.close();
+      return;
+    }
+    const { scrollTop } = content;
+    slot.style.height = `${slot.offsetHeight}px`;
+    dialog.append(reader);
+    updateToggle(true);
+    dialog.showModal();
+    content.scrollTop = scrollTop;
+    updateProgress();
+  });
+  dialog.addEventListener('cancel', updateProgress);
+  dialog.addEventListener('close', () => {
+    const scrollTop = scrollPosition;
+    slot.append(reader);
+    slot.style.height = '';
+    updateToggle(false);
+    content.scrollTop = scrollTop;
+    updateProgress();
+    // The invoker moves with the reader, so restore focus after returning it to the page.
+    toggle.focus({ preventScroll: true });
+  });
+  content.addEventListener('scroll', updateProgress, { passive: true });
+  const observer = new ResizeObserver(updateProgress);
+  observer.observe(content);
+  observer.observe(content.firstElementChild);
+  updateToggle(false);
+  toolbar.append(title, toggle);
+  if (targets.length > 1) {
+    stage.append(outline);
+    reader.append(toolbar, progress, jump, stage);
+  } else {
+    reader.append(toolbar, progress, stage);
+  }
+  stage.append(content);
+  slot.append(reader);
+  return [slot, dialog];
+}
+
 async function renderTalkSummary(article, value) {
   const summary = normalizeField(value);
   if (!summary) return;
@@ -621,8 +778,11 @@ async function renderTalkSummary(article, value) {
       replacement.append(...item.childNodes);
       item.replaceWith(replacement);
     });
-    content.append(...fragment.childNodes);
-    section.append(content);
+    const body = document.createElement('div');
+    body.className = 'recordings-summary-body';
+    body.append(...fragment.childNodes);
+    content.append(body);
+    section.append(...createSummaryReader(content, heading));
   } catch {
     const message = document.createElement('p');
     message.textContent = 'Summary is currently unavailable.';
