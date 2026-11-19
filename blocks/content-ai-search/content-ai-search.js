@@ -282,7 +282,7 @@ function hybridQuery(text) {
   };
 }
 
-function searchForm(prefix, placeholder, action) {
+function searchForm(prefix, placeholder, action, launcher) {
   const form = element('form', 'form');
   form.setAttribute('role', 'search');
   form.action = action;
@@ -310,13 +310,31 @@ function searchForm(prefix, placeholder, action) {
   const suggestion = element('button', 'suggestion');
   suggestion.type = 'submit';
   suggestion.hidden = true;
+  const suggestionQuery = launcher ? element('span', 'suggestion-query') : suggestion;
   field.append(submit, input, clear);
-  form.append(label, field, suggestion);
+  if (launcher) {
+    label.className = 'content-ai-search-label';
+    label.id = `${prefix}-label`;
+    form.setAttribute('aria-labelledby', label.id);
+    const group = element('div', 'input-group');
+    const hint = element('p', 'hint', 'Find recordings, events and community resources.');
+    hint.id = `${prefix}-hint`;
+    input.setAttribute('aria-describedby', hint.id);
+    const suggestionText = element('span', 'suggestion-text');
+    suggestionText.append(suggestionQuery, element('span', 'suggestion-caption', 'Search Tech Council'));
+    const shortcut = element('kbd', 'suggestion-key', 'Enter');
+    shortcut.setAttribute('aria-hidden', 'true');
+    suggestion.append(suggestionText, shortcut);
+    group.append(field, suggestion);
+    form.append(label, group, hint);
+  } else {
+    form.append(label, field, suggestion);
+  }
 
   function updateInput() {
     const text = input.value.trim();
     clear.hidden = !input.value;
-    suggestion.textContent = text;
+    suggestionQuery.textContent = text;
     suggestion.setAttribute('aria-label', text ? `Search for "${text}"` : 'Search');
     suggestion.hidden = !text || document.activeElement !== input;
   }
@@ -387,6 +405,7 @@ export default function decorate(block) {
     prefix,
     config.placeholder,
     launcher ? safeUrl(config['results-page'] || '/search') : window.location.pathname,
+    launcher,
   );
   if (launcher) {
     block.classList.add('content-ai-search-launcher');
