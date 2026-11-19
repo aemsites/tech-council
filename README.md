@@ -29,63 +29,88 @@ npm run lint
 
 ### Content AI search
 
-The `content-ai-search` EDS block supports semantic search, Cards/List layouts,
-cursor pagination, and an AI Mode with source links. It requests AI answers only
-when AI Mode is selected. API keys stay in the server-side proxy, never in the
+The `content-ai-search` EDS block provides a compact homepage search and a dedicated
+results page. Typing shows an actionable query dropdown; Enter, the search icon,
+or the dropdown opens `/search?q=<query>`. Typing alone makes no API requests.
+The results page requests semantic results and an AI answer concurrently, with
+the answer, a collapsed Sources accordion, and Copy answer action above the results.
+The Sources control shows the source count and reveals the list on activation. Clearing the
+query hides both sections. API keys stay in the server-side proxy, never in the
 block or authored page.
+The results list scrolls within a viewport-bounded area and supports native keyboard scrolling.
 
-For a **local demo using the live Fréscopa sample service**, start the AEM preview
-on port 3002, then run `node tools/content-ai-preview.mjs` and open
-`http://localhost:3003/search`. The local server maps `/search` to
-`drafts/content-ai-search.html` and relays only the two Content AI routes to the
-fixed sample endpoint. It listens on the loopback interface and accepts only
-the `frescopa` / `ACQUISITION` source. It forwards no browser credentials to
-Content AI and uses no API key. Queries go to the shared demo service:
-**do not enter internal, personal, or sensitive information**.
+Results, AI sources, and links inside AI answers exclude non-page files and
+`/fragments` or `/admin` paths, including raw URL citations and card descriptions.
+Missing or unavailable result thumbnails use the block's standard SVG image.
+For the Tech Council contract, talk-summary fragments are first resolved to real
+`/recordings?talk=...` pages using each recording's authored `summary` field.
+This restores matching talks and AI citations without exposing fragment URLs or
+guessing talk titles from slugs. Unmapped technical sources remain excluded.
+Event fragments link to their owning `/events` page. Indexed sign-in captures
+are excluded rather than being presented as event or recording content.
+If matches exist but none have usable page links, the results explain that rather
+than incorrectly reporting that no matching content exists.
 
-This is real sample content, not a Tech Council index or mock responses.
-The sample service currently allows the Fréscopa browser origin only, so direct
-browser calls from Tech Council or localhost fail CORS. The local relay does
-not modify that service's allowed origins and is not a production proxy.
+The Tech Council proxy base URL is
+`https://4060142-techcouncilai.adobeioruntime.net/api/v1/web/content-ai/`.
+Set **API Contract** to `tech-council` to use its `semantic-search` and
+`content-ai-search` actions with a text query and the `tech-council` /
+`ACQUISITION` source. This replaces the Fréscopa sample service.
+The semantic action currently returns a server-sized batch and does not honor
+cursor or limit parameters, so this contract does not show Load more or apply
+Results Size. Without this contract setting, the block preserves the original
+`search` / `gensearch` API, hybrid query payload, and cursor pagination.
+
+For a **local preview using the Tech Council index**, start the AEM preview on
+port 3002, then run `node tools/content-ai-preview.mjs` and open
+`http://localhost:3003/` or `http://localhost:3003/search`.
+The helper injects the search metadata into the local homepage and maps
+`/search` to `drafts/content-ai-search.html`. Search requests go directly from
+the browser to the Tech Council proxy, exercising its CORS configuration.
+The helper listens only on loopback and does not relay search requests or use
+API credentials. **Do not enter personal or sensitive information.**
 
 To enable the dedicated page on EDS, author a `/search` page with a
 **Content AI Search** two-column block table:
 
 | Key | Value |
 | --- | --- |
-| Base URL | Approved proxy base URL (without `/search` or `/gensearch`) |
-| Content Source | Exact indexed source name |
-| Content Source Type | `AEM_PUBLISH` or `ACQUISITION` |
-| Placeholder | Ask a question or enter a topic |
-| Results Size | `10` (1–50) |
-| Results Layout | `card` or `list` |
+| Base URL | Proxy base URL above, without an action name |
+| Content Source | `tech-council` |
+| Content Source Type | `ACQUISITION` |
+| API Contract | `tech-council` |
+| Placeholder | Search Tech Council... |
+| Results Size | `10` (1–50; original API contract only) |
+| Results Layout | `list` (default) or `card` |
 | AI Search Mode Enabled | `true` |
 | Gen Search Error Retry Visible | `true` |
 | Disclaimer Text | Approved AI disclaimer |
 | Notice Text | Optional visible source/privacy notice |
 
-The existing homepage `doc-search (homepage)` block can render this same search
-experience inline. Enable it with homepage metadata:
+The existing homepage `doc-search (homepage)` block can render the compact
+search launcher instead of inline results. Enable it with homepage metadata:
 
 | Metadata | Value |
 | --- | --- |
-| content-ai-search-base-url | Approved proxy base URL |
-| content-ai-search-source | Exact indexed source name |
-| content-ai-search-source-type | `AEM_PUBLISH` or `ACQUISITION` |
+| content-ai-search-base-url | Proxy base URL above |
+| content-ai-search-source | `tech-council` |
+| content-ai-search-source-type | `ACQUISITION` |
+| content-ai-search-api-contract | `tech-council` |
 | content-ai-search-placeholder | Optional input hint |
-| content-ai-search-notice | Optional visible source/privacy notice |
 
 Both base URL and source must be present. Without them, the existing index search
 is unchanged. Missing Content AI assets also fall back to the original search.
-The local relay supplies the Fréscopa metadata to the homepage automatically:
-open `http://localhost:3003/` to try results and AI answers without leaving home.
+The local helper supplies the Tech Council metadata to the homepage automatically:
+open `http://localhost:3003/` and submit a query to open the dedicated results page.
 It does not change the authored homepage or the normal port-3002 preview.
+For other entry points, configure a Content AI Search block with **Display Mode**
+set to `launcher`. **Results Page** defaults to `/search`.
 
-Use the sample source only with an explicit Fréscopa demo notice. For production,
-configure a proxy with the required EDS origins, source allow-list, rate limits,
-and server-side credentials before enabling the homepage metadata. Publishing
-an authored `/search` page is separate from deploying block code; homepage
-search does not require that separate page.
+Before enabling on live, confirm the required access controls for the author-tier
+index and configure approved EDS origins, source restrictions, rate limits, and
+server-side credentials on the proxy. A successful CORS response is not an
+authorization check. Publish the authored `/search` page before enabling the
+homepage launcher; deploying block code alone does not create that page.
 
 ### Dashboard block
 
