@@ -47,13 +47,14 @@
 }
 
 .banner a.button:any-link {
-  background-color: var(--color-primary);
+  background-color: var(--link-color);
   color: var(--background-color);
+  border-radius: var(--radius-m);
 }
 
 .banner a.button:hover,
 .banner a.button:focus {
-  background-color: var(--color-primary-dark);
+  background-color: var(--link-hover-color);
 }
 
 .banner picture {

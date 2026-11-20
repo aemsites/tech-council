@@ -245,19 +245,27 @@ async function loadLazy(doc) {
       btn.type = 'button';
       btn.className = 'back-to-top';
       btn.setAttribute('aria-label', 'Back to top');
-      btn.textContent = '↑';
+      btn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7M12 5v14"/></svg>';
       document.body.append(btn);
 
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       btn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+        const mainTarget = document.querySelector('main');
+        if (mainTarget) {
+          if (!mainTarget.hasAttribute('tabindex')) mainTarget.tabIndex = -1;
+          mainTarget.focus({ preventScroll: true });
+        } else btn.blur();
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reducedMotion ? 'instant' : 'smooth' });
       });
 
       const toggle = () => {
         const threshold = 300;
-        if (window.scrollY > threshold) btn.classList.add('visible');
-        else btn.classList.remove('visible');
+        const visible = window.scrollY > threshold || document.activeElement === btn;
+        btn.classList.toggle('visible', visible);
+        btn.hidden = !visible && document.activeElement !== btn;
+        btn.tabIndex = visible ? 0 : -1;
       };
+      btn.addEventListener('blur', toggle);
       window.addEventListener('scroll', toggle, { passive: true });
       toggle();
     }

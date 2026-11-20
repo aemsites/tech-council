@@ -3,29 +3,31 @@ body.modal-open {
 }
 
 .modal dialog {
-  --dialog-border-radius: 16px;
+  --dialog-border-radius: var(--radius-m);
 
   overscroll-behavior: none;
   border: 1px solid var(--border-subtle);
   border-radius: var(--dialog-border-radius);
-  width: 100vw;
+  width: calc(100vw - 32px);
+  max-height: calc(100dvh - 32px);
+  padding: 44px 16px 16px;
 }
 
 .modal dialog .modal-content {
   overflow-y: auto;
   overscroll-behavior: none;
-  max-height: calc(100dvh - 60px);
+  max-height: calc(100dvh - 100px);
 }
 
 @media (width >= 600px) {
   .modal dialog {
-    padding: 30px;
+    padding: 44px 24px 24px;
     width: 80vw;
     max-width: 700px;
   }
 
   .modal dialog .modal-content {
-    max-height: calc(100vh - 90px);
+    max-height: calc(100dvh - 112px);
   }
 }
 
@@ -37,15 +39,14 @@ body.modal-open {
   position: absolute;
   top: 0;
   right: 0;
-  width: 20px;
-  height: 100%;
-  max-height: 54px;
+  width: 44px;
+  height: 44px;
   border-radius: 0 var(--dialog-border-radius) 0 0;
   background-color: unset;
   text-overflow: clip;
   margin: 0;
   border: none;
-  padding-right: 30px;
+  padding: 10px;
 }
 
 .modal dialog .section {

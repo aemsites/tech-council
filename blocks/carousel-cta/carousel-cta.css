@@ -58,19 +58,12 @@
   align-items: center;
   text-align: center;
   gap: 16px;
-  padding: 44px 40px;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--link-color) 6%, transparent), transparent 60%),
-    var(--event-card-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgb(255 255 255 / 50%);
+  padding: 24px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
-  box-shadow:
-    0 1px 2px rgb(0 29 38 / 5%),
-    0 4px 16px rgb(0 29 38 / 4%);
-  transition:
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Horizontal banner layout on larger screens */
@@ -89,6 +82,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    min-width: 0;
   }
 
   .carousel-cta .carousel-cta-button {
@@ -123,7 +117,7 @@
   margin: 0;
   font-family: var(--heading-font-family);
   font-weight: 700;
-  color: var(--link-color);
+  color: var(--text-color);
   font-size: var(--heading-font-size-m);
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -145,39 +139,27 @@
   justify-content: center;
   gap: 8px;
   margin-top: 8px;
-  padding: 15px 38px;
+  padding: 12px 24px;
+  min-height: 44px;
+  max-width: 100%;
+  white-space: normal;
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-s);
   font-weight: 700;
   letter-spacing: 0.01em;
   color: #fff;
-  background: linear-gradient(135deg,
-    var(--link-color),
-    color-mix(in srgb, var(--link-color) 70%, #8a6bff));
-  border: none;
-  border-radius: 999px;
+  background: var(--link-color);
+  border: 1px solid var(--link-color);
+  border-radius: var(--radius-m);
   text-decoration: none;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--link-color) 32%, transparent);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-}
-
-/* Arrow that nudges on hover */
-.carousel-cta .carousel-cta-button::after {
-  content: '→';
-  font-size: 1.05em;
-  line-height: 1;
-  transition: transform 0.2s ease;
+  box-shadow: none;
+  transition: background-color 0.2s ease;
 }
 
 .carousel-cta .carousel-cta-button:hover {
   color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--link-color) 45%, transparent);
-  filter: brightness(1.05);
-}
-
-.carousel-cta .carousel-cta-button:hover::after {
-  transform: translateX(4px);
+  background: var(--link-hover-color);
+  box-shadow: none;
 }
 
 /* ---- Note mode: centered message with an inline link ---- */

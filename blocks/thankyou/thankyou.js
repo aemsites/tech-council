@@ -1,25 +1,17 @@
 export default function decorate(block) {
-  const paragraphs = block.querySelectorAll('p');
-  let messageText = 'Thank you!';
-
-  paragraphs.forEach((p) => {
-    const text = p.textContent.trim();
-    if (text && !p.querySelector('.icon')) {
-      messageText = text;
-    }
-  });
-
-  block.innerHTML = '';
-
   const icon = document.createElement('div');
   icon.className = 'thankyou-icon';
   icon.setAttribute('aria-hidden', 'true');
 
   const message = document.createElement('div');
   message.className = 'thankyou-message';
-  const messagePara = document.createElement('p');
-  messagePara.textContent = messageText;
-  message.appendChild(messagePara);
+  message.append(...block.childNodes);
+  message.querySelectorAll('.icon').forEach((element) => element.remove());
+  if (!message.textContent.trim() && !message.querySelector('img')) {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = 'Thank you!';
+    message.append(paragraph);
+  }
 
   block.appendChild(icon);
   block.appendChild(message);

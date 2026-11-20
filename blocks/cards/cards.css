@@ -3,23 +3,25 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 257px), 1fr));
   gap: var(--card-gap);
 }
 
 .cards > ul > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
   background-color: var(--background-color);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .cards > ul > li:hover,
 .cards > ul > li:focus-within {
-  transform: translateY(var(--card-hover-lift));
-  box-shadow: var(--shadow-md);
+  border-color: var(--link-color);
+  background-color: var(--surface-tint-light);
 }
 
 .cards .cards-card-body {
@@ -53,7 +55,9 @@
   font-size: var(--heading-font-size-s);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--link-color);
+  color: var(--text-color);
+  line-height: 1.35;
+  margin: 0 0 var(--space-s);
 }
 
 /* =========================================
@@ -62,7 +66,7 @@
    This variant hides images and presents compact text cards.
    ========================================= */
 .cards.objectives > ul {
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: var(--card-gap);
 }
 
@@ -75,7 +79,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.25s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .cards.objectives .cards-card-body {
@@ -107,6 +111,6 @@
 
 .cards.objectives > ul > li:hover,
 .cards.objectives > ul > li:focus-within {
-  transform: none;
-  box-shadow: var(--shadow-md);
+  border-color: var(--link-color);
+  background-color: var(--surface-tint-light);
 }

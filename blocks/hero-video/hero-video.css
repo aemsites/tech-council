@@ -23,10 +23,7 @@ main .section.hero-video-container > div {
   min-height: 70vh;
   max-height: none;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 8% 0%, rgb(11 99 222 / 12%), transparent 36%),
-    radial-gradient(circle at 100% 28%, rgb(0 29 38 / 8%), transparent 42%),
-    linear-gradient(180deg, #f5f9ff 0, var(--color-brand-pure-white, #fff) 420px);
+  background: inherit;
 }
 
 .hero-video .hero-video-wrapper {
@@ -58,10 +55,7 @@ main .section.hero-video-container > div {
   width: 100%;
   height: 100%;
   min-height: 320px;
-  background:
-    radial-gradient(circle at 8% 0%, rgb(11 99 222 / 12%), transparent 36%),
-    radial-gradient(circle at 100% 28%, rgb(0 29 38 / 8%), transparent 42%),
-    linear-gradient(180deg, #f5f9ff 0, var(--color-brand-pure-white, #fff) 420px);
+  background: inherit;
 }
 
 .hero-video .hero-video-element {
@@ -73,15 +67,34 @@ main .section.hero-video-container > div {
 }
 
 .hero-video .hero-video-media.hero-video-error {
-  background: linear-gradient(135deg, var(--light-color, #f2f6fb) 0%, var(--surface-muted, #f6f9fc) 100%);
+  background: var(--light-color);
 }
 
-.hero-video .hero-video-media.hero-video-error::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.5;
+.hero-video .hero-video-playback {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 16px 24px;
+  border-radius: var(--radius-m);
+  background: var(--link-color);
+  color: var(--background-color);
+}
+
+.hero-video .hero-video-playback:hover {
+  background: var(--link-hover-color);
+}
+
+.hero-video .hero-video-playback:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 3px;
+}
+
+.hero-video .hero-video-status {
+  margin: 0 24px 16px;
+  color: var(--text-color);
+}
+
+.hero-video .hero-video-status:empty {
+  display: none;
 }
 
 .hero-video .hero-video-content-col h2 {
@@ -108,13 +121,13 @@ main .section.hero-video-container > div {
 .hero-video .hero-video-content-col .button {
   margin-top: 0.5em;
   align-self: flex-start;
-  background-color: var(--color-primary, #0b63de);
+  background-color: var(--link-color);
   color: var(--color-brand-pure-white, #fff);
   border-color: transparent;
 }
 
 .hero-video .hero-video-content-col .button:hover {
-  background-color: var(--link-hover-color, #0849a8);
+  background-color: var(--link-hover-color);
   color: var(--color-brand-pure-white, #fff);
 }
 

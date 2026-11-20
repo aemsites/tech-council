@@ -9,8 +9,9 @@ main .form .range-widget-wrapper.decorated input[type="range"] {
     background-image: linear-gradient(to right, var(--button-primary-color) calc(100% * var(--current-steps)/var(--total-steps)), var(--border-subtle) calc(100% * var(--current-steps)/var(--total-steps)));
 }
  
-main .form .range-widget-wrapper.decorated input[type="range"]:focus {
-    outline: none;
+main .form .range-widget-wrapper.decorated input[type="range"]:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 4px;
 }
  
 .range-widget-wrapper.decorated input[type="range"]::-webkit-slider-thumb {

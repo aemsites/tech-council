@@ -4,38 +4,19 @@
   padding: 0;
   display: grid;
   gap: var(--heading-margin-bottom);
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
 .com-events > ul > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
   position: relative;
   background: var(--background-color);
   border-radius: var(--radius-m);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  padding: calc(var(--event-card-header-height) - var(--space-m)) var(--space-m) var(--space-s);
-  min-height: 252px;
-}
-
-.com-events > ul > li::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: var(--event-card-header-height);
-  background: linear-gradient(180deg, var(--event-accent-purple) 0%, var(--event-accent-purple-light) 46%, transparent 100%);
-}
-
-.com-events > ul > li:nth-child(2)::before {
-  background: linear-gradient(180deg, var(--event-accent-blue) 0%, var(--event-accent-blue-light) 46%, transparent 100%);
-}
-
-.com-events > ul > li:nth-child(3)::before {
-  background: linear-gradient(180deg, var(--event-accent-green) 0%, var(--event-accent-green-light) 46%, transparent 100%);
-}
-
-.com-events > ul > li:nth-child(4)::before {
-  background: linear-gradient(180deg, var(--event-accent-amber) 0%, var(--event-accent-amber-light) 46%, transparent 100%);
+  padding: var(--space-m);
 }
 
 .com-events > ul > li > div {
@@ -51,9 +32,7 @@
   border-radius: var(--radius-xs);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  line-height: 1.1;
+  line-height: 1.5;
   font-weight: 700;
   color: var(--link-color);
   background: var(--surface-muted);

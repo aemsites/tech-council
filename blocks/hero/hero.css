@@ -6,19 +6,35 @@
 .hero {
   position: relative;
   padding: 40px 24px;
-  min-height: 300px;
+  min-height: 240px;
+  isolation: isolate;
+  overflow-wrap: anywhere;
+}
+
+.hero:has(picture)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--overlay-banner);
 }
 
 .hero h1 {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  color: var(--text-color);
+  font-size: clamp(32px, 5vw, 56px);
+  line-height: 1.15;
+}
+
+.hero:has(picture) h1 {
   color: var(--background-color);
 }
 
 .hero picture {
   position: absolute;
-  z-index: -1;
+  z-index: -2;
   inset: 0;
   object-fit: cover;
   box-sizing: border-box;

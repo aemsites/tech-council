@@ -6,11 +6,13 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
   gap: var(--card-gap-mobile);
 }
 
 .icon-cards > ul > li {
+  min-width: 0;
+  overflow-wrap: anywhere;
   border: 1px solid var(--border-subtle);
   background-color: var(--background-color);
   border-radius: var(--radius-m);
@@ -35,12 +37,13 @@
 .icon-cards .icon-cards-card-icon img {
   width: var(--icon-size-xl);
   height: var(--icon-size-xl);
-  fill: var(--color-primary);
+  fill: var(--link-color);
 }
 
 /* body */
 .icon-cards .icon-cards-card-body {
   flex: 1;
+  min-width: 0;
 }
 
 .icon-cards .icon-cards-card-body h3 {
@@ -50,7 +53,7 @@
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.01em;
-  color: var(--link-color);
+  color: var(--text-color);
 }
 
 .icon-cards .icon-cards-card-body p {
@@ -103,7 +106,6 @@
 .icon-cards {
   position: relative;
   padding: 0;
-  overflow: hidden;
 }
 
 .icon-cards-carousel-wrapper {
@@ -130,7 +132,7 @@
 
 .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
   display: flex;
-  gap: var(--heading-margin-bottom);
+  gap: var(--card-gap);
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
@@ -146,28 +148,6 @@
   display: none; /* Chrome/Safari */
 }
 
-/* Decorative gradient edges to hint overflow - matching events carousel */
-.icon-cards:not(.at-start) .icon-cards-carousel-container::before,
-.icon-cards:not(.at-end) .icon-cards-carousel-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: var(--carousel-gradient-width);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.icon-cards:not(.at-start) .icon-cards-carousel-container::before {
-  left: 0;
-  background: linear-gradient(90deg, var(--gradient-edge-start), var(--gradient-edge-end));
-}
-
-.icon-cards:not(.at-end) .icon-cards-carousel-container::after {
-  right: 0;
-  background: linear-gradient(270deg, var(--gradient-edge-start), var(--gradient-edge-end));
-}
-
 /* Card styling in carousel */
 .icon-cards-carousel-wrapper .icon-cards-card {
   flex: 0 0 auto;
@@ -179,8 +159,7 @@
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -189,30 +168,14 @@
   position: relative;
   border: 1px solid var(--border-subtle);
   min-width: 0;
+  overflow-wrap: anywhere;
   box-sizing: border-box;
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--link-color), color-mix(in srgb, var(--link-color) 65%, white));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
 }
 
 .icon-cards-carousel-wrapper .icon-cards-card:hover,
 .icon-cards-carousel-wrapper .icon-cards-card:focus-within {
-  transform: translateY(var(--card-hover-lift));
-  box-shadow: var(--shadow-md);
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card:hover::before {
-  transform: scaleX(1);
+  border-color: var(--link-color);
+  background-color: var(--surface-tint-light);
 }
 
 /* Carousel Navigation - matching events style */
@@ -246,14 +209,15 @@
   height: var(--nav-button-size);
   margin: 0;
   padding: 0;
-  border-radius: 50%;
-  background-color: var(--overlay-dark-soft);
-  border: 1px solid var(--overlay-border-light);
-  backdrop-filter: blur(2px);
+  border-radius: var(--radius-m);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-subtle);
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   pointer-events: auto;
-  color: white;
+  color: var(--text-color);
 }
 
 /* Hide the text span */
@@ -267,7 +231,7 @@
 .icon-cards-nav-next::after {
   content: '';
   display: block;
-  border: 2px solid white;
+  border: 2px solid currentcolor;
   border-bottom: 0;
   border-left: 0;
   height: 12px;
@@ -293,12 +257,13 @@
 .icon-cards-nav-next:hover,
 .icon-cards-nav-prev:focus-visible,
 .icon-cards-nav-next:focus-visible {
-  background-color: var(--overlay-dark-strong);
+  background-color: var(--surface-muted);
+  border-color: var(--link-color);
 }
 
 .icon-cards-nav-prev:focus-visible,
 .icon-cards-nav-next:focus-visible {
-  outline: 2px solid white;
+  outline: 3px solid var(--link-color);
   outline-offset: 3px;
 }
 
@@ -322,7 +287,7 @@
   }
   
   .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
-    gap: var(--heading-margin-bottom);
+    gap: var(--card-gap);
   }
 }
 
@@ -333,7 +298,7 @@
   }
   
   .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
-    gap: var(--heading-margin-bottom);
+    gap: var(--card-gap);
   }
 }
 
@@ -348,54 +313,8 @@
   }
 }
 
-/* Animation */
-@keyframes icon-cards-fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card {
-  animation: icon-cards-fade-in-up 0.5s ease both;
-}
-
-/* Stagger animation for cards */
-.icon-cards-carousel-wrapper .icon-cards-card:nth-child(1) {
-  animation: icon-cards-fade-in-up 0.4s ease 0.1s both;
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card:nth-child(2) {
-  animation: icon-cards-fade-in-up 0.4s ease 0.15s both;
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card:nth-child(3) {
-  animation: icon-cards-fade-in-up 0.4s ease 0.2s both;
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card:nth-child(4) {
-  animation: icon-cards-fade-in-up 0.4s ease 0.25s both;
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card:nth-child(5) {
-  animation: icon-cards-fade-in-up 0.4s ease 0.3s both;
-}
-
-.icon-cards-carousel-wrapper .icon-cards-card:nth-child(6) {
-  animation: icon-cards-fade-in-up 0.4s ease 0.35s both;
-}
-
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .icon-cards-carousel-wrapper .icon-cards-card {
-    animation: none;
-  }
-  
   .icon-cards-carousel-wrapper > .icon-cards-carousel-container > ul {
     scroll-behavior: auto;
   }

@@ -89,12 +89,23 @@ function createRecordingCard(record) {
   const link = document.createElement('a');
   link.className = 'comd-recordings-link';
   link.textContent = 'View recording';
-  link.href = (record.link || '').trim() || '#';
+  const recordingUrl = (record.link || '').trim();
   link.target = '_blank';
   link.rel = 'noopener';
 
   body.prepend(title);
-  body.append(description, link);
+  body.append(description);
+  if (recordingUrl && recordingUrl !== '#') {
+    try {
+      const url = new URL(recordingUrl, window.location.origin);
+      if (['http:', 'https:'].includes(url.protocol)) {
+        link.href = url.href;
+        body.append(link);
+      }
+    } catch {
+      // Invalid authored destinations are not exposed as actions.
+    }
+  }
 
   card.append(top, body);
   return card;

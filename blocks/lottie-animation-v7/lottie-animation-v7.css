@@ -14,7 +14,8 @@ main .section.lottie-animation-v7-container > div {
 
 @media (width >= 992px) {
   main .section.lottie-animation-v7-container {
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
     align-items: center;
     gap: clamp(26px, 3vw, 40px);
     max-width: var(--container-max-width);
@@ -31,7 +32,6 @@ main .section.lottie-animation-v7-container > div {
   }
 
   main .section.lottie-animation-v7-container > .default-content-wrapper {
-    flex: 0 0 42%;
     text-align: left;
     display: flex;
     flex-direction: column;
@@ -39,7 +39,7 @@ main .section.lottie-animation-v7-container > div {
   }
 
   main .section.lottie-animation-v7-container > .lottie-animation-v7-wrapper {
-    flex: 0 0 58%;
+    width: 100%;
   }
 }
 
@@ -92,4 +92,31 @@ main .section.lottie-animation-v7-container > div {
   font-size: var(--body-font-size-xs);
   text-align: center;
   background: transparent;
+}
+
+.lottie-animation-v7 .lottie-status {
+  color: var(--text-color);
+  margin: 16px 0;
+}
+
+.lottie-animation-v7 .lottie-status:empty {
+  display: none;
+}
+
+.lottie-animation-v7 .lottie-playback {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 16px 0 0;
+  border-radius: var(--radius-m);
+  background: var(--link-color);
+  color: var(--background-color);
+}
+
+.lottie-animation-v7 .lottie-playback:hover {
+  background: var(--link-hover-color);
+}
+
+.lottie-animation-v7 .lottie-playback:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 3px;
 }

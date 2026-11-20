@@ -19,7 +19,7 @@
     top: 0;
     bottom: 0;
     margin: auto 0;
-    right: 52px;
+    right: 70px;
     width: 22px;
     height: 22px;
     fill: var(--text-soft);
@@ -39,7 +39,6 @@
     display: block;
     width: 100%;
     margin: 0;
-    outline: none;
     border: 2px solid var(--border-subtle);
     border-radius: var(--radius-m);
     background-color: var(--background-color);
@@ -49,7 +48,7 @@
     padding: 16px 90px 16px 24px;
     font: inherit;
     font-size: 16px;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
     box-shadow: var(--shadow-sm);
     line-height: 1.5;
 }
@@ -68,7 +67,8 @@
   
   .doc-search form input:focus {
     border-color: var(--link-color);
-    box-shadow: var(--focus-ring), var(--shadow-sm);
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
   }
   
   .doc-search form input::placeholder {
@@ -77,8 +77,7 @@
   }
 
   .doc-search form input:hover {
-    border-color: var(--border-subtle);
-    box-shadow: var(--shadow-md);
+    border-color: var(--text-soft);
   }
   
   .doc-search form button { 
@@ -89,16 +88,16 @@
     bottom: 0;
     margin: auto 0;
     right: 18px;
-    outline: none;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--radius-xs);
     padding: 0;
-    width: 28px;
-    height: 28px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
     line-height: 1;
     background: var(--light-color);
     color: var(--text-soft);
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
     cursor: inherit;
     -webkit-tap-highlight-color: transparent;
     align-items: center;
@@ -119,11 +118,12 @@
     background: var(--border-subtle);
     color: var(--text-muted);
     box-shadow: none;
-    transform: scale(1.05);
+    transform: none;
   }
 
-  .doc-search form button:active {
-    transform: scale(0.95);
+  .doc-search form button:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
   }
   
   .doc-search [aria-hidden='true'] {
@@ -154,19 +154,19 @@
     .doc-search form input {
       padding: 14px 80px 14px 20px;
       font-size: 16px;
-      border-radius: 10px;
+      border-radius: var(--radius-m);
     }
 
     .doc-search form svg {
-      right: 46px;
+      right: 62px;
       width: 20px;
       height: 20px;
     }
 
     .doc-search form button {
       right: 14px;
-      width: 26px;
-      height: 26px;
+      width: 44px;
+      height: 44px;
     }
 
     .doc-search .doc-search-results > li.doc-search-result a {
@@ -202,7 +202,7 @@
     z-index: 0;
     max-height: min(60vh, 420px);
     overflow: auto;
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
   }
   
   .doc-search .doc-search-results.fade-out {
@@ -276,12 +276,12 @@
     grid-template:
       'pic title' auto
       'pic desc' auto
-      'pic cat' auto / auto 1fr;
+      'pic cat' auto / auto minmax(0, 1fr);
     gap: 0 12px;
     padding: 14px 16px;
     color: unset;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
     border-radius: 8px;
     margin: 4px;
   }
@@ -289,7 +289,6 @@
   .doc-search .doc-search-results > li.doc-search-result a:hover,
   .doc-search .doc-search-results > li.doc-search-result a:focus {
     background-color: var(--light-color);
-    transform: translateX(4px);
   }
   
   .doc-search .doc-search-results > li.doc-search-result a picture {
@@ -349,14 +348,12 @@
     justify-self: start;
     margin-top: 6px;
     padding: 2px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-xs);
     background-color: rgb(106 56 255 / 10%);
     color: var(--link-color);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     line-height: 1.4;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
   }
 
   .doc-search .doc-search-results > li.doc-search-result a .doc-search-result-category {
@@ -467,7 +464,7 @@
     margin-right: 8px;
     padding: 0;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--radius-xs);
     background: none;
     color: var(--text-soft-muted);
     font: inherit;
@@ -481,4 +478,17 @@
   .doc-search .doc-search-recent-remove:focus-visible {
     background-color: var(--border-subtle);
     color: var(--text-color);
+  }
+
+  .doc-search .doc-search-results p {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .doc-search .doc-search-results,
+    .doc-search .doc-search-results.fade-out,
+    .doc-search .doc-search-results.open.fade-out {
+      animation-duration: 1ms;
+    }
   }

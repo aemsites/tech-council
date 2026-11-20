@@ -15,15 +15,15 @@
   justify-content: space-between;
   gap: 24px;
   margin-bottom: 32px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .dashboard .dashboard-eyebrow {
-  margin: 0 0 8px;
-  color: var(--link-color);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  margin: 0 0 16px;
+  color: var(--text-muted);
+  font-size: var(--body-font-size-s);
+  font-weight: 400;
 }
 
 .dashboard :is(h1, h2) {
@@ -52,16 +52,17 @@
   justify-content: center;
   box-sizing: border-box;
   min-height: 44px;
-  flex-shrink: 0;
+  max-width: 100%;
   padding: 10px 16px;
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-m);
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .dashboard :is(.dashboard-publishing, .dashboard-action-group) {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -78,6 +79,7 @@
   font-weight: 600;
   line-height: 1.65;
   cursor: pointer;
+  border-radius: var(--radius-m);
 }
 
 .dashboard .dashboard-action:disabled {
@@ -135,7 +137,7 @@
 }
 
 .dashboard .dashboard-edit:active {
-  transform: translateY(1px);
+  background: var(--link-hover-color);
 }
 
 .dashboard .dashboard-edit-error {
@@ -185,7 +187,7 @@
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--text-soft);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-m);
   background: var(--background-color);
   color: var(--text-color);
   font: inherit;
@@ -316,6 +318,7 @@
   .dashboard .dashboard-metrics {
     gap: 12px;
     padding: 16px;
+    grid-template-columns: 1fr;
   }
 
   .dashboard .dashboard-metrics dd {

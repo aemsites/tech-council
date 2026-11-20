@@ -72,13 +72,14 @@ async function fetchToolsData(sourceUrl) {
     });
     if (!resp.ok) {
       console.warn('[Tools] Sheet fetch failed:', resp.status, resp.statusText, sourceUrl);
-      return [];
+      throw new Error('Tools could not be loaded.');
     }
     const json = await resp.json();
-    return Array.isArray(json?.data) ? json.data : [];
+    if (!Array.isArray(json?.data)) throw new Error('Invalid tools response.');
+    return json.data;
   } catch (e) {
     console.warn('[Tools] Sheet fetch error:', e?.message || e, sourceUrl);
-    return [];
+    throw e;
   }
 }
 
@@ -390,15 +391,37 @@ function renderFromSheet(block, data) {
 }
 
 export default async function decorate(block) {
-  const sourceUrl = getSourceUrl(block);
+  const sourceUrl = block.toolsSourceUrl || getSourceUrl(block);
   if (!sourceUrl) {
-    block.textContent = '';
+    const missing = document.createElement('p');
+    missing.setAttribute('role', 'status');
+    missing.textContent = 'The tools list source has not been configured.';
+    block.replaceChildren(missing);
     return;
   }
-  const data = await fetchToolsData(sourceUrl);
-  if (data.length > 0) {
+  block.toolsSourceUrl = sourceUrl;
+  block.setAttribute('aria-busy', 'true');
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  status.textContent = 'Loading tools…';
+  block.replaceChildren(status);
+  try {
+    const data = await fetchToolsData(sourceUrl);
     renderFromSheet(block, data);
-  } else {
-    block.textContent = '';
+    if (!data.length) {
+      const empty = block.querySelector('.tools-empty');
+      empty.textContent = 'No tools have been added yet.';
+      empty.setAttribute('role', 'status');
+    }
+  } catch {
+    status.textContent = 'Tools could not be loaded. ';
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.textContent = 'Try again';
+    retry.addEventListener('click', () => decorate(block));
+    status.append(retry);
+    block.replaceChildren(status);
+  } finally {
+    block.setAttribute('aria-busy', 'false');
   }
 }

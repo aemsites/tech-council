@@ -6,7 +6,7 @@
 }
 
 main .form fieldset.accordion legend.accordion-legend {
-    padding: 24px 32px;
+    padding: 0;
     background-color: var(--color-accordion-legend-background);
     position: relative;
     margin-bottom: 0;
@@ -18,22 +18,41 @@ main .form .accordion > fieldset > legend.accordion-legend[data-visible='false']
     user-select: none;
 }
 
-main .form .accordion > fieldset > legend::after {
-    content: '\221F';
+main .form .accordion > fieldset > legend .accordion-toggle::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentcolor;
+    border-width: 0 2px 2px 0;
     color: var(--color-accordion-collapse-icon);
-    font-size: 19px;
-    display: inline;
+    display: block;
     position: absolute;
     transition: transform 0s;
-    transform: rotate(-45deg);
+    transform: rotate(45deg);
     margin-top: -5px;
     right: 22px;
     cursor: pointer;
 }
 
-main .form .accordion > fieldset.accordion-collapse > legend::after {
-    transform: rotate(-225deg);
+main .form .accordion > fieldset.accordion-collapse > legend .accordion-toggle::after {
+    transform: rotate(-45deg);
     margin-top: 0;
+}
+
+main .form .accordion button.accordion-toggle {
+    position: relative;
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    padding: 16px 48px 16px 20px;
+    border: 0;
+    border-radius: var(--radius-xs);
+    background: var(--color-accordion-legend-background);
+    color: inherit;
+    box-shadow: none;
+    transform: none;
+    text-align: left;
+    white-space: normal;
 }
 
 main .form fieldset.accordion-collapse > :not(legend) {
