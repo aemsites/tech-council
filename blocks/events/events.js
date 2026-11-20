@@ -29,17 +29,17 @@ async function fetchEventsData() {
       } else {
         console.warn('[Events] Sheet fetch failed:', resp.status, resp.statusText, url);
       }
-      return [];
+      throw new Error('Events could not be loaded.');
     }
     const json = await resp.json();
-    const data = Array.isArray(json.data) ? json.data : [];
-    if (data.length === 0 && (!json.data || !Array.isArray(json.data))) {
-      console.warn('[Events] No data array in response:', url, Object.keys(json));
+    if (!Array.isArray(json?.data)
+      || json.data.some((row) => !row || typeof row !== 'object' || Array.isArray(row))) {
+      throw new Error('Invalid events response.');
     }
-    return data;
+    return json.data;
   } catch (e) {
     console.warn('[Events] Sheet fetch error:', e?.message || e, url);
-    return [];
+    throw e;
   }
 }
 
@@ -262,7 +262,8 @@ function updateCarousel(block, slideIndex) {
   if (idx < 0) idx = maxIndex;
   else if (idx > maxIndex) idx = 0;
 
-  container.scrollTo({ left: slides[idx].offsetLeft, behavior: 'smooth' });
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  container.scrollTo({ left: slides[idx].offsetLeft, behavior: reducedMotion ? 'instant' : 'smooth' });
   block.classList.toggle('at-start', idx === 0);
   block.classList.toggle('at-end', idx === maxIndex);
   block.dataset.currentSlide = idx;
@@ -313,15 +314,36 @@ function bindCarouselEvents(block) {
 }
 
 export default async function decorate(block) {
-  const [placeholders, data] = await Promise.all([
-    fetchPlaceholders(),
-    fetchEventsData(),
-  ]);
+  block.setAttribute('aria-busy', 'true');
+  const status = document.createElement('p');
+  status.className = 'events-status';
+  status.setAttribute('role', 'status');
+  status.textContent = 'Loading events…';
+  block.replaceChildren(status);
+  let placeholders;
+  let data;
+  try {
+    [placeholders, data] = await Promise.all([
+      fetchPlaceholders(),
+      fetchEventsData(),
+    ]);
+  } catch {
+    block.setAttribute('aria-busy', 'false');
+    status.textContent = 'Events could not be loaded. ';
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.textContent = 'Try again';
+    retry.addEventListener('click', () => decorate(block));
+    status.append(retry);
+    return;
+  }
+  block.setAttribute('aria-busy', 'false');
 
   if (data.length === 0) {
     block.textContent = '';
     const empty = document.createElement('p');
     empty.className = 'events-empty';
+    empty.setAttribute('role', 'status');
     empty.textContent = 'No events available at this time.';
     block.append(empty);
     return;

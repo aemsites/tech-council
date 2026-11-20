@@ -70,11 +70,11 @@
     --form-card-padding: 0.6rem 0.8rem;
     --form-card-background: var(--background-color-primary);
     --form-card-shadow: var(--shadow-sm);
-    --form-card-hover-shadow: var(--shadow-md);
+    --form-card-hover-shadow: none;
     --form-card-selected-border-color: var(--button-primary-color);
     --form-card-selected-background: var(--surface-muted);
     --form-card-selected-shadow: 0 0 0 1px var(--button-primary-color);
-    --form-card-transition: all 0.15s ease-in-out;
+    --form-card-transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 * {
@@ -119,6 +119,7 @@ main .form form fieldset {
     border: var(--form-fieldset-border);
     margin: var(--form-fieldset-marign);
     width: 100%;
+    min-width: 0;
 }
 
 main .form form fieldset fieldset {
@@ -222,7 +223,7 @@ main .form select {
     margin-top: 0.5rem;
     margin-bottom: 0;
     border-radius: 0.5rem;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
     font-family: inherit;
     line-height: 1.5;
 }
@@ -234,9 +235,10 @@ main .form input:hover, main .form select:hover, main .form textarea:hover {
 main .form input:focus, 
 main .form select:focus, 
 main .form textarea:focus {
-    outline: none;
+    outline: 3px solid var(--button-primary-color);
+    outline-offset: 3px;
     border-color: var(--button-primary-color);
-    box-shadow: var(--focus-ring);
+    box-shadow: none;
 }
 
 main .form input::placeholder,
@@ -356,6 +358,8 @@ main .form form .field-wrapper {
 
 main .form form .field-wrapper {
     margin-bottom: 4px;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 main .form form p {
@@ -412,7 +416,7 @@ main .form form .checkbox-wrapper[data-id="commitment"] > label {
     flex-basis: calc(100% - 28px);
     font-size: var(--form-font-size-xs);
     margin-bottom: 0;
-    color: var(--text-soft-muted);
+    color: #445666;
     line-height: 1.45;
 }
 
@@ -432,7 +436,7 @@ main .form form fieldset.cards > .checkbox-wrapper {
     margin: 0;
     position: relative;
     flex: 1 1 auto;
-    min-width: 180px;
+    min-width: min(100%, 180px);
     max-width: 300px;
 }
 
@@ -459,8 +463,8 @@ main .form form fieldset.cards > .checkbox-wrapper > label {
 main .form form fieldset.cards > .radio-wrapper > label:hover,
 main .form form fieldset.cards > .checkbox-wrapper > label:hover {
     box-shadow: var(--form-card-hover-shadow);
-    border-color: var(--border-subtle);
-    transform: translateY(-1px);
+    border-color: var(--button-primary-color);
+    background-color: var(--surface-tint-light);
 }
 
 main .form form fieldset.cards.horizontal {
@@ -477,7 +481,7 @@ main .form form fieldset.cards.horizontal > .checkbox-wrapper {
 
 main .form form fieldset.cards.horizontal > .radio-wrapper > label,
 main .form form fieldset.cards.horizontal > .checkbox-wrapper > label {
-    min-width: -webkit-fill-available; 
+    min-width: 0;
 }
 
 main .form form fieldset.cards > .radio-wrapper > input,
@@ -508,10 +512,10 @@ main .form form fieldset.cards > .checkbox-wrapper > input:checked ~ label::afte
     margin-left: auto;
 }
 
-main .form form fieldset.cards > .radio-wrapper > input:focus ~ label,
-main .form form fieldset.cards > .checkbox-wrapper > input:focus ~ label {
-    outline: none;
-    box-shadow: 0 0 0 1px var(--button-primary-color);
+main .form form fieldset.cards > .radio-wrapper > input:focus-visible ~ label,
+main .form form fieldset.cards > .checkbox-wrapper > input:focus-visible ~ label {
+    outline: 3px solid var(--button-primary-color);
+    outline-offset: 3px;
 }
 
 main .form .form-image-wrapper img {
@@ -557,11 +561,11 @@ main .form button {
     border: var(--form-button-border);
     padding: var(--form-button-padding);
     font-size: var(--form-button-font-size);
-    border-radius: 999px;
+    border-radius: var(--radius-m);
     width: 100%;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
     letter-spacing: 0.02em;
     box-shadow: var(--shadow-sm);
 }
@@ -572,8 +576,7 @@ main form .file-wrapper > button{
 
 main .form button:hover {
     background: var(--form-button-background-hover-color);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    box-shadow: none;
 }
 
 main .form button:active {
@@ -595,6 +598,8 @@ main .form textarea:disabled,
 main .form select:disabled,
 main .form button:disabled {
     background-color: var(--form-input-disable-color);
+    color: var(--text-muted);
+    cursor: not-allowed;
 }
 
 main .file-wrapper.decorated input[type="file"] {
@@ -659,23 +664,31 @@ main .form .file-description .file-description-name {
 main .file-wrapper .file-description button {
     --form-button-padding: 15px;
 
-    width: 12px;
-    height: 12px;
-    border: none;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-subtle);
     text-align: center;
-    background: var(--border-color);
+    background: var(--background-color);
     cursor: pointer;
     position: relative;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
 }
 
-main .file-wrapper .file-description button::after{
-    content: 'X';
+main .file-wrapper .file-description button::before,
+main .file-wrapper .file-description button::after {
+    content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    color: var(--background-color-primary);
-    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 2px;
+    background: var(--text-color);
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+main .file-wrapper .file-description button::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 main .form .button-wrapper button {
@@ -713,8 +726,9 @@ main .form form .wizard > fieldset:not(.current-wizard-step){
 
 main .form form .wizard .wizard-button-wrapper{
     display: flex;
+    flex-wrap: wrap;
     justify-content: end;
-    gap: 50px;
+    gap: 16px;
     margin: var(--form-wizard-padding) 0;
     width: 100%;
     grid-column: span 12;
@@ -771,11 +785,13 @@ main .form form .wizard .wizard-menu-active-item::before{
 /* wizard title on left */
 main .form form .wizard.left{
   display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-m);
 }
 
 main .form form .wizard.left .wizard-menu-items{
   flex-direction: column;
-  width: 300px;
+  width: min(100%, 300px);
 }
 
 main form .panel-wrapper {
@@ -797,7 +813,8 @@ main .form form .repeat-wrapper{
 }
 
 main .form form .wizard.left .panel-wrapper{
-  flex: 1;
+  flex: 1 1 280px;
+  min-width: 0;
 }
 
 @media (width >= 1200px) {
@@ -936,7 +953,7 @@ main div.form-wrapper {
     background: var(--background-color);
     padding: 48px;
     border-radius: var(--radius-l);
-    box-shadow: var(--shadow-lg);
+    box-shadow: none;
     border: 1px solid var(--border-subtle);
 }
 
@@ -969,6 +986,10 @@ main div.form-wrapper {
     main .form select {
         font-size: 16px;
     }
+
+    main .form form .field-wrapper[class*="col-"] {
+        grid-column: 1 / -1;
+    }
 }
 
 @media (width >= 768px) {
@@ -986,4 +1007,8 @@ main div.form-wrapper {
 /* Expand height for multi-select dropdowns (array types) */
 main .form form select[multiple] {
     height: calc(42px + 50px);
+}
+
+main .form form .wizard > :is(.panel-wrapper, .wizard-menu-items, .wizard-button-wrapper, .field-wrapper) {
+    grid-column: 1 / -1;
 }

@@ -4,11 +4,13 @@
 
 .comd-resources .comd-resources-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--card-gap);
 }
 
 .comd-resources .comd-resources-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   background: var(--background-color);
@@ -17,12 +19,13 @@
   display: flex;
   flex-direction: column;
   min-height: 165px;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.comd-resources .comd-resources-card:hover {
-  border-color: var(--border-subtle);
-  box-shadow: var(--shadow-md);
+.comd-resources .comd-resources-card:hover,
+.comd-resources .comd-resources-card:focus-within {
+  border-color: var(--link-color);
+  background-color: var(--surface-tint-light);
 }
 
 .comd-resources .comd-resources-title {
@@ -87,6 +90,6 @@
 
   .comd-resources .comd-resources-description,
   .comd-resources .comd-resources-link {
-    font-size: var(--body-font-size-xs);
+    font-size: var(--body-font-size-s);
   }
 }

@@ -11,9 +11,10 @@ body.modal-open {
     overflow-y: hidden;
     width: calc(100vw - 48px);
     max-width: 900px;
-    max-height: calc(100dvh - (2 * var(--header-height)));
+    max-height: calc(100dvh - 32px);
     padding: 0;
     border: 1px solid var(--dark-color);
+    border-radius: var(--radius-m);
   }
   
   .modal dialog .modal-content {
@@ -21,7 +22,7 @@ body.modal-open {
     overflow-y: auto;
     overscroll-behavior: none;
     width: 100%;
-    max-height: calc(100dvh - (2 * var(--header-height)) - 48px);
+    max-height: calc(100dvh - 100px);
     padding: 24px;
     padding-top: 0;
     margin-top: 44px;
@@ -33,7 +34,7 @@ body.modal-open {
     }
     
     .modal dialog .modal-content {
-      max-height: calc(100dvh - (2 * var(--header-height)) - 64px);
+      max-height: calc(100dvh - 108px);
       padding: 32px;
       padding-top: 0;
     }

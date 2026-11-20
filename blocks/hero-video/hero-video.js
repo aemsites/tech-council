@@ -93,9 +93,8 @@ export default function decorate(block) {
   video.setAttribute('playsinline', '');
   video.setAttribute('muted', '');
   video.muted = true;
-  video.setAttribute('autoplay', '');
   video.setAttribute('loop', '');
-  video.setAttribute('preload', 'auto');
+  video.setAttribute('preload', 'metadata');
   video.setAttribute('aria-label', 'Hero background video');
 
   const source = document.createElement('source');
@@ -103,29 +102,77 @@ export default function decorate(block) {
   source.type = 'video/webm';
   video.appendChild(source);
 
-  const playVideo = () => {
-    video.play().catch(() => {});
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let playbackRequested = !motionPreference.matches;
+  let inView = false;
+  let failed = false;
+  const playbackControl = document.createElement('button');
+  playbackControl.type = 'button';
+  playbackControl.className = 'hero-video-playback';
+  const status = document.createElement('p');
+  status.className = 'hero-video-status';
+  status.setAttribute('role', 'status');
+  status.textContent = 'Loading video…';
+
+  const updateControl = () => {
+    playbackControl.textContent = playbackRequested ? 'Pause video' : 'Play video';
+    playbackControl.setAttribute('aria-pressed', String(playbackRequested));
+    playbackControl.disabled = failed;
+  };
+  const syncPlayback = () => {
+    updateControl();
+    if (!playbackRequested || !inView || document.hidden || failed) {
+      video.pause();
+      return;
+    }
+    video.play().catch(() => {
+      if (!video.paused || !playbackRequested || !inView || document.hidden) return;
+      playbackRequested = false;
+      updateControl();
+      status.textContent = 'Video paused. Select Play video to start.';
+    });
   };
 
-  video.addEventListener('loadeddata', playVideo);
-  video.addEventListener('canplay', playVideo);
-  video.addEventListener('error', () => {
-    videoContainer.classList.add('hero-video-error');
+  playbackControl.addEventListener('click', () => {
+    playbackRequested = !playbackRequested;
+    syncPlayback();
   });
+  motionPreference.addEventListener('change', () => {
+    playbackRequested = false;
+    syncPlayback();
+  });
+  document.addEventListener('visibilitychange', syncPlayback);
+  video.addEventListener('loadedmetadata', () => {
+    if (!failed) status.textContent = '';
+  });
+  video.addEventListener('loadeddata', () => {
+    if (failed) return;
+    status.textContent = '';
+    syncPlayback();
+  });
+  video.addEventListener('canplay', syncPlayback);
+  const showError = () => {
+    failed = true;
+    playbackRequested = false;
+    videoContainer.classList.add('hero-video-error');
+    status.textContent = 'Video could not be loaded.';
+    syncPlayback();
+  };
+  video.addEventListener('error', showError);
+  source.addEventListener('error', showError);
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        playVideo();
-        observer.disconnect();
-      }
+      inView = entry.isIntersecting;
+      syncPlayback();
     });
   }, { threshold: 0.1 });
   observer.observe(video);
 
-  if (video.readyState >= 2) playVideo();
-
+  updateControl();
   videoContainer.appendChild(video);
+  videoContainer.appendChild(playbackControl);
+  videoContainer.appendChild(status);
   videoCol.appendChild(videoContainer);
   wrapper.appendChild(videoCol);
 

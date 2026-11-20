@@ -7,7 +7,7 @@ footer {
 footer .footer > div {
   margin: auto;
   max-width: var(--container-max-width);
-  padding: 200px 24px 24px;
+  padding: var(--space-xxl) 24px 24px;
 }
 
 footer .footer p {
@@ -16,7 +16,7 @@ footer .footer p {
 
 @media (width >= 900px) {
   footer .footer > div {
-    padding: 200px 32px 24px;
+    padding: var(--space-xxl) 32px 24px;
   }
 }
 

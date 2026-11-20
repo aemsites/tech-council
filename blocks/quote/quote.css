@@ -1,17 +1,20 @@
 .quote blockquote {
     margin: 0 auto;
-    padding: 0 24px;
-    max-width: 900px;
+    padding: var(--space-m) 24px;
+    max-width: 70ch;
+    border-block: 1px solid var(--border-subtle);
+    overflow-wrap: anywhere;
   }
   
   @media (width >= 900px) {
     .quote blockquote {
-      padding: 0 32px;
+      padding: var(--space-ml) 32px;
     }
   }
   
   .quote blockquote .quote-quotation {
-    font-size: 120%;
+    font-size: var(--body-font-size-m);
+    line-height: 1.6;
   }
   
   .quote blockquote .quote-quotation > :first-child {
@@ -33,6 +36,8 @@
   
   .quote blockquote .quote-attribution {
     text-align: right;
+    color: var(--text-muted);
+    font-size: var(--body-font-size-s);
   }
   
   .quote blockquote .quote-attribution > :first-child::before {

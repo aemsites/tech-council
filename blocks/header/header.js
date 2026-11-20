@@ -2,7 +2,7 @@ import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
-const isDesktop = window.matchMedia('(min-width: 900px)');
+const isDesktop = window.matchMedia('(min-width: 1200px)');
 const DEFAULT_BRAND_LOGO = '/icons/tc-logo.png';
 
 function closeOnEscape(e) {
@@ -235,8 +235,13 @@ function handleScrollBehavior(navWrapper) {
  * @param {Element} block The header block element
  */
 function addSkipLink(block) {
+  const main = document.querySelector('main');
+  if (main) {
+    if (!main.id) main.id = 'main';
+    if (!main.hasAttribute('tabindex')) main.tabIndex = -1;
+  }
   const skipLink = document.createElement('a');
-  skipLink.href = '#main';
+  skipLink.href = `#${main?.id || 'main'}`;
   skipLink.className = 'skip-link';
   skipLink.textContent = 'Skip to main content';
   block.prepend(skipLink);
@@ -289,9 +294,6 @@ async function decorateAccount(nav) {
 }
 
 export default async function decorate(block) {
-  // Add skip link for accessibility
-  addSkipLink(block);
-
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
@@ -344,6 +346,7 @@ export default async function decorate(block) {
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
+  addSkipLink(block);
 
   // Highlight active navigation item
   highlightActiveNav(nav);

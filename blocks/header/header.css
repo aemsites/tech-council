@@ -27,7 +27,7 @@ header .nav-wrapper {
   width: 100%;
   z-index: 100;
   position: fixed;
-  backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -70,7 +70,7 @@ header nav[aria-expanded='true'] {
   min-height: 100dvh;
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav {
     display: flex;
     justify-content: flex-start;
@@ -101,17 +101,18 @@ header nav a:any-link {
 /* hamburger */
 header nav .nav-hamburger {
   grid-area: hamburger;
-  height: 22px;
+  height: 44px;
   display: flex;
   align-items: center;
 }
 
 header nav .nav-hamburger button {
-  height: 22px;
+  width: 44px;
+  height: 44px;
   margin: 0;
   border: 0;
   border-radius: 0;
-  padding: 0;
+  padding: 12px;
   background-color: var(--background-color);
   color: inherit;
   overflow: initial;
@@ -172,7 +173,7 @@ header nav[aria-expanded='true'] .nav-hamburger-icon::after {
   transform: rotate(-45deg);
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-hamburger {
     display: none;
     visibility: hidden;
@@ -189,9 +190,9 @@ header .nav-brand {
   white-space: nowrap;
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header .nav-brand {
-    margin-right: 100px;
+    margin-right: 24px;
     flex-shrink: 0;
     font-size: 0;
   }
@@ -238,7 +239,7 @@ header nav .nav-brand a:hover img {
   filter: drop-shadow(0 2px 4px rgb(0 0 0 / 12%));
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header .nav-brand .nav-brand-text {
     font-size: 20px;
   }
@@ -282,7 +283,7 @@ header nav .nav-sections ul > li > ul > li {
   font-weight: 400;
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-sections {
     display: block;
     visibility: visible;
@@ -412,6 +413,7 @@ header nav .nav-sections ul > li > ul > li {
 /* tools */
 header nav .nav-tools {
   grid-area: tools;
+  min-width: 0;
 }
 
 header nav .nav-account {
@@ -419,9 +421,12 @@ header nav .nav-account {
   align-items: center;
   gap: 16px;
   white-space: nowrap;
+  min-width: 0;
 }
 
 header nav .nav-account-name {
+  min-width: 0;
+  flex: 0 1 auto;
   max-width: 20ch;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -433,6 +438,7 @@ header nav .nav-account-name {
 header nav .nav-account a:any-link {
   color: var(--link-color);
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 header nav .nav-account a:hover {
@@ -445,14 +451,15 @@ header nav .nav-account a:hover {
   }
 }
 
-@media (width >= 900px) {
+@media (width >= 1200px) {
   header nav .nav-tools {
     margin-left: auto;
+    flex: 0 1 auto;
   }
 }
 
 /* mobile menu styles: larger tap targets and separators (mobile only) */
-@media (width < 900px) {
+@media (width < 1200px) {
   header nav[aria-expanded='true'] .nav-sections ul > li {
     padding: 12px 0;
     border-bottom: 1px solid var(--border-subtle);

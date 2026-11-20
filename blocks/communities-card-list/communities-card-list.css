@@ -1,9 +1,5 @@
 /* Communities Card List - 3x3 grid, minimalistic modern */
 
-.communities-card-list {
-  /* padding: var(--space-xl) 0; */
-}
-
 .communities-card-list-wrapper {
   max-width: 1200px;
   margin: 0 auto;
@@ -11,7 +7,7 @@
 
 .communities-card-list-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   margin: 0;
   padding: 0;
@@ -19,18 +15,21 @@
 
 /* Card */
 .communities-card-list-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: var(--background-color);
-  border-radius: 12px;
+  border-radius: var(--radius-m);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgb(106 56 255 / 12%);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.communities-card-list-card:hover {
-  border-color: rgb(106 56 255 / 30%);
-  box-shadow: 0 8px 24px rgb(106 56 255 / 10%);
+.communities-card-list-card:hover,
+.communities-card-list-card:focus-within {
+  border-color: var(--link-color);
+  background: var(--surface-tint-light);
 }
 
 /* Photo */
@@ -50,7 +49,7 @@
 .communities-card-list-photo-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgb(106 56 255 / 8%), rgb(157 111 255 / 4%));
+  background: var(--surface-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,22 +73,17 @@
 }
 
 .communities-card-list-name {
-  font-size: 17px;
+  font-size: var(--heading-font-size-xs);
   font-weight: 600;
-  color: var(--link-color);
+  color: var(--text-color);
   margin: 0;
   line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 
 .communities-card-list-description {
-  font-size: 13px;
-  font-style: italic;
-  color: #5a5a5a;
+  font-size: var(--body-font-size-s);
+  color: var(--text-muted);
   line-height: 1.5;
   margin: 0;
 }
@@ -98,8 +92,8 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 13px;
-  color: #5a5a5a;
+  font-size: var(--body-font-size-s);
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -133,7 +127,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--body-font-size-s);
   font-weight: 600;
   color: var(--link-color);
   text-decoration: underline;
@@ -199,28 +193,29 @@
   font-weight: 600;
   letter-spacing: 0.01em;
   text-decoration: none;
-  border-radius: 2em;
-  box-shadow: 0 2px 8px rgb(106 56 255 / 22%);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  border-radius: var(--radius-m);
+  box-shadow: none;
+  min-height: 44px;
+  transition: background-color 0.2s ease;
 }
 
 .communities-card-list-add-btn.button.primary:hover,
 .communities-card-list-add-btn.button.primary:focus-visible {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgb(106 56 255 / 32%);
+  background-color: var(--link-hover-color);
+  box-shadow: none;
 }
 
 .communities-card-list-error {
   text-align: center;
   padding: 60px 20px;
-  color: #7d7d7d;
+  color: var(--text-muted);
   font-size: var(--body-font-size-l);
 }
 
 /* Responsive */
 @media (width <= 900px) {
   .communities-card-list-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
   }
 }

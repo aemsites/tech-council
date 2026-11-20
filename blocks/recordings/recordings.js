@@ -55,20 +55,6 @@ function getRecordingEmbedUrl(value) {
   }
 }
 
-/**
- * Debounces a function so it runs only after `ms` ms of no further calls.
- * @param {(...args: unknown[]) => void} fn
- * @param {number} ms
- * @returns {(...args: unknown[]) => void}
- */
-function debounce(fn, ms) {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => fn(...args), ms);
-  };
-}
-
 /** EDS sheet path and origin. */
 const RECORDINGS_SHEET_PATH = '/forms/recording-form/recordings.json?sheet=recordings';
 const RECORDINGS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.live';
@@ -112,17 +98,14 @@ async function fetchRecordingsData() {
       } else {
         console.warn('[Recordings] Sheet fetch failed:', resp.status, resp.statusText, url);
       }
-      return [];
+      throw new Error(`HTTP ${resp.status}`);
     }
     const json = await resp.json();
-    const data = Array.isArray(json.data) ? json.data : [];
-    if (data.length === 0 && (!json.data || !Array.isArray(json.data))) {
-      console.warn('[Recordings] No data array in response:', url, Object.keys(json));
-    }
-    return data;
+    if (!Array.isArray(json?.data)) throw new Error('Invalid recordings response');
+    return json.data;
   } catch (e) {
     console.warn('[Recordings] Sheet fetch error:', e?.message || e, url);
-    return [];
+    throw e;
   }
 }
 
@@ -273,6 +256,53 @@ const DATE_RANGES = [
 /** Normalized tag for filtering: empty string becomes "Other" for display. */
 const TAG_OTHER = 'Other';
 
+const BROWSE_PARAMS = {
+  search: 'recordings-search',
+  sort: 'recordings-sort',
+  period: 'recordings-period',
+  tag: 'recordings-tag',
+};
+const SORT_VALUES = ['date-desc', 'date-asc', 'title-asc', 'title-desc'];
+
+function restoreBrowseState(block) {
+  const params = new URLSearchParams(window.location.search);
+  block.recordingsSearchQuery = params.get(BROWSE_PARAMS.search) || '';
+  const sort = params.get(BROWSE_PARAMS.sort);
+  block.recordingsSortBy = SORT_VALUES.includes(sort) ? sort : 'date-desc';
+  const period = params.get(BROWSE_PARAMS.period);
+  block.recordingsDateRange = DATE_RANGES.some((range) => range.value === period) ? period : 'all';
+  block.recordingsSelectedTags = new Set(params.getAll(BROWSE_PARAMS.tag));
+}
+
+function saveBrowseState(block, replace = false) {
+  const url = new URL(window.location.href);
+  Object.values(BROWSE_PARAMS).forEach((param) => url.searchParams.delete(param));
+  if (block.recordingsSearchQuery) {
+    url.searchParams.set(BROWSE_PARAMS.search, block.recordingsSearchQuery);
+  }
+  if (block.recordingsSortBy !== 'date-desc') {
+    url.searchParams.set(BROWSE_PARAMS.sort, block.recordingsSortBy);
+  }
+  if (block.recordingsDateRange !== 'all') {
+    url.searchParams.set(BROWSE_PARAMS.period, block.recordingsDateRange);
+  }
+  block.recordingsSelectedTags.forEach((tag) => url.searchParams.append(BROWSE_PARAMS.tag, tag));
+  if (url.href !== window.location.href) {
+    window.history[replace ? 'replaceState' : 'pushState'](null, '', url);
+  }
+}
+
+function getRecordingsRoute(talk) {
+  const params = new URLSearchParams();
+  if (talk) params.set('talk', talk);
+  const current = new URLSearchParams(window.location.search);
+  Object.values(BROWSE_PARAMS).forEach((param) => {
+    current.getAll(param).forEach((value) => params.append(param, value));
+  });
+  const query = params.toString();
+  return `/recordings${query ? `?${query}` : ''}`;
+}
+
 function getRowTag(row) {
   const t = normalizeField(row.tag);
   return t === '' ? TAG_OTHER : t;
@@ -357,14 +387,13 @@ function isRecentRecording(row) {
 }
 
 /** Build one list item DOM for a row. */
-function buildRecordingsCard(row, rowIdx) {
+function buildRecordingsCard(row) {
   const li = document.createElement('li');
-  li.style.setProperty('--i', String(rowIdx));
 
   const title = normalizeField(row.title);
   const card = document.createElement(title ? 'a' : 'div');
   card.className = 'recordings-card-link';
-  if (title) card.href = `/recordings?${new URLSearchParams({ talk: title })}`;
+  if (title) card.href = getRecordingsRoute(title);
   card.append(createRecordingsCardIcon());
 
   const body = document.createElement('div');
@@ -374,7 +403,7 @@ function buildRecordingsCard(row, rowIdx) {
   const dateStr = formatSheetDate(row.date);
   const tagRaw = normalizeField(row.tag);
 
-  const titleEl = document.createElement('h3');
+  const titleEl = document.createElement('h2');
   titleEl.className = 'recordings-title';
   titleEl.textContent = title;
   if (!title) titleEl.classList.add('is-empty');
@@ -426,6 +455,18 @@ function updateRecordingsList(block) {
   if (!listContainer) return;
 
   const rows = getFilteredAndSortedData(block);
+  const count = block.querySelector('.recordings-count');
+  if (count) {
+    const total = block.recordingsData.length;
+    count.textContent = rows.length === total
+      ? `${total} ${total === 1 ? 'recording' : 'recordings'}`
+      : `${rows.length} of ${total} recordings`;
+  }
+  const clear = block.querySelector('.recordings-clear');
+  if (clear) {
+    clear.disabled = !block.recordingsSearchQuery && block.recordingsDateRange === 'all'
+      && block.recordingsSelectedTags.size === 0 && block.recordingsSortBy === 'date-desc';
+  }
   listContainer.innerHTML = '';
 
   if (rows.length === 0) {
@@ -436,7 +477,7 @@ function updateRecordingsList(block) {
 
   listContainer.classList.remove('is-empty');
   if (emptyEl) emptyEl.hidden = true;
-  rows.forEach((row, idx) => listContainer.append(buildRecordingsCard(row, idx)));
+  rows.forEach((row) => listContainer.append(buildRecordingsCard(row)));
 }
 
 let recordingsBlockCount = 0;
@@ -445,6 +486,7 @@ let recordingsBlockCount = 0;
 function createSidebar(block, data) {
   const sidebar = document.createElement('aside');
   sidebar.className = 'recordings-sidebar';
+  sidebar.setAttribute('aria-label', 'Filter recordings');
 
   const searchId = `recordings-search-${recordingsBlockCount += 1}`;
   const searchWrap = document.createElement('div');
@@ -458,17 +500,18 @@ function createSidebar(block, data) {
   search.id = searchId;
   search.className = 'recordings-search';
   search.placeholder = 'Title or speaker…';
+  search.value = block.recordingsSearchQuery;
   search.setAttribute('aria-label', 'Search recordings');
   searchWrap.append(searchLabel, search);
 
   const sortWrap = document.createElement('div');
   sortWrap.className = 'recordings-filter-group';
   const sortLabel = document.createElement('label');
-  sortLabel.htmlFor = 'recordings-sort';
+  sortLabel.htmlFor = `${searchId}-sort`;
   sortLabel.className = 'recordings-filter-label';
   sortLabel.textContent = 'Sort by';
   const sortSelect = document.createElement('select');
-  sortSelect.id = 'recordings-sort';
+  sortSelect.id = sortLabel.htmlFor;
   sortSelect.className = 'recordings-sort';
   sortSelect.setAttribute('aria-label', 'Sort recordings');
   [
@@ -482,11 +525,12 @@ function createSidebar(block, data) {
     o.textContent = opt.label;
     sortSelect.append(o);
   });
+  sortSelect.value = block.recordingsSortBy;
   sortWrap.append(sortLabel, sortSelect);
 
-  const dateRangeWrap = document.createElement('div');
+  const dateRangeWrap = document.createElement('fieldset');
   dateRangeWrap.className = 'recordings-filter-group';
-  const dateRangeLabel = document.createElement('span');
+  const dateRangeLabel = document.createElement('legend');
   dateRangeLabel.className = 'recordings-filter-label';
   dateRangeLabel.textContent = 'Time period';
   dateRangeWrap.append(dateRangeLabel);
@@ -497,19 +541,22 @@ function createSidebar(block, data) {
     label.className = 'recordings-filter-option';
     const input = document.createElement('input');
     input.type = 'radio';
-    input.name = 'recordings-date-range';
+    input.name = `${searchId}-date-range`;
     input.value = r.value;
     input.setAttribute('aria-label', r.label);
-    if (r.value === 'all') input.checked = true;
+    input.checked = r.value === block.recordingsDateRange;
     label.append(input, document.createTextNode(` ${r.label}`));
     dateRangeList.append(label);
   });
   dateRangeWrap.append(dateRangeList);
 
   const tags = getUniqueTags(data);
-  const tagWrap = document.createElement('div');
+  block.recordingsSelectedTags.forEach((tag) => {
+    if (!tags.includes(tag)) tags.push(tag);
+  });
+  const tagWrap = document.createElement('fieldset');
   tagWrap.className = 'recordings-filter-group';
-  const tagLabel = document.createElement('span');
+  const tagLabel = document.createElement('legend');
   tagLabel.className = 'recordings-filter-label';
   tagLabel.textContent = 'Tag';
   tagWrap.append(tagLabel);
@@ -521,6 +568,7 @@ function createSidebar(block, data) {
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.value = tag;
+    input.checked = block.recordingsSelectedTags.has(tag);
     input.setAttribute('aria-label', tag);
     label.append(input, document.createTextNode(` ${tag}`));
     tagList.append(label);
@@ -530,20 +578,22 @@ function createSidebar(block, data) {
   sidebar.append(searchWrap, sortWrap, dateRangeWrap, tagWrap);
 
   /* Wire events */
-  const applySearch = debounce(() => {
+  search.addEventListener('input', () => {
     block.recordingsSearchQuery = search.value;
+    saveBrowseState(block, true);
     updateRecordingsList(block);
-  }, 180);
-  search.addEventListener('input', () => applySearch());
+  });
 
   sortSelect.addEventListener('change', () => {
     block.recordingsSortBy = sortSelect.value;
+    saveBrowseState(block);
     updateRecordingsList(block);
   });
 
   dateRangeList.querySelectorAll('input[type="radio"]').forEach((radio) => {
     radio.addEventListener('change', () => {
       block.recordingsDateRange = radio.value;
+      saveBrowseState(block);
       updateRecordingsList(block);
     });
   });
@@ -554,6 +604,7 @@ function createSidebar(block, data) {
       if (cb.checked) set.add(cb.value);
       else set.delete(cb.value);
       block.recordingsSelectedTags = set;
+      saveBrowseState(block);
       updateRecordingsList(block);
     });
   });
@@ -568,12 +619,25 @@ function createSidebar(block, data) {
  */
 function renderFromSheet(block, data) {
   block.recordingsData = data;
-  block.recordingsSearchQuery = '';
-  block.recordingsSortBy = 'date-desc';
-  block.recordingsDateRange = 'all';
-  block.recordingsSelectedTags = new Set();
+  restoreBrowseState(block);
 
   block.textContent = '';
+
+  const header = document.createElement('header');
+  header.className = 'recordings-catalogue-header';
+  const heading = document.createElement('h1');
+  heading.className = 'recordings-catalogue-title';
+  heading.textContent = 'Recordings';
+  const count = document.createElement('p');
+  count.className = 'recordings-count';
+  count.setAttribute('role', 'status');
+  count.setAttribute('aria-atomic', 'true');
+  const clear = document.createElement('button');
+  clear.type = 'button';
+  clear.className = 'recordings-clear';
+  clear.textContent = 'Clear filters';
+  header.append(heading, count, clear);
+  block.append(header);
 
   const wrapper = document.createElement('div');
   wrapper.className = 'recordings-layout';
@@ -590,13 +654,31 @@ function renderFromSheet(block, data) {
 
   const emptyMsg = document.createElement('p');
   emptyMsg.className = 'recordings-empty';
-  emptyMsg.textContent = 'No recordings match your filters.';
+  emptyMsg.textContent = data.length
+    ? 'No recordings match your filters.' : 'No recordings are available.';
   emptyMsg.hidden = true;
   main.append(emptyMsg);
 
   wrapper.append(main);
   block.append(wrapper);
 
+  clear.addEventListener('click', () => {
+    block.recordingsSearchQuery = '';
+    block.recordingsSortBy = 'date-desc';
+    block.recordingsDateRange = 'all';
+    block.recordingsSelectedTags = new Set();
+    saveBrowseState(block);
+    sidebar.querySelector('.recordings-search').value = '';
+    sidebar.querySelector('.recordings-sort').value = 'date-desc';
+    sidebar.querySelectorAll('input[type="radio"]').forEach((input) => {
+      input.checked = input.value === 'all';
+    });
+    sidebar.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+      input.checked = false;
+    });
+    updateRecordingsList(block);
+    sidebar.querySelector('.recordings-search').focus();
+  });
   updateRecordingsList(block);
 }
 
@@ -742,6 +824,7 @@ function createSummaryReader(content, heading) {
   const observer = new ResizeObserver(updateProgress);
   observer.observe(content);
   observer.observe(content.firstElementChild);
+  reader.recordingsCleanup = () => observer.disconnect();
   updateToggle(false);
   toolbar.append(title, toggle);
   if (targets.length > 1) {
@@ -774,6 +857,7 @@ async function renderTalkSummary(article, value) {
     const { loadFragment } = await import('../fragment/fragment.js');
     const fragment = await loadFragment(path);
     if (!fragment) throw new Error('Summary fragment could not be loaded');
+    if (!section.isConnected) return;
     const content = document.createElement('div');
     content.className = 'recordings-summary-content';
     content.tabIndex = 0;
@@ -809,7 +893,7 @@ async function renderTalkDetail(block, data, talk) {
   article.className = 'recordings-detail';
 
   const back = document.createElement('a');
-  back.href = '/recordings';
+  back.href = getRecordingsRoute();
   back.className = 'recordings-back';
   back.textContent = 'Back to all recordings';
   back.prepend(createDetailIcon('back'));
@@ -821,7 +905,9 @@ async function renderTalkDetail(block, data, talk) {
   header.className = 'recordings-detail-header';
   const intro = document.createElement('div');
   intro.className = 'recordings-detail-intro';
-  const heading = document.createElement(document.querySelector('main h1') ? 'h2' : 'h1');
+  const hasPageHeading = [...document.querySelectorAll('main h1')]
+    .some((item) => !block.contains(item));
+  const heading = document.createElement(hasPageHeading ? 'h2' : 'h1');
   heading.className = 'recordings-detail-title';
   heading.textContent = row ? normalizeField(row.title) : 'Talk not found';
   intro.append(heading);
@@ -933,13 +1019,57 @@ async function renderTalkDetail(block, data, talk) {
  * Fetch the recordings sheet and render the listing or a query-selected talk.
  */
 export default async function decorate(block) {
-  const [data] = await Promise.all([fetchRecordingsData(), loadLikes()]);
-  const talk = new URLSearchParams(window.location.search).get('talk')?.trim();
-  if (talk) {
-    await renderTalkDetail(block, data, talk);
-  } else if (data.length > 0) {
-    renderFromSheet(block, data);
-  } else {
-    block.textContent = '';
-  }
+  if (!Object.hasOwn(block, 'recordingsPageTitle')) block.recordingsPageTitle = document.title;
+  block.recordingsController?.abort();
+  const controller = new AbortController();
+  block.recordingsController = controller;
+  let data;
+  let loading = false;
+  const status = document.createElement('p');
+  status.className = 'recordings-load-status';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-atomic', 'true');
+  const retry = document.createElement('button');
+  retry.type = 'button';
+  retry.className = 'recordings-retry';
+  retry.textContent = 'Retry loading recordings';
+  retry.hidden = true;
+
+  const render = async () => {
+    if (controller.signal.aborted || !block.isConnected) return;
+    block.querySelectorAll('.recordings-summary-reader').forEach((reader) => {
+      reader.recordingsCleanup?.();
+    });
+    if (!data) {
+      block.replaceChildren(status, retry);
+      return;
+    }
+    const talk = new URLSearchParams(window.location.search).get('talk')?.trim();
+    if (talk) await renderTalkDetail(block, data, talk);
+    else {
+      document.title = block.recordingsPageTitle;
+      renderFromSheet(block, data);
+    }
+  };
+  const load = async () => {
+    if (loading) return;
+    loading = true;
+    status.textContent = 'Loading recordings…';
+    retry.hidden = true;
+    block.setAttribute('aria-busy', 'true');
+    await render();
+    try {
+      [data] = await Promise.all([fetchRecordingsData(), loadLikes()]);
+    } catch {
+      status.textContent = 'Recordings could not be loaded. Please try again.';
+      retry.hidden = false;
+    } finally {
+      loading = false;
+      block.removeAttribute('aria-busy');
+    }
+    await render();
+  };
+  retry.addEventListener('click', load, { signal: controller.signal });
+  window.addEventListener('popstate', render, { signal: controller.signal });
+  await load();
 }

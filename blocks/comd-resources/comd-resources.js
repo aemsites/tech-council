@@ -67,17 +67,23 @@ function createResourceCard(record) {
 
   const link = document.createElement('a');
   link.className = 'comd-resources-link';
-  link.href = (record.link || '').trim() || '#';
+  const resourceUrl = typeof record.link === 'string' ? record.link.trim() : '';
   link.textContent = resolveResourceCtaLabel(record);
   link.target = '_blank';
   link.rel = 'noopener';
 
-  if (!record.link) {
-    link.removeAttribute('href');
-    link.classList.add('is-disabled');
+  card.append(title, description);
+  if (resourceUrl && resourceUrl !== '#') {
+    try {
+      const url = new URL(resourceUrl, window.location.origin);
+      if (['http:', 'https:'].includes(url.protocol)) {
+        link.href = url.href;
+        card.append(link);
+      }
+    } catch {
+      // Invalid authored destinations are not exposed as actions.
+    }
   }
-
-  card.append(title, description, link);
   return card;
 }
 

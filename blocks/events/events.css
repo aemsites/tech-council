@@ -5,7 +5,7 @@
 .events {
   position: relative;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   background: transparent;
 }
 
@@ -16,7 +16,7 @@
 
 .events-carousel-slides-container {
   position: relative;
-  padding: 0 var(--carousel-padding-mobile);
+  padding: 0 36px;
 }
 
 .events-carousel-container {
@@ -28,7 +28,7 @@
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
   -webkit-overflow-scrolling: touch;
-  border-radius: var(--radius-carousel);
+  border-radius: var(--radius-m);
   background: transparent;
 }
 
@@ -62,16 +62,13 @@
   padding: var(--space-xs) 0;
 }
 
-/* Event Card Styles - transparent, blends with page */
+/* Event cards */
 .events-card {
   list-style: none;
-  background: var(--event-card-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgb(255 255 255 / 50%);
+  background: var(--background-color);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
-  box-shadow:
-    0 1px 2px rgb(0 29 38 / 5%),
-    0 4px 16px rgb(0 29 38 / 4%);
+  box-shadow: none;
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -81,15 +78,13 @@
   flex-direction: column;
   height: 100%;
   min-height: 360px;
-  cursor: pointer;
   position: relative;
 }
 
 /* Badge: Upcoming / Past */
 .events-card-badge {
-  position: absolute;
-  top: var(--space-s);
-  right: var(--space-s);
+  align-self: flex-start;
+  margin: 20px 20px 0;
   z-index: 2;
   padding: var(--space-xs) var(--space-s);
   border-radius: var(--radius-xs);
@@ -109,7 +104,7 @@
 }
 
 .events-card.is-past .events-card-badge {
-  background: rgb(255 255 255 / 90%);
+  background: var(--surface-muted);
   color: var(--text-muted);
   border: 1px solid rgb(0 29 38 / 8%);
 }
@@ -119,7 +114,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-s);
-  margin: 0 calc(var(--carousel-padding-mobile) + var(--space-xs)) var(--space-m);
+  margin: 0 36px var(--space-m);
   padding: var(--space-s) var(--space-m);
   background: var(--surface-tint-light);
   border: 1px solid var(--surface-tint-lighter);
@@ -166,31 +161,9 @@
   color: var(--link-hover-color);
 }
 
-.events-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--link-color), color-mix(in srgb, var(--link-color) 65%, white));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-}
-
 .events-card:hover,
 .events-card:focus-within {
-  transform: translateY(var(--card-hover-lift));
-  background: var(--event-card-bg-hover);
-  box-shadow:
-    0 4px 12px rgb(0 29 38 / 8%),
-    0 16px 32px rgb(0 29 38 / 6%);
-  border-color: rgb(255 255 255 / 70%);
-}
-
-.events-card:hover::before {
-  transform: scaleX(1);
+  border-color: var(--link-color);
 }
 
 .events-card-image {
@@ -207,12 +180,8 @@
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.events-card:hover .events-card-image img {
-  transform: scale(1.08);
-}
-
 .events-card-body {
-  padding: 28px 28px 32px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -224,10 +193,10 @@
 .events-card-title {
   font-family: var(--heading-font-family);
   font-weight: 600;
-  color: var(--link-color);
-  font-size: clamp(17px, 1.4vw, 20px);
+  color: var(--text-color);
+  font-size: clamp(20px, 1.6vw, 24px);
   margin: 0 0 4px;
-  padding-right: 92px;
+  padding-right: 0;
   line-height: 1.4;
   letter-spacing: -0.02em;
   min-height: 50px;
@@ -299,12 +268,12 @@
   border-radius: var(--radius-xs);
   text-decoration: none;
   transition: background 0.2s ease, transform 0.15s ease;
+  min-height: 44px;
 }
 
 .events-card .events-card-join:hover {
   background: var(--link-hover-color);
   color: #fff;
-  transform: translateY(-1px);
 }
 
 /* Icon spacing */
@@ -342,14 +311,13 @@
   height: var(--nav-button-size);
   margin: 0;
   padding: 0;
-  border-radius: 50%;
-  background-color: var(--overlay-dark-soft);
-  border: 1px solid var(--overlay-border-light);
-  backdrop-filter: blur(2px);
+  border-radius: var(--radius-m);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-subtle);
   cursor: pointer;
   transition: background-color 0.3s ease;
   pointer-events: auto;
-  color: white;
+  color: var(--text-color);
 }
 
 /* Hide the text span */
@@ -363,7 +331,7 @@
 .events-nav-next::after {
   content: '';
   display: block;
-  border: 2px solid white;
+  border: 2px solid currentcolor;
   border-bottom: 0;
   border-left: 0;
   height: 12px;
@@ -389,12 +357,12 @@
 .events-nav-next:hover,
 .events-nav-prev:focus-visible,
 .events-nav-next:focus-visible {
-  background-color: var(--overlay-dark-strong);
+  background-color: var(--surface-tint-lighter);
 }
 
 .events-nav-prev:focus-visible,
 .events-nav-next:focus-visible {
-  outline: 2px solid white;
+  outline: 2px solid var(--link-color);
   outline-offset: 3px;
 }
 
@@ -455,40 +423,6 @@
   }
 }
 
-/* Animation */
-@keyframes events-fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.events-carousel-slide {
-  animation: events-fade-in-up 0.5s ease both;
-}
-
-/* Stagger animation for cards within a slide */
-.events-card:nth-child(1) {
-  animation: events-fade-in-up 0.4s ease 0.1s both;
-}
-
-.events-card:nth-child(2) {
-  animation: events-fade-in-up 0.4s ease 0.15s both;
-}
-
-.events-card:nth-child(3) {
-  animation: events-fade-in-up 0.4s ease 0.2s both;
-}
-
-.events-card:nth-child(4) {
-  animation: events-fade-in-up 0.4s ease 0.25s both;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .events-card,
   .events-carousel-slide {
@@ -507,14 +441,3 @@
     transition: none;
   }
 }
-
-/* Loading state */
-.events-carousel-wrapper:not(.loaded) .events-card {
-  opacity: 0;
-}
-
-.events-carousel-wrapper.loaded .events-card {
-  opacity: 1;
-}
-
-

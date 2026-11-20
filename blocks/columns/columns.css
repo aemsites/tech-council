@@ -1,6 +1,7 @@
 .columns > div {
   display: flex;
   flex-direction: column;
+  gap: var(--space-m);
 }
 
 .columns img {
@@ -9,6 +10,8 @@
 
 .columns > div > div {
   order: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .columns > div > .columns-img-col {

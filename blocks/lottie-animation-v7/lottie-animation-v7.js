@@ -205,11 +205,14 @@ function loadLottieIntoContainer(container) {
   container.innerHTML = '';
 
   const showError = (msg, err) => {
+    lottieCleanupMap.get(container)?.();
+    lottieCleanupMap.delete(container);
     container.dataset.lottieStatus = 'error';
     container.removeAttribute('aria-busy');
     container.innerHTML = '';
     const p = document.createElement('p');
     p.className = 'lottie-error';
+    p.setAttribute('role', 'status');
     p.textContent = msg;
     container.appendChild(p);
     if (err && console && console.error) {
@@ -228,9 +231,22 @@ function loadLottieIntoContainer(container) {
   inner.style.width = '100%';
   container.appendChild(inner);
 
-  const prefersReducedMotion = typeof window !== 'undefined'
-    && window.matchMedia
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const status = document.createElement('p');
+  status.className = 'lottie-status';
+  status.setAttribute('role', 'status');
+  status.textContent = 'Loading animation…';
+  container.append(status);
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let playbackRequested = !motionPreference.matches;
+  let syncPlayback = () => {};
+  const onMotionChange = () => {
+    playbackRequested = false;
+    syncPlayback();
+  };
+  motionPreference.addEventListener('change', onMotionChange);
+  lottieCleanupMap.set(container, () => {
+    motionPreference.removeEventListener('change', onMotionChange);
+  });
 
   const lottieReady = window.lottie
     && typeof window.lottie.loadAnimation === 'function';
@@ -262,11 +278,24 @@ function loadLottieIntoContainer(container) {
         const useCanvas = container.dataset.lottieRenderer === 'canvas';
         const startFrame = 0;
         const endFrame = animationData.op != null ? Math.ceil(animationData.op) : 857;
+        const hasMotion = (value) => {
+          if (!value || typeof value !== 'object') return false;
+          if (Array.isArray(value)) return value.some(hasMotion);
+          if (Array.isArray(value.k) && value.k.length > 1
+            && value.k[0]?.t !== undefined) return true;
+          if (value.ty !== undefined && value.ip !== undefined && value.op !== undefined
+            && (value.ip > (animationData.ip || 0) || value.op < endFrame)) return true;
+          return Object.values(value).some(hasMotion);
+        };
+        const animated = endFrame - (animationData.ip || 0) > 1 && hasMotion(animationData);
+        playbackRequested = animated && playbackRequested;
+        let inView = false;
+        let ready = false;
         const anim = lottie.loadAnimation({
           container: inner,
           renderer: useCanvas ? 'canvas' : 'svg',
-          loop: !prefersReducedMotion,
-          autoplay: !prefersReducedMotion,
+          loop: animated,
+          autoplay: false,
           animationData,
           initialSegment: [startFrame, endFrame],
           rendererSettings: useCanvas
@@ -274,48 +303,64 @@ function loadLottieIntoContainer(container) {
             : { preserveAspectRatio: 'xMidYMid meet', progressiveLoad: false },
         });
 
-        container.dataset.lottieStatus = 'loaded';
-        container.removeAttribute('aria-busy');
         lottieAnimationMap.set(container, anim);
 
-        const playOrPause = (inView) => {
-          if (!anim || typeof anim.play !== 'function' || typeof anim.pause !== 'function') return;
-          if (prefersReducedMotion) {
-            anim.goToAndStop(startFrame, true);
-            return;
+        let playbackControl;
+        syncPlayback = () => {
+          if (playbackControl) {
+            playbackControl.textContent = playbackRequested ? 'Pause animation' : 'Play animation';
+            playbackControl.setAttribute('aria-pressed', String(playbackRequested));
           }
-          if (document.hidden || !inView) {
+          if (!anim || typeof anim.play !== 'function' || typeof anim.pause !== 'function') return;
+          if (!ready || !playbackRequested || document.hidden || !inView) {
             anim.pause();
           } else {
             anim.play();
           }
         };
+        if (animated) {
+          playbackControl = document.createElement('button');
+          playbackControl.className = 'lottie-playback';
+          playbackControl.type = 'button';
+          playbackControl.disabled = true;
+          playbackControl.addEventListener('click', () => {
+            playbackRequested = !playbackRequested;
+            syncPlayback();
+          });
+          container.append(playbackControl);
+        }
+        const onReady = () => {
+          ready = true;
+          container.dataset.lottieStatus = 'loaded';
+          container.removeAttribute('aria-busy');
+          status.textContent = '';
+          if (playbackControl) playbackControl.disabled = false;
+          syncPlayback();
+        };
+        anim.addEventListener('DOMLoaded', onReady);
+        anim.addEventListener('data_failed', () => showError('Animation could not be loaded.'));
 
         const visibilityObserver = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
-            playOrPause(entry.isIntersecting);
+            inView = entry.isIntersecting;
+            syncPlayback();
           });
         }, { threshold: 0.05 });
         visibilityObserver.observe(container);
 
         const onVisibilityChange = () => {
-          const rect = container.getBoundingClientRect();
-          const inView = rect.bottom >= 0 && rect.top <= window.innerHeight;
-          playOrPause(inView);
+          syncPlayback();
         };
         document.addEventListener('visibilitychange', onVisibilityChange);
         lottieCleanupMap.set(container, () => {
           visibilityObserver.disconnect();
           document.removeEventListener('visibilitychange', onVisibilityChange);
+          motionPreference.removeEventListener('change', onMotionChange);
+          anim.destroy();
         });
 
-        if (anim && typeof anim.play === 'function') {
-          if (prefersReducedMotion) {
-            anim.goToAndStop(startFrame, true);
-          } else {
-            anim.play();
-          }
-        }
+        if (anim.isLoaded) onReady();
+        syncPlayback();
         log(
           'animation started',
           useCanvas ? '(canvas)' : '(svg)',
@@ -342,7 +387,13 @@ function loadLottieIntoContainer(container) {
         }
       };
       requestAnimationFrame(() => {
-        requestAnimationFrame(runInit);
+        requestAnimationFrame(() => {
+          try {
+            runInit();
+          } catch (err) {
+            showError('Animation could not be loaded.', err);
+          }
+        });
       });
     })
     .catch((err) => {
@@ -355,13 +406,15 @@ function initLottieWhenVisible(container) {
   if (!jsonUrl) return;
 
   let loaded = false;
+  let observer;
   const run = () => {
     if (loaded) return;
     loaded = true;
+    observer.disconnect();
     loadLottieIntoContainer(container);
   };
 
-  const observer = new IntersectionObserver((entries) => {
+  observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) run();
     });
@@ -417,7 +470,7 @@ export default function decorate(block) {
   container.setAttribute('data-jsonsrc', jsonUrl);
   container.setAttribute('data-fallback-jsonsrc', fallbackJsonUrl);
   container.setAttribute('data-lottie-renderer', 'svg');
-  container.setAttribute('role', 'img');
+  container.setAttribute('role', 'group');
   container.setAttribute('aria-label', 'Animation');
 
   block.innerHTML = '';

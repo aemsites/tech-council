@@ -9,21 +9,15 @@ function updateActiveSlide(slide) {
 
   slides.forEach((aSlide, idx) => {
     aSlide.setAttribute('aria-hidden', idx !== slideIndex);
-    aSlide.querySelectorAll('a').forEach((link) => {
-      if (idx !== slideIndex) {
-        link.setAttribute('tabindex', '-1');
-      } else {
-        link.removeAttribute('tabindex');
-      }
-    });
+    aSlide.inert = idx !== slideIndex;
   });
 
   const indicators = block.querySelectorAll('.carousel-slide-indicator');
   indicators.forEach((indicator, idx) => {
     if (idx !== slideIndex) {
-      indicator.querySelector('button').removeAttribute('disabled');
+      indicator.querySelector('button').removeAttribute('aria-current');
     } else {
-      indicator.querySelector('button').setAttribute('disabled', 'true');
+      indicator.querySelector('button').setAttribute('aria-current', 'true');
     }
   });
 
@@ -38,11 +32,10 @@ function showSlide(block, slideIndex = 0) {
   if (slideIndex >= slides.length) realSlideIndex = 0;
   const activeSlide = slides[realSlideIndex];
 
-  activeSlide.querySelectorAll('a').forEach((link) => link.removeAttribute('tabindex'));
   block.querySelector('.carousel-slides').scrollTo({
     top: 0,
     left: activeSlide.offsetLeft,
-    behavior: 'smooth',
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
   });
 }
 
@@ -75,6 +68,7 @@ function bindEvents(block) {
 
   // Keyboard navigation
   block.addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     if (e.key === 'ArrowLeft') {
       e.preventDefault();
       showSlide(block, parseInt(block.dataset.activeSlide, 10) - 1);
@@ -84,40 +78,53 @@ function bindEvents(block) {
     }
   });
 
-  // Autoplay with pause on hover/focus
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const AUTOPLAY_MS = 6000;
-  if (!prefersReducedMotion) {
-    const startAutoplay = () => {
-      // eslint-disable-next-line no-use-before-define -- const below; safe (deferred call)
-      stopAutoplay();
-      const id = window.setInterval(() => {
+  const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let playbackRequested = !motionPreference.matches;
+  let hovered = false;
+  let focused = block.contains(document.activeElement);
+  let pointerActive = false;
+  let inView = false;
+  let intervalId;
+  const playbackControl = block.querySelector('.carousel-playback');
+  const syncPlayback = () => {
+    window.clearInterval(intervalId);
+    intervalId = null;
+    playbackControl.textContent = playbackRequested ? 'Pause slides' : 'Play slides';
+    playbackControl.setAttribute('aria-pressed', String(playbackRequested));
+    if (playbackRequested && inView && !document.hidden && !hovered && !focused && !pointerActive) {
+      intervalId = window.setInterval(() => {
         showSlide(block, parseInt(block.dataset.activeSlide, 10) + 1);
-      }, AUTOPLAY_MS);
-      block.dataset.autoplayId = String(id);
-    };
-    const stopAutoplay = () => {
-      if (block.dataset.autoplayId) {
-        window.clearInterval(parseInt(block.dataset.autoplayId, 10));
-        delete block.dataset.autoplayId;
-      }
-    };
-
-    // start autoplay after first paint
-    startAutoplay();
-
-    const pause = () => stopAutoplay();
-    const resume = () => startAutoplay();
-
-    block.addEventListener('mouseenter', pause);
-    block.addEventListener('mouseleave', resume);
-    block.addEventListener('focusin', pause);
-    block.addEventListener('focusout', resume);
-    block.querySelectorAll('button').forEach((btn) => {
-      btn.addEventListener('pointerdown', pause);
-      btn.addEventListener('click', resume);
+      }, 6000);
+    }
+  };
+  playbackControl.addEventListener('click', () => {
+    playbackRequested = !playbackRequested;
+    syncPlayback();
+  });
+  motionPreference.addEventListener('change', () => {
+    playbackRequested = false;
+    syncPlayback();
+  });
+  document.addEventListener('visibilitychange', syncPlayback);
+  block.addEventListener('mouseenter', () => { hovered = true; syncPlayback(); });
+  block.addEventListener('mouseleave', () => { hovered = false; syncPlayback(); });
+  block.addEventListener('focusin', () => { focused = true; syncPlayback(); });
+  block.addEventListener('focusout', (event) => {
+    focused = block.contains(event.relatedTarget);
+    syncPlayback();
+  });
+  block.addEventListener('pointerdown', () => { pointerActive = true; syncPlayback(); });
+  const endPointer = () => { pointerActive = false; syncPlayback(); };
+  document.addEventListener('pointerup', endPointer);
+  document.addEventListener('pointercancel', endPointer);
+  const visibilityObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      inView = entry.isIntersecting;
+      syncPlayback();
     });
-  }
+  }, { threshold: 0.1 });
+  visibilityObserver.observe(block);
+  syncPlayback();
 }
 
 function createSlide(row, slideIndex, carouselId) {
@@ -133,6 +140,7 @@ function createSlide(row, slideIndex, carouselId) {
 
   const labeledBy = slide.querySelector('h1, h2, h3, h4, h5, h6');
   if (labeledBy) {
+    if (!labeledBy.id) labeledBy.id = `carousel-${carouselId}-heading-${slideIndex}`;
     slide.setAttribute('aria-labelledby', labeledBy.getAttribute('id'));
   }
 
@@ -144,6 +152,7 @@ export default async function decorate(block) {
   carouselId += 1;
   block.setAttribute('id', `carousel-${carouselId}`);
   const rows = block.querySelectorAll(':scope > div');
+  if (!rows.length) return;
   const isSingleSlide = rows.length < 2;
 
   const placeholders = await fetchPlaceholders();
@@ -165,6 +174,10 @@ export default async function decorate(block) {
     slideIndicators = document.createElement('ol');
     slideIndicators.classList.add('carousel-slide-indicators');
     slideIndicatorsNav.append(slideIndicators);
+    const playbackControl = document.createElement('button');
+    playbackControl.type = 'button';
+    playbackControl.className = 'carousel-playback';
+    slideIndicatorsNav.append(playbackControl);
     block.append(slideIndicatorsNav);
 
     const slideNavButtons = document.createElement('div');
@@ -194,6 +207,7 @@ export default async function decorate(block) {
   container.append(slidesWrapper);
   block.prepend(container);
 
+  updateActiveSlide(slidesWrapper.firstElementChild);
   if (!isSingleSlide) {
     bindEvents(block);
   }

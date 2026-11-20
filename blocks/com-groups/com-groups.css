@@ -4,10 +4,12 @@
   padding: 0;
   display: grid;
   gap: clamp(14px, 2vw, 22px);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
 .com-groups .com-groups-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
   position: relative;
   background: var(--background-color);
   border-radius: var(--radius-m);
@@ -16,14 +18,13 @@
   overflow: hidden;
   padding: calc(var(--space-l) + 56px) var(--space-m) var(--space-m);
   min-height: 208px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .com-groups .com-groups-card:hover,
 .com-groups .com-groups-card:focus-within {
-  border-color: var(--border-subtle);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  border-color: var(--link-color);
+  background-color: var(--surface-tint-light);
 }
 
 .com-groups .com-groups-card .com-groups-icon-wrap {
@@ -97,8 +98,8 @@
 }
 
 .com-groups .com-groups-link:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
+  outline: 3px solid var(--link-color);
+  outline-offset: -3px;
 }
 
 .com-groups .com-groups-add-card::after {

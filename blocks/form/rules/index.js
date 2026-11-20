@@ -157,9 +157,7 @@ async function fieldChanged(payload, form, generateFormRendition) {
             disableElement(field, !currentValue);
           }
         } else if (componentType === 'rating') {
-          if (readOnly === false) {
-            fieldWrapper.querySelector('.rating')?.classList.toggle('disabled', !currentValue);
-          }
+          field.disabled = currentValue === false;
         } else {
           field.toggleAttribute('disabled', currentValue === false);
         }
@@ -172,7 +170,7 @@ async function fieldChanged(payload, form, generateFormRendition) {
         } else if (fieldType === 'drop-down') {
           disableElement(field, currentValue);
         } else if (componentType === 'rating') {
-          fieldWrapper.querySelector('.rating')?.classList.toggle('disabled', currentValue === true);
+          field.readOnly = currentValue === true;
         } else {
           field.toggleAttribute('disabled', currentValue === true);
         }
@@ -239,6 +237,7 @@ async function fieldChanged(payload, form, generateFormRendition) {
         break;
     }
   });
+  if (componentType === 'rating') field.dispatchEvent(new Event('rating-update'));
 }
 
 function formChanged(payload, form) {

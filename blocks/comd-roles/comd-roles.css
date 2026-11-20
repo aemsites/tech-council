@@ -4,23 +4,19 @@
 
 .comd-roles .comd-roles-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--card-gap);
 }
 
 .comd-roles .comd-roles-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   background: var(--background-color);
   box-shadow: var(--shadow-sm);
   padding: var(--space-ml) var(--heading-margin-bottom) var(--heading-margin-bottom);
   text-align: center;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.comd-roles .comd-roles-card:hover {
-  border-color: var(--border-subtle);
-  box-shadow: var(--shadow-md);
 }
 
 .comd-roles .comd-roles-avatar {
@@ -48,9 +44,7 @@
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-xs);
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  line-height: 1.5;
   color: var(--link-color);
 }
 

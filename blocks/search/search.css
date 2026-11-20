@@ -1,7 +1,7 @@
 /* search box */
 .search .search-box {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 1ch;
     align-items: center;
   }
@@ -11,9 +11,11 @@
     display: block;
     width: 100%;
     margin: 0;
-    padding: 0.5em;
-    border-radius: 4px;
-    border: 1px solid var(--dark-color);
+    padding: 12px 16px;
+    min-height: 48px;
+    min-width: 0;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--border-subtle);
     background-color: var(--background-color);
     color: var(--text-color);
     font-size: var(--body-font-size-s);
@@ -21,19 +23,26 @@
   }
   
   .search .search-box input:hover {
-    border: 1px solid var(--text-color);
+    border-color: var(--text-color);
+  }
+
+  .search .search-box input:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
   }
   
   /* search results */
   .search ul.search-results {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(278px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 278px), 1fr));
     gap: 24px;
     padding-left: 0;
     list-style: none;
   }
   
   .search ul.search-results > li {
+    min-width: 0;
+    overflow-wrap: anywhere;
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-m);
     box-shadow: var(--shadow-sm);
@@ -51,6 +60,7 @@
   .search ul.search-results > li > a:hover,
   .search ul.search-results > li > a:focus {
     text-decoration: none;
+    background-color: var(--surface-tint-light);
   }
   
   .search ul.search-results > li .search-result-title,
@@ -60,7 +70,8 @@
   
   .search ul.search-results > li .search-result-title {
     font-size: var(--body-font-size-m);
-    font-weight: normal;
+    font-weight: 600;
+    line-height: 1.35;
   }
   
   .search ul.search-results > li .search-result-title a {
@@ -70,6 +81,8 @@
   
   .search ul.search-results > li p {
     font-size: var(--body-font-size-s);
+    color: var(--text-muted);
+    line-height: 1.6;
   }
   
   .search ul.search-results > li .search-result-image {

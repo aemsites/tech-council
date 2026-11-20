@@ -68,19 +68,12 @@ function highlightTextElements(terms, elements) {
 export async function fetchData(source) {
   const response = await fetch(source);
   if (!response.ok) {
-    // eslint-disable-next-line no-console
-    console.error('error loading API response', response);
-    return null;
+    throw new Error('Unable to load the search index.');
   }
 
   const json = await response.json();
-  if (!json) {
-    // eslint-disable-next-line no-console
-    console.error('empty API response', source);
-    return null;
-  }
-
-  return json.data;
+  if (!Array.isArray(json?.data)) throw new Error('Invalid search index.');
+  return json.data.filter((row) => row && typeof row.path === 'string' && row.path);
 }
 
 function renderResult(result, searchTerms, titleTag) {
@@ -97,11 +90,8 @@ function renderResult(result, searchTerms, titleTag) {
   if (result.title) {
     const title = document.createElement(titleTag);
     title.className = 'search-result-title';
-    const link = document.createElement('a');
-    link.href = result.path;
-    link.textContent = result.title;
-    highlightTextElements(searchTerms, [link]);
-    title.append(link);
+    title.textContent = result.title;
+    highlightTextElements(searchTerms, [title]);
     a.append(title);
   }
   if (result.description) {
@@ -123,7 +113,7 @@ function clearSearch(block) {
   clearSearchResults(block);
   if (window.history.replaceState) {
     const url = new URL(window.location.href);
-    url.search = '';
+    url.searchParams.delete('q');
     searchParams.delete('q');
     window.history.replaceState({}, '', url.toString());
   }
@@ -160,7 +150,7 @@ function filterData(searchTerms, data) {
     let minIdx = -1;
 
     searchTerms.forEach((term) => {
-      const idx = (result.header || result.title).toLowerCase().indexOf(term);
+      const idx = String(result.header || result.title || '').toLowerCase().indexOf(term);
       if (idx < 0) return;
       if (minIdx < idx) minIdx = idx;
     });
@@ -189,6 +179,8 @@ function filterData(searchTerms, data) {
 }
 
 async function handleSearch(e, block, config) {
+  const version = (block.searchVersion || 0) + 1;
+  block.searchVersion = version;
   const searchValue = e.target.value;
   searchParams.set('q', searchValue);
   if (window.history.replaceState) {
@@ -198,19 +190,46 @@ async function handleSearch(e, block, config) {
   }
 
   if (searchValue.length < 3) {
+    block.setAttribute('aria-busy', 'false');
     clearSearch(block);
     return;
   }
   const searchTerms = searchValue.toLowerCase().split(/\s+/).filter((term) => !!term);
+  block.setAttribute('aria-busy', 'true');
 
-  const data = await fetchData(config.source);
-  const filteredData = filterData(searchTerms, data);
-  await renderResults(block, config, filteredData, searchTerms);
+  try {
+    if (!block.searchData) {
+      const pending = fetchData(config.source);
+      block.searchData = pending;
+      pending.catch(() => {
+        if (block.searchData === pending) block.searchData = null;
+      });
+    }
+    const data = await block.searchData;
+    if (block.searchVersion !== version) return;
+    block.setAttribute('aria-busy', 'false');
+    const filteredData = filterData(searchTerms, data);
+    await renderResults(block, config, filteredData, searchTerms);
+  } catch {
+    if (block.searchVersion !== version) return;
+    block.searchData = null;
+    block.setAttribute('aria-busy', 'false');
+    clearSearchResults(block);
+    const error = document.createElement('li');
+    error.textContent = 'Search is temporarily unavailable. ';
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.textContent = 'Try again';
+    retry.addEventListener('click', () => handleSearch({ target: block.querySelector('input') }, block, config));
+    error.append(retry);
+    block.querySelector('.search-results').append(error);
+  }
 }
 
 function searchResultsContainer(block) {
   const results = document.createElement('ul');
   results.className = 'search-results';
+  results.setAttribute('aria-live', 'polite');
   results.dataset.h = findNextHeading(block);
   return results;
 }
@@ -228,7 +247,14 @@ function searchInput(block, config) {
     handleSearch(e, block, config);
   });
 
-  input.addEventListener('keyup', (e) => { if (e.code === 'Escape') { clearSearch(block); } });
+  input.addEventListener('keyup', (e) => {
+    if (e.code === 'Escape') {
+      input.value = '';
+      block.searchVersion = (block.searchVersion || 0) + 1;
+      block.setAttribute('aria-busy', 'false');
+      clearSearch(block);
+    }
+  });
 
   return input;
 }

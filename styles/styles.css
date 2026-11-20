@@ -11,13 +11,16 @@
  */
 
 :root {
+  caret-color: var(--link-color);
+  scrollbar-color: var(--text-soft) var(--surface-muted);
+
   /* colors */
   --background-color: #fff;
   --light-color: #f3f3f3;
   --dark-color: #001d26;
   --text-color: #1d1d1d;
   --text-muted: #445666;
-  --text-soft-muted: #8693a0;
+  --text-soft-muted: #607181;
   --text-soft: #607181;
   --link-color: #6a38ff; /* Purple */
   --link-hover-color: #4b2cdc;
@@ -80,7 +83,7 @@
 
   /* layout */
   --content-max-width-narrow: 800px;
-  --card-hover-lift: -6px;
+  --card-hover-lift: 0px;
 
   /* overlays & surfaces */
   --overlay-border-light: rgb(255 255 255 / 35%);
@@ -124,14 +127,15 @@
   --heading-font-size-xs: clamp(17px, 1.6vw, 20px);
 
   /* nav height - compact like Adobe AEM / Helix */
-  --nav-height: 56px;
+  --nav-height: 64px;
+  --header-height: var(--nav-height);
   --container-max-width: 1240px;
-  --radius-m: 12px;
-  --radius-l: 18px;
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 8%);
+  --radius-m: 8px;
+  --radius-l: 12px;
+  --shadow-sm: none;
   --shadow-md: 0 10px 28px rgb(0 29 38 / 12%);
   --shadow-lg: 0 18px 44px rgb(0 29 38 / 16%);
-  --focus-ring: 0 0 0 3px rgb(11 99 222 / 28%);
+  --focus-ring: 0 0 0 2px var(--link-color);
 }
 
 /* fallback fonts */
@@ -151,7 +155,7 @@
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 100px, #D4D8F4 320px, #FFF 550px, #FFF 100%);
+  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 80px, #D4D8F4 160px, #FFF 320px, #FFF 100%);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
@@ -171,7 +175,7 @@ body.appear {
   box-sizing: border-box;
 }
 
-header {
+body > header {
   height: var(--nav-height);
 }
 
@@ -241,7 +245,9 @@ h6 {
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.02em;
-  scroll-margin: 40px;
+  scroll-margin-top: calc(var(--nav-height) + 16px);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 
 }
 
@@ -314,7 +320,7 @@ button {
   max-width: 100%;
   margin: 12px 0;
   border: 2px solid transparent;
-  border-radius: 2.4em;
+  border-radius: var(--radius-m);
   padding: 0.5em 1.2em;
   font-family: var(--body-font-family);
   font-style: normal;
@@ -337,8 +343,7 @@ button:hover,
 button:focus {
   background-color: var(--link-hover-color);
   cursor: pointer;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 button:disabled,
@@ -406,9 +411,10 @@ main .section.highlight {
   padding: clamp(48px, 6vw, 84px) 0;
 }
 
-:is(a, button, input, select, textarea):focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
+:is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 3px;
+  box-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
