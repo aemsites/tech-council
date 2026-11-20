@@ -490,7 +490,9 @@ export default function decorate(block) {
     const body = element('div', 'ai-panel');
     body.append(answerStatus, answer, retryAnswer);
     const header = element('div', 'ai-header');
-    header.append(heading, disclaimer);
+    const title = element('div', 'ai-title');
+    title.append(heading, element('p', 'attribution', 'Powered by AEM content AI'));
+    header.append(title, disclaimer);
     panels.ai.append(header, body);
     block.append(panels.ai);
   }
