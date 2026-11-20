@@ -101,13 +101,21 @@ header nav a:any-link {
 /* hamburger */
 header nav .nav-hamburger {
   grid-area: hamburger;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 header nav .nav-hamburger button {
-  height: 22px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0;
   border: 0;
   border-radius: 0;
