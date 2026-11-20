@@ -114,7 +114,7 @@ function createRecordingsCardIcon() {
   wrapper.className = 'recordings-card-icon';
   wrapper.innerHTML = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true" focusable="false">
-      <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="rgba(106, 56, 255, 0.08)"/>
+      <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" fill="var(--surface-muted)"/>
       <path d="M26 22v20l18-10-18-10z" fill="currentColor"/>
     </svg>`;
   return wrapper;

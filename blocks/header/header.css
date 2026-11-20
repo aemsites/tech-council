@@ -12,12 +12,12 @@ header .skip-link {
   text-decoration: none;
   font-weight: 600;
   border-radius: 0 0 8px;
-  transition: top 0.2s ease;
+  transition: none;
 }
 
 header .skip-link:focus {
   top: 0;
-  outline: 3px solid var(--color-primary);
+  outline: 3px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -29,10 +29,10 @@ header .nav-wrapper {
   position: fixed;
   border-bottom: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--motion-ui) var(--motion-ease);
 }
 
-/* Enhanced shadow when scrolled */
+/* Keep the masthead flat when scrolled. */
 header .nav-wrapper.scrolled {
   box-shadow: var(--shadow-md);
 }
@@ -95,7 +95,7 @@ header nav a:any-link {
   font-weight: 500;
   font-size: 15px;
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color var(--motion-fast) var(--motion-ease);
 }
 
 /* hamburger */
@@ -202,7 +202,6 @@ header nav .nav-brand img {
   width: 26px;
   height: 26px;
   object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 8%));
 }
 
 /* Clean brand link style - no box */
@@ -227,16 +226,6 @@ header .nav-brand .nav-brand-text {
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--text-color);
-}
-
-header .nav-brand a:hover,
-header .nav-brand a:focus-visible {
-  opacity: 0.8;
-  outline: none;
-}
-
-header nav .nav-brand a:hover img {
-  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 12%));
 }
 
 @media (width >= 1200px) {
@@ -312,6 +301,7 @@ header nav .nav-sections ul > li > ul > li {
     border: 2px solid currentcolor;
     border-radius: 0 1px 0 0;
     border-width: 2px 2px 0 0;
+    transition: transform var(--motion-fast) var(--motion-ease);
   }
 
   header nav .nav-sections .nav-drop[aria-expanded='true']::after {
@@ -336,7 +326,7 @@ header nav .nav-sections ul > li > ul > li {
     display: inline-block;
     position: relative;
     padding: 6px 2px;
-    transition: color 0.2s ease;
+    transition: color var(--motion-fast) var(--motion-ease);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > a:hover,
@@ -374,9 +364,10 @@ header nav .nav-sections ul > li > ul > li {
     padding: 12px;
     background-color: var(--background-color);
     white-space: initial;
-    border-radius: 12px;
+    border-radius: var(--radius-m);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-subtle);
+    border-block-start: 2px solid var(--link-color);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul::before {
@@ -400,13 +391,13 @@ header nav .nav-sections ul > li > ul > li {
     padding: 10px 8px;
     border-radius: 8px;
     color: var(--text-color);
+    transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
   }
 
   header nav .nav-sections .default-content-wrapper > ul > li > ul a:hover,
   header nav .nav-sections .default-content-wrapper > ul > li > ul a:focus-visible {
     background: var(--light-color);
     color: inherit;
-    outline: none;
   }
 }
 
@@ -476,7 +467,7 @@ header nav .nav-account a:hover {
     background-color: var(--light-color);
   }
 
-  /* Active link styling for mobile - blue text + underline */
+  /* Active link styling for mobile - charcoal text + underline */
   header nav[aria-expanded='true'] .nav-sections a.active {
     color: var(--link-color);
     font-weight: 600;
@@ -491,7 +482,7 @@ header nav .nav-account a:hover {
 
 /* focus visibility for all nav links - keyboard accessible, no clipped ring */
 header nav a:any-link:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
   border-radius: 4px;
   box-shadow: none;
@@ -499,7 +490,7 @@ header nav a:any-link:focus-visible {
 
 /* Hamburger button focus state */
 header nav .nav-hamburger button:focus-visible {
-  outline: 3px solid var(--link-color);
+  outline: 3px solid var(--focus-color);
   outline-offset: 4px;
   border-radius: 4px;
 }

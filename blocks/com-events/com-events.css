@@ -11,7 +11,7 @@
   min-width: 0;
   overflow-wrap: anywhere;
   position: relative;
-  background: var(--background-color);
+  background: var(--color-surface);
   border-radius: var(--radius-m);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
@@ -30,7 +30,7 @@
   margin: 0 0 var(--space-m);
   padding: var(--space-xs) var(--space-s);
   border-radius: var(--radius-xs);
-  font-family: var(--body-font-family);
+  font-family: var(--label-font-family);
   font-size: var(--body-font-size-xs);
   line-height: 1.5;
   font-weight: 700;

@@ -65,15 +65,13 @@
 /* Event cards */
 .events-card {
   list-style: none;
-  background: var(--background-color);
+  background: var(--color-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   box-shadow: none;
   overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.2s ease,
-              background 0.2s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease),
+              background-color var(--motion-fast) var(--motion-ease);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -88,7 +86,7 @@
   z-index: 2;
   padding: var(--space-xs) var(--space-s);
   border-radius: var(--radius-xs);
-  font-family: var(--body-font-family);
+  font-family: var(--label-font-family);
   font-size: var(--body-font-size-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -106,7 +104,7 @@
 .events-card.is-past .events-card-badge {
   background: var(--surface-muted);
   color: var(--text-muted);
-  border: 1px solid rgb(0 29 38 / 8%);
+  border: 1px solid var(--border-subtle);
 }
 
 /* No-upcoming-events banner */
@@ -177,7 +175,7 @@
   aspect-ratio: 16 / 9;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: none;
 }
 
 .events-card-body {
@@ -214,7 +212,7 @@
 
 /* Date styling */
 .events-card-date {
-  font-family: var(--body-font-family);
+  font-family: var(--label-font-family);
   font-weight: 600;
   color: var(--text-muted);
   margin: 0;
@@ -240,8 +238,8 @@
 .events-card-tag {
   display: inline-block;
   align-self: flex-start;
-  font-family: var(--body-font-family);
-  font-size: 11px;
+  font-family: var(--label-font-family);
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -267,7 +265,7 @@
   background: var(--link-color);
   border-radius: var(--radius-xs);
   text-decoration: none;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition: background-color var(--motion-fast) var(--motion-ease);
   min-height: 44px;
 }
 
@@ -315,7 +313,7 @@
   background-color: var(--background-color);
   border: 1px solid var(--border-subtle);
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--motion-fast) var(--motion-ease);
   pointer-events: auto;
   color: var(--text-color);
 }
@@ -338,7 +336,7 @@
   width: 12px;
   position: absolute;
   top: 50%;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease);
 }
 
 /* Previous button - left arrow */
@@ -362,7 +360,7 @@
 
 .events-nav-prev:focus-visible,
 .events-nav-next:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
 }
 

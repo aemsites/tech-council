@@ -14,7 +14,7 @@
   min-width: 0;
   overflow-wrap: anywhere;
   border: 1px solid var(--border-subtle);
-  background-color: var(--background-color);
+  background-color: var(--color-surface);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -37,7 +37,6 @@
 .icon-cards .icon-cards-card-icon img {
   width: var(--icon-size-xl);
   height: var(--icon-size-xl);
-  fill: var(--link-color);
 }
 
 /* body */
@@ -155,11 +154,11 @@
   scroll-snap-align: start;
   scroll-snap-stop: always;
   list-style: none;
-  background-color: var(--background-color);
+  background-color: var(--color-surface);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -192,7 +191,7 @@
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity var(--motion-ui) var(--motion-ease), visibility var(--motion-ui) var(--motion-ease);
 }
 
 /* Show navigation only when scrolling is needed */
@@ -215,7 +214,7 @@
   min-width: 44px;
   min-height: 44px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color var(--motion-fast) var(--motion-ease);
   pointer-events: auto;
   color: var(--text-color);
 }
@@ -238,7 +237,7 @@
   width: 12px;
   position: absolute;
   top: 50%;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease);
 }
 
 /* Previous button - left arrow */
@@ -263,7 +262,7 @@
 
 .icon-cards-nav-prev:focus-visible,
 .icon-cards-nav-next:focus-visible {
-  outline: 3px solid var(--link-color);
+  outline: 3px solid var(--focus-color);
   outline-offset: 3px;
 }
 

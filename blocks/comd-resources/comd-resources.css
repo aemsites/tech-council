@@ -13,13 +13,13 @@
   overflow-wrap: anywhere;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
-  background: var(--background-color);
+  background: var(--color-surface);
   box-shadow: var(--shadow-sm);
   padding: var(--space-ml) var(--heading-margin-bottom) var(--heading-margin-bottom);
   display: flex;
   flex-direction: column;
   min-height: 165px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
 
 .comd-resources .comd-resources-card:hover,

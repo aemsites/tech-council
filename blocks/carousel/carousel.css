@@ -108,7 +108,7 @@
   }
   
   .carousel button:focus-visible {
-    outline: 3px solid var(--link-color);
+    outline: 3px solid var(--focus-color);
     outline-offset: 3px;
   }
 
@@ -119,7 +119,7 @@
     padding: 0;
     border-radius: var(--radius-xs);
     background-color: var(--border-subtle);
-    transition: background-color 0.2s;
+    transition: background-color var(--motion-fast) var(--motion-ease);
   }
   
   .carousel .carousel-slide-indicator button:disabled,
@@ -150,7 +150,7 @@
     border-radius: var(--radius-m);
     padding: 0;
     background-color: var(--dark-color);
-    transition: background-color 0.2s;
+    transition: background-color var(--motion-fast) var(--motion-ease);
     border: 1px solid var(--overlay-border-light);
   }
   

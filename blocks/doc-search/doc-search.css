@@ -23,7 +23,7 @@
     width: 22px;
     height: 22px;
     fill: var(--text-soft);
-    transition: fill 0.2s ease;
+    transition: fill var(--motion-fast) var(--motion-ease);
     pointer-events: none;
     z-index: 1;
     transform: scaleX(-1);
@@ -41,14 +41,14 @@
     margin: 0;
     border: 2px solid var(--border-subtle);
     border-radius: var(--radius-m);
-    background-color: var(--background-color);
+    background-color: var(--color-surface);
     color: var(--text-color);
 
     /* reserve space: right for icon and clear button */
     padding: 16px 90px 16px 24px;
     font: inherit;
     font-size: 16px;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
     box-shadow: var(--shadow-sm);
     line-height: 1.5;
 }
@@ -67,13 +67,14 @@
   
   .doc-search form input:focus {
     border-color: var(--link-color);
-    outline: 3px solid var(--link-color);
+    outline: 3px solid var(--focus-color);
     outline-offset: 3px;
   }
   
   .doc-search form input::placeholder {
     color: var(--text-soft);
     font-style: normal;
+    opacity: 1;
   }
 
   .doc-search form input:hover {
@@ -97,7 +98,7 @@
     line-height: 1;
     background: var(--light-color);
     color: var(--text-soft);
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
     cursor: inherit;
     -webkit-tap-highlight-color: transparent;
     align-items: center;
@@ -122,7 +123,7 @@
   }
 
   .doc-search form button:focus-visible {
-    outline: 3px solid var(--link-color);
+    outline: 3px solid var(--focus-color);
     outline-offset: 3px;
   }
   
@@ -183,9 +184,9 @@
     padding: 0;
     border: 2px solid var(--border-subtle);
     border-radius: var(--radius-m);
-    background-color: var(--background-color);
-    opacity: 0;
-    animation: fade-in 580ms ease forwards;
+    background-color: var(--color-surface);
+    opacity: 1;
+    transition: opacity var(--motion-ui) var(--motion-ease);
     z-index: 1;
     box-shadow: var(--shadow-md);
   }
@@ -198,7 +199,6 @@
     top: auto;
     margin: 16px 12px 0;
     opacity: 1;
-    animation: none;
     z-index: 0;
     max-height: min(60vh, 420px);
     overflow: auto;
@@ -206,43 +206,13 @@
   }
   
   .doc-search .doc-search-results.fade-out {
-    /* match delay set in backspace() */
-    animation: fade-out 580ms ease forwards; 
+    opacity: 0;
     z-index: -1;
   }
 
   /* Fade-out variant when results are open in normal flow */
   .doc-search .doc-search-results.open.fade-out {
-    animation: fade-out-rel 580ms ease forwards;
-  }
-  
-  @keyframes fade-in {
-    from {
-      top: calc(50% + 15px);
-      opacity: 0;
-    }
-    
-    to {
-      top: calc(50% + 30px);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes fade-out {
-    from {
-      top: calc(50% + 20px);
-      opacity: 1;
-    } 
-  
-    to {
-      top: calc(50% - 15px);
-      opacity: 0;
-    }
-  }
-
-  @keyframes fade-out-rel {
-    from { opacity: 1; }
-    to { opacity: 0; }
+    opacity: 0;
   }
   
   .doc-search .doc-search-results > li {
@@ -264,7 +234,7 @@
     text-decoration: none;
     font-weight: 600;
     border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease;
+    transition: border-color var(--motion-fast) var(--motion-ease);
   }
 
   .doc-search .doc-search-results > li.doc-search-no-result a:hover {
@@ -281,7 +251,7 @@
     padding: 14px 16px;
     color: unset;
     text-decoration: none;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--motion-fast) var(--motion-ease);
     border-radius: 8px;
     margin: 4px;
   }
@@ -315,7 +285,7 @@
     position: absolute;
     z-index: -1;
     inset: 0 -4px;
-    background-color: rgb(106 56 255 / 10%);
+    background-color: var(--surface-tint-lighter);
     border-radius: 4px;
   }
   
@@ -349,9 +319,10 @@
     margin-top: 6px;
     padding: 2px 8px;
     border-radius: var(--radius-xs);
-    background-color: rgb(106 56 255 / 10%);
+    background-color: var(--surface-tint-lighter);
     color: var(--link-color);
     font-size: 13px;
+    font-family: var(--label-font-family);
     font-weight: 600;
     line-height: 1.4;
   }
@@ -372,6 +343,7 @@
     color: var(--text-soft);
     font-size: 12px;
     font-weight: 600;
+    font-family: var(--label-font-family);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -387,12 +359,12 @@
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
   }
 
   .doc-search .doc-search-recent-clear:hover,
   .doc-search .doc-search-recent-clear:focus-visible {
-    background-color: rgb(106 56 255 / 10%);
+    background-color: var(--surface-tint-lighter);
     color: var(--link-hover-color);
   }
 
@@ -402,7 +374,7 @@
     gap: 4px;
     margin: 2px 6px;
     border-radius: 8px;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--motion-fast) var(--motion-ease);
   }
 
   .doc-search .doc-search-results > li.doc-search-recent-item:last-child {
@@ -440,7 +412,7 @@
     height: 16px;
     background-color: var(--text-soft-muted);
     mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>') center / contain no-repeat;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--motion-fast) var(--motion-ease);
   }
 
   .doc-search .doc-search-recent-query:hover::before,
@@ -450,7 +422,7 @@
 
   .doc-search .doc-search-recent-query:focus-visible,
   .doc-search .doc-search-recent-remove:focus-visible {
-    outline: 2px solid var(--link-color);
+    outline: 2px solid var(--focus-color);
     outline-offset: -2px;
   }
 
@@ -471,7 +443,7 @@
     font-size: 12px;
     line-height: 1;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
   }
 
   .doc-search .doc-search-recent-remove:hover,
@@ -489,6 +461,6 @@
     .doc-search .doc-search-results,
     .doc-search .doc-search-results.fade-out,
     .doc-search .doc-search-results.open.fade-out {
-      animation-duration: 1ms;
+      transition: none;
     }
   }

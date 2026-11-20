@@ -14,6 +14,7 @@ main > .hero-quote-container {
   padding: 0 24px;
   max-width: 1000px;
   text-align: left;
+  border-inline-start: 2px solid var(--link-color);
 }
 
 .hero-quote-quotation {
@@ -29,9 +30,8 @@ main > .hero-quote-container {
   font-size: 14.58px;
   font-weight: 400;
   line-height: 1.75;
-  color: var(--text-color);
+  color: var(--text-muted);
   text-align: left;
-  opacity: 0.85;
 }
 
 .hero-quote-quotation > :is(h1, h2, h3, h4, h5, h6) {
@@ -126,6 +126,206 @@ main > .hero-quote-container {
 }
 
 .hero-quote-controls button:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
-} 
+}
+
+.hero-quote.council-page-hero {
+  padding: clamp(32px, 6vw, 72px) 0 clamp(24px, 4vw, 48px);
+}
+
+.hero-quote.council-page-hero .hero-quote-carousel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'copy'
+    'sculpture';
+  align-items: center;
+  gap: 20px;
+  overflow: visible;
+}
+
+.hero-quote.council-page-hero .hero-quote-carousel:has(> .hero-quote-controls) {
+  grid-template-areas:
+    'copy'
+    'controls'
+    'sculpture';
+}
+
+.hero-quote.council-page-hero .hero-quote-slides {
+  grid-area: copy;
+  min-width: 0;
+}
+
+.hero-quote.council-page-hero blockquote {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hero-quote.council-page-hero .hero-quote-quotation {
+  margin: 0 0 16px;
+  font-size: var(--body-font-size-m);
+}
+
+.hero-quote.council-page-hero h1 {
+  max-width: 12ch;
+  margin: 0 0 24px;
+  font-size: clamp(42px, 5.7vw, 80px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.hero-quote.council-page-hero .hero-quote-quotation :is(p, ul, ol),
+.hero-quote.council-page-hero .hero-quote-attribution {
+  max-width: 58ch;
+  font-size: var(--body-font-size-m);
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+
+.hero-quote.council-page-hero .hero-quote-controls {
+  grid-area: controls;
+  justify-content: flex-start;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hero-quote.council-page-hero .hero-quote-controls button {
+  border: 1px solid var(--border-subtle);
+  background: var(--background-color);
+  color: var(--text-muted);
+  font-size: var(--body-font-size-xs);
+}
+
+.hero-quote.council-page-hero .hero-quote-controls button:disabled {
+  background: var(--light-color);
+  color: var(--text-soft);
+  cursor: default;
+  opacity: 1;
+}
+
+.hero-quote.council-page-hero .hero-quote-controls button:hover:not(:disabled) {
+  border-color: var(--link-color);
+  background: var(--surface-muted);
+  color: var(--link-color);
+}
+
+.council-page-hero .council-sculpture {
+  position: relative;
+  grid-area: sculpture;
+  justify-self: center;
+  width: min(78vw, 280px, 100%);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  perspective: 1100px;
+  isolation: isolate;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+.council-page-hero .council-sculpture::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: var(--grid-color);
+}
+
+.council-page-hero .council-sculpture::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-inline-end: 1px solid var(--border-subtle);
+  border-block-end: 1px solid var(--border-subtle);
+}
+
+.council-page-hero .council-sculpture-gimbal {
+  position: relative;
+  width: 78%;
+  height: 78%;
+  transform-style: preserve-3d;
+  transform: rotateX(-12deg) rotateY(-20deg) rotateZ(-6deg);
+  animation: council-orbit var(--motion-orbit) var(--motion-ease) 1 both;
+  animation-play-state: paused;
+}
+
+.council-page-hero.hero-quote-motion-active .council-sculpture-gimbal {
+  animation-play-state: running;
+}
+
+.council-page-hero .council-sculpture-ring {
+  position: absolute;
+  inset: 0;
+  border: clamp(10px, 1.6vw, 18px) solid;
+  border-color: #fffdf8 #a8aba3 #c8c4b9 #ece9e0;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1px rgb(36 37 34 / 18%),
+    inset 2px 2px 3px rgb(255 255 255 / 75%),
+    2px 4px 5px rgb(36 37 34 / 12%);
+}
+
+.council-page-hero .council-sculpture-ring-1 {
+  transform: rotateX(64deg) rotateZ(-22deg);
+}
+
+.council-page-hero .council-sculpture-ring-2 {
+  transform: rotateY(66deg) rotateZ(38deg);
+}
+
+.council-page-hero .council-sculpture-ring-3 {
+  transform: rotateX(30deg) rotateY(-45deg);
+}
+
+.council-page-hero .council-sculpture-core {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: clamp(20px, 2.4vw, 30px);
+  aspect-ratio: 1;
+  border: 1px solid var(--link-color);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #eec998, #b77b37 55%, var(--link-color));
+  box-shadow: 2px 3px 5px rgb(36 37 34 / 16%);
+  transform: translate(-50%, -50%) translateZ(12px);
+}
+
+@keyframes council-orbit {
+  from { transform: rotateX(-16deg) rotateY(-27deg) rotateZ(-10deg); }
+  to { transform: rotateX(-12deg) rotateY(-20deg) rotateZ(-6deg); }
+}
+
+@media (width >= 900px) {
+  .hero-quote.council-page-hero .hero-quote-carousel {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+    grid-template-areas: 'copy sculpture';
+    gap: 24px clamp(24px, 4vw, 64px);
+  }
+
+  .hero-quote.council-page-hero .hero-quote-carousel:has(> .hero-quote-controls) {
+    grid-template-areas:
+      'copy sculpture'
+      'controls sculpture';
+  }
+
+  .council-page-hero .council-sculpture {
+    width: min(100%, 420px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .council-page-hero .council-sculpture-gimbal {
+    animation: none;
+  }
+}

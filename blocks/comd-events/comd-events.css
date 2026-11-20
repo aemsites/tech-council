@@ -20,7 +20,7 @@
   margin-top: var(--space-xs);
   padding: var(--space-xs) 7px;
   border-radius: var(--radius-xs);
-  font-family: var(--body-font-family);
+  font-family: var(--label-font-family);
   font-size: var(--body-font-size-xs);
   line-height: 1.5;
   font-weight: 700;
@@ -48,7 +48,7 @@
 
 .comd-events .comd-events-meta {
   margin: 0 0 var(--space-xs);
-  font-family: var(--body-font-family);
+  font-family: var(--label-font-family);
   font-size: var(--body-font-size-xs);
   line-height: 1.35;
   color: var(--text-muted);

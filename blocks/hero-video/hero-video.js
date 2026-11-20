@@ -121,7 +121,9 @@ export default function decorate(block) {
   };
   const syncPlayback = () => {
     updateControl();
-    if (!playbackRequested || !inView || document.hidden || failed) {
+    const shouldPlay = playbackRequested && inView && !document.hidden && !failed;
+    videoContainer.classList.toggle('hero-video-motion-active', shouldPlay);
+    if (!shouldPlay) {
       video.pause();
       return;
     }
@@ -129,6 +131,7 @@ export default function decorate(block) {
       if (!video.paused || !playbackRequested || !inView || document.hidden) return;
       playbackRequested = false;
       updateControl();
+      videoContainer.classList.remove('hero-video-motion-active');
       status.textContent = 'Video paused. Select Play video to start.';
     });
   };

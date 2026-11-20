@@ -16,30 +16,38 @@
 
   /* colors */
   --background-color: #fff;
-  --light-color: #f3f3f3;
-  --dark-color: #001d26;
-  --text-color: #1d1d1d;
-  --text-muted: #445666;
-  --text-soft-muted: #607181;
-  --text-soft: #607181;
-  --link-color: #6a38ff; /* Purple */
-  --link-hover-color: #4b2cdc;
-  --surface-muted: #f6f9fc;
-  --border-subtle: rgb(0 29 38 / 10%);
+  --light-color: #f0ede5;
+  --dark-color: #242522;
+  --text-color: #242522;
+  --text-muted: #454840;
+  --text-soft-muted: #5d6057;
+  --text-soft: #5d6057;
+  --link-color: #80501f;
+  --link-hover-color: #603b17;
+  --focus-color: #242522;
+  --surface-muted: #f0ede5;
+  --border-subtle: #c8c1b5;
+  --grid-color: rgb(36 37 34 / 5%);
   --overlay-dark: rgb(19 19 19 / 80%);
   --overlay-dark-soft: rgb(19 19 19 / 25%);
   --overlay-dark-strong: rgb(19 19 19 / 75%);
   --white-95: rgb(255 255 255 / 95%);
 
   /* brand palette */
-  --color-primary: #ec0f1a;
+  --color-primary: #b30b13;
   --color-primary-dark: #b30b13;
-  --color-secondary: #001d26;
+  --color-secondary: #242522;
   --color-surface: #fff;
-
-  /* gradient colors */
-  --color-gradient-purple: #6a38ff;
   --color-brand-pure-white: #fff;
+
+  /* research interface motion */
+  --motion-fast: 140ms;
+  --motion-ui: 220ms;
+  --motion-intro: 640ms;
+  --motion-busy: 1100ms;
+  --motion-exhibit: 3600ms;
+  --motion-orbit: 3200ms;
+  --motion-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 
   /* spacing scale */
   --space-xs: 4px;
@@ -70,7 +78,6 @@
   --carousel-content-margin: 68px;
   --carousel-padding-tablet: 70px;
   --carousel-padding-desktop: 74px;
-  --carousel-gradient-width: 64px;
   --nav-button-size: 44px;
 
   /* icon / component sizes */
@@ -88,30 +95,18 @@
   /* overlays & surfaces */
   --overlay-border-light: rgb(255 255 255 / 35%);
   --overlay-banner: rgb(0 0 0 / 55%);
-  --gradient-edge-start: rgb(255 255 255 / 96%);
-  --gradient-edge-end: rgb(255 255 255 / 0%);
-  --surface-tint-light: #f5f3ff;
-  --surface-tint-lighter: #ede9fe;
-  --shadow-tint: 0 2px 8px rgb(99 102 241 / 8%);
+  --surface-tint-light: #f5f0e7;
+  --surface-tint-lighter: #e6e1d6;
 
   /* event card layout */
   --event-card-header-height: 88px;
   --event-card-bg: rgb(255 255 255 / 50%);
   --event-card-bg-hover: rgb(255 255 255 / 65%);
 
-  /* event card gradients */
-  --event-accent-purple: #6f55e8;
-  --event-accent-purple-light: #8f7bf1;
-  --event-accent-blue: #20a5df;
-  --event-accent-blue-light: #7bcceb;
-  --event-accent-green: #19bb84;
-  --event-accent-green-light: #7cd5b3;
-  --event-accent-amber: #ffb100;
-  --event-accent-amber-light: #ffda77;
-
   /* fonts */
   --body-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
   --heading-font-family: roboto, roboto-fallback, "Segoe UI", sans-serif;
+  --label-font-family: ui-monospace, "SFMono-Regular", menlo, consolas, monospace;
 
   /* body sizes */
   --body-font-size-m: clamp(17px, 1.2vw, 19px);
@@ -119,8 +114,8 @@
   --body-font-size-xs: 14px;
 
   /* heading sizes */
-  --heading-font-size-xxl: clamp(42px, 6vw, 64px);
-  --heading-font-size-xl: clamp(34px, 4.6vw, 48px);
+  --heading-font-size-xxl: clamp(42px, 7vw, 88px);
+  --heading-font-size-xl: clamp(34px, 4.6vw, 56px);
   --heading-font-size-l: clamp(27px, 3.1vw, 36px);
   --heading-font-size-m: clamp(23px, 2.4vw, 30px);
   --heading-font-size-s: clamp(20px, 1.9vw, 24px);
@@ -133,9 +128,9 @@
   --radius-m: 8px;
   --radius-l: 12px;
   --shadow-sm: none;
-  --shadow-md: 0 10px 28px rgb(0 29 38 / 12%);
-  --shadow-lg: 0 18px 44px rgb(0 29 38 / 16%);
-  --focus-ring: 0 0 0 2px var(--link-color);
+  --shadow-md: 0 2px 8px rgb(36 37 34 / 6%);
+  --shadow-lg: none;
+  --focus-ring: 0 0 0 2px var(--focus-color);
 }
 
 /* fallback fonts */
@@ -155,7 +150,7 @@
 body {
   display: none;
   margin: 0;
-  background: linear-gradient(to bottom, #E4C5F4 0, #B8A8E8 80px, #D4D8F4 160px, #FFF 320px, #FFF 100%);
+  background: var(--background-color);
   color: var(--text-color);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size-m);
@@ -191,9 +186,7 @@ footer .footer[data-block-status="loaded"] {
 
 /* Section skeleton loading
  * While a below-the-fold section loads, JS adds .section-loading to reserve its
- * slot (so nothing pops in above it) and show a shimmer placeholder. The
- * placeholder is delayed ~200ms so fast sections never flash a skeleton, and
- * the shimmer only animates when the user has no reduced-motion preference. */
+ * slot (so nothing pops in above it) and show a static placeholder. */
 main .section.section-loading {
   position: relative;
   min-height: 220px;
@@ -209,28 +202,8 @@ main .section.section-loading::after {
   position: absolute;
   inset: 12px;
   border-radius: 12px;
-  background-color: #eef1f6;
-  opacity: 0;
-  animation: section-skeleton-appear 0.2s ease-out 0.2s forwards;
-}
-
-@keyframes section-skeleton-appear {
-  to { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  main .section.section-loading::after {
-    background-image: linear-gradient(100deg, #eef1f6 40%, #f6f9fc 50%, #eef1f6 60%);
-    background-size: 200% 100%;
-    animation:
-      section-skeleton-appear 0.2s ease-out 0.2s forwards,
-      section-skeleton-shimmer 1.4s linear 0.2s infinite;
-  }
-}
-
-@keyframes section-skeleton-shimmer {
-  from { background-position: 150% 0; }
-  to { background-position: -150% 0; }
+  background-color: var(--surface-tint-lighter);
+  opacity: 1;
 }
 
 h1,
@@ -244,7 +217,7 @@ h6 {
   font-family: var(--heading-font-family);
   font-weight: 700;
   line-height: 1.08;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.035em;
   scroll-margin-top: calc(var(--nav-height) + 16px);
   text-wrap: balance;
   overflow-wrap: anywhere;
@@ -271,6 +244,7 @@ blockquote {
 code,
 pre {
   font-size: var(--body-font-size-s);
+  font-family: var(--label-font-family);
 }
 
 pre {
@@ -294,7 +268,7 @@ button {
 
 ::selection {
   color: #fff;
-  background: color-mix(in srgb, var(--link-color) 72%, #001d26);
+  background: var(--link-color);
 }
 
 /* links */
@@ -304,7 +278,7 @@ a:any-link {
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.12em;
   overflow-wrap: break-word;
-  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  transition: color var(--motion-fast) var(--motion-ease), text-decoration-color var(--motion-fast) var(--motion-ease);
 }
 
 a:hover {
@@ -334,6 +308,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
 
 
@@ -349,9 +324,19 @@ button:focus {
 button:disabled,
 button:disabled:hover {
   background-color: var(--light-color);
+  color: var(--text-soft);
   transform: none;
   box-shadow: none;
   cursor: unset;
+}
+
+a.button:not(.secondary):active {
+  background-color: var(--dark-color);
+  color: var(--background-color);
+}
+
+button:active:not(:disabled) {
+  border-color: var(--focus-color);
 }
 
 a.button.secondary,
@@ -380,7 +365,7 @@ main img {
 
 
 main > .section {
-  margin: clamp(22px, 8vw, 42px) 0;
+  margin: clamp(28px, 7vw, 64px) 0;
 }
 
 main > .section.fragment-container {
@@ -412,7 +397,7 @@ main .section.highlight {
 }
 
 :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
   box-shadow: none;
 }
@@ -422,7 +407,7 @@ main .section.highlight {
   *::before,
   *::after {
     animation: none !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
     scroll-behavior: auto !important;
   }
 }

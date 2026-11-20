@@ -1,19 +1,21 @@
 .section-heading {
   text-align: left;
-  margin: var(--space-l) 0 var(--space-m) 0;
+  margin: var(--space-l) 0 var(--space-ml) 0;
   overflow-wrap: anywhere;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--border-subtle);
 }
 
 .section-heading h2 {
   margin: 0 0 var(--space-s) 0;
-  font-size: clamp(26px, 3vw, var(--heading-font-size-m));
+  font-size: clamp(28px, 3.2vw, var(--heading-font-size-l));
   line-height: 1.25;
   font-family: var(--heading-font-family);
 }
 
 .section-heading p {
   margin: 0;
-  max-width: var(--content-max-width-narrow);
+  max-width: min(var(--content-max-width-narrow), 70ch);
   font-size: var(--body-font-size-s);
   color: var(--text-muted);
   line-height: 1.6;

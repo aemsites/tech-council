@@ -22,6 +22,7 @@
   margin: 0;
   color: var(--text-muted);
   font-size: var(--body-font-size-s);
+  font-family: var(--label-font-family);
   font-variant-numeric: tabular-nums;
 }
 
@@ -47,12 +48,12 @@
 }
 
 .recordings :is(.recordings-clear, .recordings-retry):focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
 }
 
 .recordings .recordings-clear:disabled {
-  color: var(--text-soft-muted, #607181);
+  color: var(--text-soft-muted, #5d6057);
   border-color: var(--border-subtle);
   background: var(--background-color);
   cursor: default;
@@ -84,7 +85,7 @@
   top: calc(var(--nav-height, 64px) + 16px);
   padding: 24px;
   box-sizing: border-box;
-  background: var(--background-color);
+  background: var(--color-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m, 8px);
 }
@@ -120,17 +121,18 @@
   min-height: 44px;
   box-sizing: border-box;
   padding: 10px 14px 10px 38px;
-  border: 1px solid rgb(226 232 240 / 90%);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m, 8px);
   font-size: var(--body-font-size-s);
   color: var(--text-color);
-  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23607181' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%235d6057' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;
   background-size: 16px;
   caret-color: var(--link-color);
 }
 
 .recordings-sidebar .recordings-search::placeholder {
-  color: var(--text-soft-muted, #607181);
+  color: var(--text-soft-muted, #5d6057);
+  opacity: 1;
 }
 
 .recordings-sidebar .recordings-search:hover,
@@ -139,7 +141,7 @@
 }
 
 .recordings-sidebar .recordings-search:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -148,7 +150,7 @@
   min-height: 44px;
   box-sizing: border-box;
   padding: 10px 36px 10px 12px;
-  border: 1px solid rgb(226 232 240 / 90%);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m, 8px);
   font-size: var(--body-font-size-s);
   color: var(--text-color);
@@ -158,7 +160,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L2 4h8L6 8z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  transition: border-color 0.2s;
+  transition: border-color var(--motion-fast) var(--motion-ease);
 }
 
 .recordings-sidebar .recordings-sort:hover,
@@ -167,7 +169,7 @@
 }
 
 .recordings-sidebar .recordings-sort:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -202,7 +204,7 @@
 
 .recordings-filter-option input[type="radio"]:focus-visible,
 .recordings-filter-option input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -240,7 +242,7 @@
   align-items: stretch;
   gap: 14px;
   min-height: 0;
-  background: var(--background-color);
+  background: var(--color-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m, 8px);
   padding: 0;
@@ -260,7 +262,7 @@
   z-index: 2;
   padding: var(--space-xs) var(--space-s);
   border-radius: var(--radius-xs);
-  font-family: var(--body-font-family);
+  font-family: var(--label-font-family);
   font-size: var(--body-font-size-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -282,7 +284,7 @@
 }
 
 .recordings .recordings-card-link:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: -4px;
 }
 
@@ -350,7 +352,7 @@
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
 }
 
 .recordings .recordings-like svg {
@@ -360,18 +362,18 @@
   stroke: currentcolor;
   stroke-width: 2;
   stroke-linejoin: round;
-  transition: transform 0.2s ease;
+  transition: transform var(--motion-fast) var(--motion-ease);
 }
 
 .recordings .recordings-like:hover {
   color: var(--link-color);
-  border-color: rgb(106 56 255 / 35%);
+  border-color: var(--link-hover-color);
 }
 
 .recordings .recordings-like[aria-pressed='true'] {
   color: var(--link-color);
-  border-color: rgb(106 56 255 / 40%);
-  background: rgb(106 56 255 / 8%);
+  border-color: var(--link-color);
+  background: var(--surface-tint-lighter);
 }
 
 .recordings .recordings-like[aria-pressed='true'] svg {
@@ -379,11 +381,17 @@
 }
 
 .recordings .recordings-like:active svg {
-  transform: scale(1.15) rotate(-8deg);
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordings .recordings-like:active svg {
+    transform: none;
+  }
 }
 
 .recordings .recordings-like:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -414,11 +422,11 @@
   font-weight: 600;
   overflow-wrap: anywhere;
   line-height: 1.25;
-  transition: color 0.2s ease;
+  transition: color var(--motion-fast) var(--motion-ease);
 }
 
 .recordings-detail a:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 4px;
 }
 
@@ -458,7 +466,7 @@
 
 .recordings-detail-surface {
   padding: clamp(20px, 3vw, 40px);
-  background: var(--background-color);
+  background: var(--color-surface);
   border-radius: var(--radius-xs);
 }
 
@@ -500,6 +508,7 @@
   font-size: var(--body-font-size-xs);
   color: var(--text-muted);
   font-weight: 400;
+  font-family: var(--label-font-family);
 }
 
 .recordings-detail-metadata dd {
@@ -663,7 +672,7 @@
 .recordings-summary-reader {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xs);
-  background: var(--background-color);
+  background: var(--color-surface);
 }
 
 .recordings-summary-toolbar {
@@ -686,6 +695,7 @@
 .recordings-summary-meta {
   color: var(--text-muted);
   font-size: 0.8125rem;
+  font-family: var(--label-font-family);
 }
 
 .recordings-summary-toolbar .recordings-summary-toggle {
@@ -723,7 +733,7 @@
 }
 
 .recordings-summary-toggle:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
 }
 
@@ -823,7 +833,7 @@
 
 .recordings-summary-content:focus-visible,
 .recordings-summary-outline a:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: -3px;
 }
 
@@ -847,7 +857,7 @@
 }
 
 .recordings-summary-body :is(h3, h4, h5, h6):focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 4px;
 }
 
@@ -1088,14 +1098,16 @@
 
 .recordings .recordings-card-body .recordings-date {
   font-size: 0.8125rem;
-  color: var(--text-soft-muted, #607181);
+  color: var(--text-soft-muted, #5d6057);
   font-weight: 500;
+  font-family: var(--label-font-family);
 }
 
 .recordings .recordings-card-body .recordings-tag {
   font-size: 0.8125rem;
   color: var(--link-color);
   font-weight: 500;
+  font-family: var(--label-font-family);
 }
 
 /* Responsive: sidebar above content on smaller screens */

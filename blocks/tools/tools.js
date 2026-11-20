@@ -95,8 +95,8 @@ function hashCode(str) {
 /** Destination for the "Add a tool" button (same-origin submission form). */
 const SUBMIT_TOOL_URL = '/toolsubmission';
 
-/** On-brand soft-tint palette (hue) for monogram tiles. */
-const MONO_HUES = [258, 230, 280, 200, 165, 320];
+/** Neutral palette for generated monogram tiles. */
+const MONO_HUES = [0];
 
 /** Derive 1–2 letter initials from a title. */
 function getInitials(title) {

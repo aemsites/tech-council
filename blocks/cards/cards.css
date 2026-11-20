@@ -10,12 +10,12 @@
 .cards > ul > li {
   min-width: 0;
   overflow-wrap: anywhere;
-  background-color: var(--background-color);
+  background-color: var(--color-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
 }
 
 .cards > ul > li:hover,
@@ -79,7 +79,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
 }
 
 .cards.objectives .cards-card-body {

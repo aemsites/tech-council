@@ -58,7 +58,7 @@
 }
 
 .content-ai-search :is(input, button, a, summary):focus-visible {
-  outline: 3px solid var(--link-color);
+  outline: 3px solid var(--focus-color);
   outline-offset: 3px;
 }
 
@@ -77,7 +77,7 @@
   line-height: 1.4;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+  transition: background-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
 }
 
 .content-ai-search button:hover {
@@ -119,13 +119,13 @@
   padding: 2px 6px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
-  background: var(--background-color);
+  background: var(--color-surface);
   box-shadow: none;
 }
 
 .content-ai-search-field:focus-within {
   border-color: var(--link-color);
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 2px;
 }
 
@@ -139,7 +139,7 @@
   padding: 8px 4px;
   border: 0;
   border-radius: 8px;
-  background: var(--background-color);
+  background: var(--color-surface);
   color: var(--text-color);
   caret-color: var(--link-color);
   font: inherit;
@@ -158,6 +158,7 @@
 
 .content-ai-search-field input::placeholder {
   color: var(--text-muted);
+  opacity: 1;
 }
 
 .content-ai-search button:is(.content-ai-search-clear, .content-ai-search-more, .content-ai-search-retry, .content-ai-search-copy) {
@@ -196,9 +197,9 @@
   padding: 16px 24px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
-  background: var(--background-color);
+  background: var(--color-surface);
   color: var(--text-color);
-  box-shadow: 0 6px 12px rgb(34 33 65 / 10%);
+  box-shadow: none;
   font-size: 20px;
   font-weight: 400;
   text-align: start;
@@ -304,7 +305,7 @@
   padding: 3px 7px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xs);
-  font-family: inherit;
+  font-family: var(--label-font-family);
 }
 
 .content-ai-search-ai-header {
@@ -330,6 +331,7 @@
   background: var(--surface-muted);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
+  border-block-start: 2px solid var(--link-color);
 }
 
 .content-ai-search-status {
@@ -348,15 +350,18 @@
 
 .content-ai-search-ai-section[aria-busy="true"] .content-ai-search-status::after {
   display: block;
-  width: min(100%, 70ch);
-  height: 72px;
+  width: min(30%, 120px);
+  height: 2px;
   margin-block-start: 24px;
-  background:
-    linear-gradient(var(--border-subtle), var(--border-subtle)) 0 0 / 100% 10px,
-    linear-gradient(var(--border-subtle), var(--border-subtle)) 0 28px / 92% 10px,
-    linear-gradient(var(--border-subtle), var(--border-subtle)) 0 56px / 68% 10px;
-  background-repeat: no-repeat;
+  background: var(--link-color);
+  transform-origin: left center;
+  animation: precision-busy var(--motion-busy) var(--motion-ease) infinite alternate;
   content: '';
+}
+
+@keyframes precision-busy {
+  from { transform: scaleX(0.35); }
+  to { transform: scaleX(1); }
 }
 
 .content-ai-search-results-panel {
@@ -420,7 +425,7 @@
 }
 
 .content-ai-search-results:focus-visible {
-  outline: 3px solid var(--link-color);
+  outline: 3px solid var(--focus-color);
   outline-offset: 3px;
 }
 
@@ -435,8 +440,9 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-m);
   color: var(--text-color);
+  background: var(--color-surface);
   text-decoration: none;
-  transition: border-color 160ms ease, background-color 160ms ease;
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
 }
 
 .content-ai-search-result:hover {
@@ -462,6 +468,7 @@
   margin-block-end: 12px;
   color: var(--text-muted);
   font-size: 12px;
+  font-family: var(--label-font-family);
   line-height: 1.4;
 }
 
@@ -485,7 +492,7 @@
 
 .content-ai-search-results[data-layout="list"] .content-ai-search-result {
   flex-direction: row;
-  background: var(--background-color);
+  background: var(--color-surface);
 }
 
 .content-ai-search-results[data-layout="list"] .content-ai-search-result:hover {
@@ -570,6 +577,7 @@
   mask: url('./chevron-down.svg') no-repeat center / contain;
   content: '';
   transform: rotate(-90deg);
+  transition: transform var(--motion-fast) var(--motion-ease);
 }
 
 .content-ai-search-source-disclosure[open] > .content-ai-search-source-summary::before {

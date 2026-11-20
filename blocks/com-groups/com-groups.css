@@ -11,14 +11,14 @@
   min-width: 0;
   overflow-wrap: anywhere;
   position: relative;
-  background: var(--background-color);
+  background: var(--color-surface);
   border-radius: var(--radius-m);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   padding: calc(var(--space-l) + 56px) var(--space-m) var(--space-m);
   min-height: 208px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: border-color var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
 }
 
 .com-groups .com-groups-card:hover,
@@ -98,7 +98,7 @@
 }
 
 .com-groups .com-groups-link:focus-visible {
-  outline: 3px solid var(--link-color);
+  outline: 3px solid var(--focus-color);
   outline-offset: -3px;
 }
 

@@ -117,6 +117,6 @@ main .section.lottie-animation-v7-container > div {
 }
 
 .lottie-animation-v7 .lottie-playback:focus-visible {
-  outline: 2px solid var(--link-color);
+  outline: 2px solid var(--focus-color);
   outline-offset: 3px;
 }

@@ -179,7 +179,13 @@ async function fieldChanged(payload, form, generateFormRendition) {
         if (fieldWrapper) {
           let labelEl = fieldWrapper.querySelector('.field-label');
           if (labelEl) {
-            labelEl.textContent = currentValue.value;
+            const accordionLabel = labelEl.querySelector(':scope > .accordion-label');
+            const labelTarget = accordionLabel || labelEl;
+            labelTarget.textContent = currentValue.value;
+            if (accordionLabel) {
+              labelEl.querySelector(':scope > .accordion-toggle')
+                ?.setAttribute('aria-label', labelTarget.textContent.trim() || 'Toggle section');
+            }
             labelEl.setAttribute('data-visible', currentValue.visible);
           } else if (fieldType === 'button') {
             field.textContent = currentValue.value;

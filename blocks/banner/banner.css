@@ -57,6 +57,11 @@
   background-color: var(--link-hover-color);
 }
 
+.banner a:focus-visible {
+  outline: 2px solid var(--background-color);
+  outline-offset: 3px;
+}
+
 .banner picture {
   position: absolute;
   z-index: -2; /* push image below overlay */

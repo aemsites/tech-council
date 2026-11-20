@@ -25,14 +25,20 @@ export default function decorate(panel) {
     legend?.classList.add('accordion-legend');
     if (index !== 0) tab.classList.toggle('accordion-collapse'); // collapse all but the first tab on load
     if (legend) {
+      const label = document.createElement('span');
+      label.className = 'accordion-label';
+      label.append(...legend.childNodes);
       const toggle = document.createElement('button');
       toggle.type = 'button';
       toggle.className = 'accordion-toggle';
-      toggle.append(...legend.childNodes);
+      toggle.setAttribute('aria-label', label.textContent.trim() || 'Toggle section');
       toggle.setAttribute('aria-expanded', String(index === 0));
       if (tab.id) toggle.setAttribute('aria-controls', tab.id);
-      legend.append(toggle);
+      legend.append(label, toggle);
       toggle.addEventListener('click', () => handleAccordionNavigation(panel, tab));
+      legend.addEventListener('click', (event) => {
+        if (!event.target.closest('a, button')) toggle.click();
+      });
     }
   });
   return panel;

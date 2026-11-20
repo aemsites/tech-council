@@ -24,3 +24,8 @@ footer .footer p {
 footer a:any-link {
   color: var(--background-color);
 }
+
+footer a:focus-visible {
+  outline: 2px solid var(--background-color);
+  outline-offset: 3px;
+}
