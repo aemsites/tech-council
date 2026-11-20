@@ -323,6 +323,13 @@
   letter-spacing: -0.025em;
 }
 
+.content-ai-search-attribution {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .content-ai-search-ai-panel {
   box-sizing: border-box;
   min-height: 400px;
