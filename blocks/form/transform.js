@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { getId } from './util.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 function handleCheckboxAndRadio(field) {
   // if fieldType is checkbox and value is not empty then convert it to enum.
@@ -18,8 +19,8 @@ function handleCheckboxAndRadio(field) {
 
 function extractRules(field) {
   const rulesMapping = {
-    value: 'Value Expression',
-    visible: 'Visible Expression',
+    value: 'value expression',
+    visible: 'visible expression',
   };
   const entries = Object.entries(rulesMapping)
     // eslint-disable-next-line no-unused-vars
@@ -101,25 +102,25 @@ function handleFranklinSpecialCases(item) {
   // Franklin Mandatory uses x for true.
   item.required = (item.required === 'x' || item.required === true);
 
-  if (item.Max || item.Min || item?.constraintMessages?.max || item?.constraintMessages?.min) {
+  if (item.max || item.min || item?.constraintMessages?.max || item?.constraintMessages?.min) {
     if (item.fieldType === 'number-input' || item.fieldType === 'date' || item.fieldType === 'datetime-local-input' || item.fieldType === 'range') {
-      item.maximum = item.Max;
-      item.minimum = item.Min;
+      item.maximum = item.max;
+      item.minimum = item.min;
       setProperty(item.constraintMessages, 'maximum', item?.constraintMessages?.max);
       setProperty(item.constraintMessages, 'minimum', item?.constraintMessages?.min);
     } else if (item.fieldType === 'panel') {
-      item.maxOccur = item.Max;
-      item.minOccur = item.Min;
+      item.maxOccur = item.max;
+      item.minOccur = item.min;
       setProperty(item.constraintMessages, 'maxOccur', item?.constraintMessages?.max);
       setProperty(item.constraintMessages, 'minOccur', item?.constraintMessages?.min);
     } else {
-      item.maxLength = item.Max;
-      item.minLength = item.Min;
+      item.maxLength = item.max;
+      item.minLength = item.min;
       setProperty(item.constraintMessages, 'maxLength', item?.constraintMessages?.max);
       setProperty(item.constraintMessages, 'minLength', item?.constraintMessages?.min);
     }
-    delete item.Max;
-    delete item.Min;
+    delete item.max;
+    delete item.min;
     delete item?.constraintMessages?.max;
     delete item?.constraintMessages?.min;
   }
@@ -209,16 +210,17 @@ export default class DocBasedFormToAF {
     this.panelMap.set('root', formDef);
     const fieldIdMap = {};
     const rules = [];
-    exData.data.forEach((data) => {
-      this.containerNamesSet.add(data?.Fieldset);
+    const rows = exData.data.map(normalizeSheetRow);
+    rows.forEach((data) => {
+      this.containerNamesSet.add(data?.fieldset);
     });
-    exData.data.forEach((/** @type {{ [s: string]: any; } | ArrayLike<any>} */ item, index) => {
-      if (item.Type) {
+    rows.forEach((/** @type {{ [s: string]: any; } | ArrayLike<any>} */ item, index) => {
+      if (item.type) {
         // eslint-disable-next-line no-unused-vars
         const source = Object.fromEntries(Object.entries(item).filter(([_, v]) => (v != null && v !== '')));
         let field = { ...source, ...initField() };
-        field.id = field.Id || getId(field.Name);
-        field.value = field.Value || '';
+        field.id = field.id || getId(field.name);
+        field.value = field.value || '';
         this.#transformFieldNames(field);
 
         if (field?.fieldType === 'submit') {
@@ -281,10 +283,13 @@ export default class DocBasedFormToAF {
      * @param {any} field Form Def received from excel
      */
   #transformFieldNames(field) {
+    const source = { ...field };
     Object.keys(this.fieldPropertyMapping).forEach((key) => {
-      if (field[key]) {
-        field[this.fieldPropertyMapping[key]] = field[key];
-        delete field[key];
+      const column = key.toLowerCase();
+      const property = this.fieldPropertyMapping[key];
+      if (source[column]) {
+        if (column !== property) delete field[column];
+        field[property] = source[column];
       }
     });
   }
@@ -294,7 +299,7 @@ export default class DocBasedFormToAF {
    * @param {Object} field
    */
   #addToParent(field) {
-    const parent = field?.Fieldset || 'root';
+    const parent = field?.fieldset || 'root';
     const parentField = this.panelMap.get(this.panelMap.has(parent) ? parent : 'root');
     parentField.items = parentField.items || [];
     parentField.items.push(field);

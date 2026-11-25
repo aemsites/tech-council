@@ -11,6 +11,7 @@
  */
 
 import { toCamelCase } from './aem.js';
+import normalizeSheetRow from '../utils/sheet.js';
 
 /**
  * Gets placeholders object.
@@ -31,9 +32,10 @@ export async function fetchPlaceholders(prefix = 'default') {
         }).then((json) => {
           const placeholders = {};
           json.data
-            .filter((placeholder) => placeholder.Key)
+            .map(normalizeSheetRow)
+            .filter((placeholder) => placeholder.key)
             .forEach((placeholder) => {
-              placeholders[toCamelCase(placeholder.Key)] = placeholder.Text;
+              placeholders[toCamelCase(placeholder.key)] = placeholder.text;
             });
           window.placeholders[prefix] = placeholders;
           resolve(window.placeholders[prefix]);

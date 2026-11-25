@@ -1,3 +1,5 @@
+import normalizeSheetRow from '../../utils/sheet.js';
+
 /** A field is considered empty when it's null/undefined, blank, or the number/string 0. */
 function isEmptyField(value) {
   if (value == null) return true;
@@ -119,7 +121,7 @@ async function fetchRecordingsData() {
     if (data.length === 0 && (!json.data || !Array.isArray(json.data))) {
       console.warn('[Recordings] No data array in response:', url, Object.keys(json));
     }
-    return data;
+    return data.map(normalizeSheetRow);
   } catch (e) {
     console.warn('[Recordings] Sheet fetch error:', e?.message || e, url);
     return [];
@@ -159,7 +161,7 @@ async function loadLikes() {
 
 /** Recordings are liked by their recording link, so likes survive title edits. */
 function getLikeItem(row) {
-  const link = normalizeField(row.recordingLink);
+  const link = normalizeField(row.recordinglink);
   return link.startsWith('https://') && isSafeUrl(link) ? link : '';
 }
 
@@ -839,7 +841,7 @@ async function renderTalkDetail(block, data, talk) {
 
   document.title = `${normalizeField(row.title)} | Recordings`;
 
-  const embedUrl = getRecordingEmbedUrl(row.embedUrl);
+  const embedUrl = getRecordingEmbedUrl(row.embedurl);
   const details = embedUrl ? document.createElement('div') : intro;
   if (embedUrl) {
     article.classList.add('recordings-detail-embedded');
@@ -885,8 +887,8 @@ async function renderTalkDetail(block, data, talk) {
   const actions = document.createElement('div');
   actions.className = 'recordings-detail-actions';
   [
-    ['Watch recording', embedUrl ? '' : normalizeField(row.recordingLink), 'play'],
-    ['View presentation', normalizeField(row.presentationLink), 'slides'],
+    ['Watch recording', embedUrl ? '' : normalizeField(row.recordinglink), 'play'],
+    ['View presentation', normalizeField(row.presentationlink), 'slides'],
   ].forEach(([label, url, icon]) => {
     if (!isSafeUrl(url)) return;
     const link = document.createElement('a');

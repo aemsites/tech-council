@@ -1,5 +1,6 @@
 import { decorateIcons } from '../../scripts/aem.js';
 import { fetchPlaceholders } from '../../scripts/placeholders.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 const EVENTS_SHEET_PATH = '/forms/events-form/events.json?sheet=events';
 const EVENTS_SHEET_ORIGIN = 'https://main--tech-council--aemsites.aem.page';
@@ -36,7 +37,7 @@ async function fetchEventsData() {
     if (data.length === 0 && (!json.data || !Array.isArray(json.data))) {
       console.warn('[Events] No data array in response:', url, Object.keys(json));
     }
-    return data;
+    return data.map(normalizeSheetRow);
   } catch (e) {
     console.warn('[Events] Sheet fetch error:', e?.message || e, url);
     return [];
@@ -98,7 +99,7 @@ function filterAndSortEvents(data) {
 
   const parsed = data.map((row) => ({
     ...row,
-    parsedDate: parseEventDate(row.dateTime),
+    parsedDate: parseEventDate(row.datetime),
   }));
 
   const upcoming = parsed
@@ -205,7 +206,7 @@ function buildEventCard(row) {
     body.append(dateEl);
   }
 
-  const room = normalizeField(row.meetingRoom);
+  const room = normalizeField(row.meetingroom);
   if (room) {
     const locationEl = document.createElement('p');
     locationEl.className = 'events-card-location';
@@ -226,7 +227,7 @@ function buildEventCard(row) {
     body.append(tagEl);
   }
 
-  const meetingLink = normalizeField(row.meetingLink);
+  const meetingLink = normalizeField(row.meetinglink);
   if (isUpcoming && meetingLink && isSafeUrl(meetingLink)) {
     const joinBtn = document.createElement('a');
     joinBtn.href = meetingLink;

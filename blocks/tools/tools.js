@@ -1,3 +1,5 @@
+import normalizeSheetRow from '../../utils/sheet.js';
+
 /**
  * Tools block.
  *
@@ -75,7 +77,7 @@ async function fetchToolsData(sourceUrl) {
       return [];
     }
     const json = await resp.json();
-    return Array.isArray(json?.data) ? json.data : [];
+    return Array.isArray(json?.data) ? json.data.map(normalizeSheetRow) : [];
   } catch (e) {
     console.warn('[Tools] Sheet fetch error:', e?.message || e, sourceUrl);
     return [];

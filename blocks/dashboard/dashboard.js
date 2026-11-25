@@ -1,3 +1,5 @@
+import normalizeSheetRow from '../../utils/sheet.js';
+
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -110,8 +112,13 @@ function record(row) {
 }
 
 function createTable(dataset) {
-  const rows = dataset.rows.map(record);
-  const columns = [...new Set(rows.flatMap((row) => Object.keys(row)))];
+  const records = dataset.rows.map(record);
+  const columnLabels = new Map();
+  records.forEach((row) => Object.keys(row).forEach((key) => {
+    if (!columnLabels.has(key.toLowerCase())) columnLabels.set(key.toLowerCase(), label(key));
+  }));
+  const rows = records.map(normalizeSheetRow);
+  const columns = [...columnLabels.keys()];
   const section = element('section', 'dashboard-dataset');
   const region = element('div', 'dashboard-table-region');
   region.tabIndex = 0;
@@ -122,7 +129,7 @@ function createTable(dataset) {
   const head = element('thead');
   const header = element('tr');
   columns.forEach((key) => {
-    const th = element('th', '', label(key));
+    const th = element('th', '', columnLabels.get(key));
     th.scope = 'col';
     header.append(th);
   });
@@ -132,7 +139,7 @@ function createTable(dataset) {
     const tr = element('tr');
     columns.forEach((key) => {
       const td = element('td');
-      td.dataset.label = label(key);
+      td.dataset.label = columnLabels.get(key);
       td.append(renderValue(row[key]));
       tr.append(td);
     });

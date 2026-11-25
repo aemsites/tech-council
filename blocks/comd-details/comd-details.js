@@ -1,4 +1,5 @@
 import { decorateIcons } from '../../scripts/aem.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 function toRelativeUrl(input) {
   if (!input) return '';
@@ -63,7 +64,7 @@ export default async function decorate(block) {
     });
     if (!response.ok) throw new Error(`Failed to fetch ${relativeSource}`);
     const payload = await response.json();
-    const records = Array.isArray(payload?.data) ? payload.data : [];
+    const records = Array.isArray(payload?.data) ? payload.data.map(normalizeSheetRow) : [];
 
     const nameFromUrl = new URL(window.location.href).searchParams.get('name');
     const selected = pickCommunity(records, nameFromUrl);

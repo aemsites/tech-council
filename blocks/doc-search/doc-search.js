@@ -2,6 +2,7 @@ import {
   buildBlock, createOptimizedPicture, getMetadata, loadCSS,
 } from '../../scripts/aem.js';
 import createTag from '../../utils/tag.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 const CURSOR_BLINK = 580; // in milliseconds
 const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json';
@@ -62,8 +63,7 @@ export async function fetchSourceData(index, faq = '') {
   try {
     const resp = await fetch(index);
     const json = await resp.json();
-    // return json.data ? json.data : [];
-    window.docs = json.data ? json.data : [];
+    window.docs = Array.isArray(json?.data) ? json.data.map(normalizeSheetRow) : [];
     if (faq) {
       // eslint-disable-next-line no-use-before-define
       const faqResp = await fetchSourceDataHTML(faq);
@@ -119,8 +119,8 @@ function mapRecordingToSearchDoc(row) {
   const speaker = String(row.speaker || '').trim();
   const date = String(row.date || '').trim();
   const tag = String(row.tag || '').trim();
-  const recordingLink = String(row.recordingLink || '').trim();
-  const presentationLink = String(row.presentationLink || '').trim();
+  const recordingLink = String(row.recordinglink || '').trim();
+  const presentationLink = String(row.presentationlink || '').trim();
   const description = [speaker, tag].filter(Boolean).join(' | ') || 'Recording';
   // Keep destination on /recordings while making each entry unique for de-dupe.
   const path = '/recordings';
@@ -143,7 +143,7 @@ export async function fetchRecordingsData(index) {
   try {
     const resp = await fetch(index);
     const json = await resp.json();
-    const rows = Array.isArray(json?.data) ? json.data : [];
+    const rows = Array.isArray(json?.data) ? json.data.map(normalizeSheetRow) : [];
     return rows.map(mapRecordingToSearchDoc).filter(Boolean);
   } catch (error) {
     return [];
@@ -160,9 +160,9 @@ function mapEventToSearchDoc(row) {
   const title = String(row.title || '').trim();
   if (!title) return null;
   const speaker = String(row.speaker || '').trim();
-  const dateTime = String(row.dateTime || '').trim();
+  const dateTime = String(row.datetime || '').trim();
   const tag = String(row.tag || '').trim();
-  const meetingRoom = String(row.meetingRoom || '').trim();
+  const meetingRoom = String(row.meetingroom || '').trim();
   const description = [speaker, tag].filter(Boolean).join(' | ') || 'Event';
   // Keep destination on /events while making each entry unique for de-dupe.
   const path = '/events';
@@ -185,7 +185,7 @@ export async function fetchEventsData(index) {
   try {
     const resp = await fetch(index);
     const json = await resp.json();
-    const rows = Array.isArray(json?.data) ? json.data : [];
+    const rows = Array.isArray(json?.data) ? json.data.map(normalizeSheetRow) : [];
     return rows.map(mapEventToSearchDoc).filter(Boolean);
   } catch (error) {
     return [];

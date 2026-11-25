@@ -1,5 +1,6 @@
 import { decorateIcons } from '../../scripts/aem.js';
 import { fetchPlaceholders } from '../../scripts/placeholders.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 /**
  * Decorates icon-cards block converting its default table structure into
@@ -178,7 +179,7 @@ async function buildListFromDataSource(sourceUrl) {
   if (!response.ok) throw new Error(`Failed to fetch ${sourceUrl}`);
 
   const payload = await response.json();
-  const records = Array.isArray(payload?.data) ? payload.data : [];
+  const records = Array.isArray(payload?.data) ? payload.data.map(normalizeSheetRow) : [];
   records.forEach((record) => {
     ul.append(createCardFromRecord(record));
   });

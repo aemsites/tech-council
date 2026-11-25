@@ -1,3 +1,5 @@
+import normalizeSheetRow from '../../utils/sheet.js';
+
 function normalizeIconName(name = '') {
   const value = String(name)
     .trim()
@@ -67,7 +69,7 @@ async function fetchGroupsData(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to fetch groups (${response.status})`);
   const json = await response.json();
-  return Array.isArray(json?.data) ? json.data : [];
+  return Array.isArray(json?.data) ? json.data.map(normalizeSheetRow) : [];
 }
 
 function getSourceUrl(block) {

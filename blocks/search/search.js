@@ -3,6 +3,7 @@ import {
   decorateIcons,
 } from '../../scripts/aem.js';
 import { fetchPlaceholders } from '../../scripts/placeholders.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 const searchParams = new URLSearchParams(window.location.search);
 
@@ -80,7 +81,7 @@ export async function fetchData(source) {
     return null;
   }
 
-  return json.data;
+  return Array.isArray(json.data) ? json.data.map(normalizeSheetRow) : json.data;
 }
 
 function renderResult(result, searchTerms, titleTag) {

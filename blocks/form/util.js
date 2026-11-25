@@ -1,6 +1,7 @@
 // create a string containing head tags from h1 to h5
 import { defaultErrorMessages } from './constant.js';
 import { externalize } from './rules/functions.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 const headings = Array.from({ length: 6 }, (_, i) => `<h${i + 1}>`).join('');
 const allowedTags = `${headings}<a><b><p><i><em><strong><ul><li><ol><br><hr><u><sup><sub><s>`;
@@ -411,9 +412,9 @@ export function createDropdownUsingEnum(fd, wrapper) {
         .then(async (response) => {
           const json = await response.json();
           const values = [];
-          json.data.forEach((opt) => {
-            addOption(opt.Option, opt.Value);
-            values.push(opt.Value || opt.Option);
+          json.data.map(normalizeSheetRow).forEach((opt) => {
+            addOption(opt.option, opt.value);
+            values.push(opt.value || opt.option);
           });
         });
     }

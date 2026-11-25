@@ -1,3 +1,5 @@
+import normalizeSheetRow from '../../utils/sheet.js';
+
 function toRelativeUrl(input) {
   if (!input) return '';
 
@@ -69,7 +71,7 @@ export default async function decorate(block) {
     if (!response.ok) throw new Error(`Failed to fetch ${relativeSource}`);
 
     const payload = await response.json();
-    const records = Array.isArray(payload?.data) ? payload.data : [];
+    const records = Array.isArray(payload?.data) ? payload.data.map(normalizeSheetRow) : [];
     const queryName = new URL(window.location.href).searchParams.get('name');
     const filtered = resolveCommunityRoles(records, queryName)
       .sort((a, b) => roleRank(a.role) - roleRank(b.role));

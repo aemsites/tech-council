@@ -5,6 +5,7 @@
  * concurrent search and AI requests, cancellation, and site tokens. See the repository LICENSE.
  */
 import { readBlockConfig } from '../../scripts/aem.js';
+import normalizeSheetRow from '../../utils/sheet.js';
 
 let instance = 0;
 const MAX_TOP_UP_REQUESTS = 3;
@@ -70,7 +71,7 @@ function sourcePage(value, sourcePages) {
 
 function buildSourcePages(recordings) {
   const pages = new Map();
-  recordings.forEach((row) => {
+  recordings.map(normalizeSheetRow).forEach((row) => {
     const title = typeof row.title === 'string' ? row.title.trim() : '';
     const key = sourceKey(row.summary);
     if (!title || title === '0' || !key.startsWith('/fragments/tech-talks-summary/')
