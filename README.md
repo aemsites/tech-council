@@ -46,6 +46,11 @@ For the Tech Council contract, talk-summary fragments are first resolved to real
 `/recordings?talk=...` pages using each recording's authored `summary` field.
 This restores matching talks and AI citations without exposing fragment URLs or
 guessing talk titles from slugs. Unmapped technical sources remain excluded.
+Individual `/recordings?talk=...` sources also use the recordings sheet's title
+and, when available, description instead of generic indexed "Recordings" metadata.
+The same mapping applies to both AI Sources and search results. Opening a talk
+updates its browser title, description, and Open Graph/Twitter title and description.
+These browser-side changes do not update metadata already stored in the AI index.
 Event fragments link to their owning `/events` page. Indexed sign-in captures
 are excluded rather than being presented as event or recording content.
 If matches exist but none have usable page links, the results explain that rather

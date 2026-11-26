@@ -839,7 +839,28 @@ async function renderTalkDetail(block, data, talk) {
     return;
   }
 
-  document.title = `${normalizeField(row.title)} | Recordings`;
+  const title = normalizeField(row.title);
+  const speaker = normalizeField(row.speaker);
+  const talkDescription = normalizeField(row.description);
+  const pageTitle = `${title} | Recordings`;
+  const pageDescription = talkDescription
+    || `Watch the Tech Council recording of ${title}${speaker ? ` by ${speaker}` : ''}.`;
+  document.title = pageTitle;
+  [
+    ['name', 'description', pageDescription],
+    ['property', 'og:title', pageTitle],
+    ['property', 'og:description', pageDescription],
+    ['name', 'twitter:title', pageTitle],
+    ['name', 'twitter:description', pageDescription],
+  ].forEach(([attribute, key, value]) => {
+    let meta = document.head.querySelector(`meta[${attribute}="${key}"]`);
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute(attribute, key);
+      document.head.append(meta);
+    }
+    meta.setAttribute('content', value);
+  });
 
   const embedUrl = getRecordingEmbedUrl(row.embedurl);
   const details = embedUrl ? document.createElement('div') : intro;
@@ -871,11 +892,10 @@ async function renderTalkDetail(block, data, talk) {
     details.append(createLikeButton(likeItem, normalizeField(row.title)));
   }
 
-  const description = normalizeField(row.description);
-  if (description) {
+  if (talkDescription) {
     const content = document.createElement('p');
     content.className = 'recordings-detail-description';
-    content.textContent = description;
+    content.textContent = talkDescription;
     intro.append(content);
   }
 

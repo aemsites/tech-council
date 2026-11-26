@@ -51,7 +51,9 @@ function sourceKey(value) {
   const siteHost = /^(?:techcouncil\.corp\.adobe\.com|[\w-]+--tech-council--aemsites\.aem\.(?:page|live))$/i;
   if (url.origin !== window.location.origin
     && (url.protocol !== 'https:' || url.port || !siteHost.test(url.hostname))) return '';
-  return decodedPath(url.pathname).replace(/\/+$/, '').replace(/\.html$/i, '') || '/';
+  const path = decodedPath(url.pathname).replace(/\/+$/, '').replace(/\.html$/i, '') || '/';
+  const talk = url.searchParams.get('talk')?.trim();
+  return path === '/recordings' && talk ? `${path}?${new URLSearchParams({ talk })}` : path;
 }
 
 function resultUrls(item) {
@@ -73,20 +75,29 @@ function buildSourcePages(recordings) {
   const pages = new Map();
   recordings.map(normalizeSheetRow).forEach((row) => {
     const title = typeof row.title === 'string' ? row.title.trim() : '';
-    const key = sourceKey(row.summary);
-    if (!title || title === '0' || !key.startsWith('/fragments/tech-talks-summary/')
-      || pages.has(key)) return;
+    if (!title || title === '0') return;
     const url = new URL('/recordings', TECH_COUNCIL_ORIGIN);
     url.searchParams.set('talk', title);
-    pages.set(key, { url: url.href, title });
+    const description = typeof row.description === 'string' ? row.description.trim() : '';
+    const page = { url: url.href, title, description: description === '0' ? '' : description };
+    const recordingKey = sourceKey(url.href);
+    if (!pages.has(recordingKey)) pages.set(recordingKey, page);
+    const summaryKey = sourceKey(row.summary);
+    if (summaryKey.startsWith('/fragments/tech-talks-summary/') && !pages.has(summaryKey)) {
+      pages.set(summaryKey, page);
+    }
   });
   return pages;
 }
 
 async function loadSourcePages(items, text = '') {
-  const needsPages = /\/fragments\/tech-talks-summary\//i.test(text) || items.filter(Boolean)
+  const needsPages = /\/fragments\/tech-talks-summary\/|\/recordings(?:\.html)?\/?\?[^\s]*\btalk=/i.test(text) || items.filter(Boolean)
     .some((item) => resultUrls(item)
-      .some((value) => sourceKey(value).startsWith('/fragments/tech-talks-summary/')));
+      .some((value) => {
+        const key = sourceKey(value);
+        return key.startsWith('/fragments/tech-talks-summary/')
+          || key.startsWith('/recordings?talk=');
+      }));
   if (!needsPages) return new Map();
   if (!sourcePagesPromise) {
     sourcePagesPromise = fetch('/forms/recording-form/recordings.json?sheet=recordings', {
@@ -214,7 +225,8 @@ function normalizeResult(item, sourcePages) {
   const meta = data.metadata || {};
   if (/^(?:Adobe Inc\s*-\s*)?Sign In$/i.test(String(meta.title || data.title || '').trim())) return null;
   const urls = resultUrls(item);
-  const source = urls.find((value) => pageUrl(value))
+  const source = urls.find((value) => sourcePage(value, sourcePages))
+    || urls.find((value) => pageUrl(value))
     || urls.find((value) => pageUrl(value, sourcePages));
   const url = pageUrl(source, sourcePages);
   if (!url) return null;
@@ -224,7 +236,9 @@ function normalizeResult(item, sourcePages) {
   let label = decodedPath(parsed.pathname).split('/').filter(Boolean).pop() || '';
   label = (label || parsed.hostname).replace(/[-_]/g, ' ');
   label = label.charAt(0).toUpperCase() + label.slice(1);
-  const authoredDescription = typeof meta.description === 'string' ? meta.description : '';
+  const page = sourcePage(source, sourcePages);
+  const authoredDescription = page?.description
+    || (typeof meta.description === 'string' ? meta.description : '');
   const preview = element('div');
   renderAnswer(
     preview,
@@ -236,7 +250,7 @@ function normalizeResult(item, sourcePages) {
   return {
     key: parsed.href,
     url,
-    title: sourcePage(source, sourcePages)?.title || meta.title || data.title || label,
+    title: page?.title || meta.title || data.title || label,
     description: authoredDescription ? description : description.replace(/[#*_`]/g, '').slice(0, 180),
     image: safeUrl(meta.image || meta.meta?.image),
   };
