@@ -1,6 +1,8 @@
 import normalizeSheetRow from '../../utils/sheet.js';
 import parseRecordingTime, { getRecordingTime } from '../../utils/recording-time.js';
 
+let playerSequence = 0;
+
 /** A field is considered empty when it's null/undefined, blank, or the number/string 0. */
 function isEmptyField(value) {
   if (value == null) return true;
@@ -1300,12 +1302,12 @@ async function renderTalkDetail(block, data, talk) {
     else header.append(resources);
   }
 
+  const player = embedUrl ? document.createElement('iframe') : null;
   if (embedUrl) {
     const stage = document.createElement('div');
     stage.className = 'recordings-detail-stage';
     const video = document.createElement('div');
     video.className = 'recordings-detail-video';
-    const player = document.createElement('iframe');
     player.src = embedUrl;
     player.title = `${normalizeField(row.title)} recording`;
     player.width = '800';
@@ -1316,14 +1318,35 @@ async function renderTalkDetail(block, data, talk) {
     help.className = 'recordings-player-help';
     help.setAttribute('aria-label', 'Recording sign-in help');
     const helpText = document.createElement('p');
-    helpText.textContent = 'Player not loading? Sign in to SharePoint in a new tab, '
-      + 'then return here and reload the player. Use the same browser or private window.';
+    const helpTitle = document.createElement('strong');
+    helpTitle.textContent = 'Trouble playing?';
+    helpText.append(helpTitle, document.createTextNode(
+      'Open SharePoint in a new tab, then reload. Use the same browser or private window.',
+    ));
     const helpActions = document.createElement('div');
     helpActions.className = 'recordings-player-help-actions';
+    const playerFrame = document.createElement('div');
+    playerSequence += 1;
+    playerFrame.id = `recordings-embedded-player-${playerSequence}`;
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'button secondary recordings-player-toggle';
+    toggle.textContent = 'Hide player';
+    toggle.setAttribute('aria-controls', playerFrame.id);
+    toggle.setAttribute('aria-expanded', 'true');
+    const setPlayerVisible = (visible) => {
+      playerFrame.hidden = !visible;
+      if (visible && !player.parentElement) playerFrame.append(player);
+      else if (!visible) player.remove();
+      toggle.textContent = visible ? 'Hide player' : 'Show player';
+      toggle.setAttribute('aria-expanded', String(visible));
+    };
+    toggle.addEventListener('click', () => setPlayerVisible(playerFrame.hidden));
     const signIn = document.createElement('a');
     signIn.className = 'button recordings-player-sign-in';
     signIn.href = embedUrl;
-    signIn.textContent = 'Sign in to SharePoint';
+    signIn.textContent = 'Sign in';
+    signIn.setAttribute('aria-label', 'Sign in to SharePoint');
     signIn.target = '_blank';
     signIn.rel = 'noopener';
     const reload = document.createElement('button');
@@ -1332,10 +1355,12 @@ async function renderTalkDetail(block, data, talk) {
     reload.textContent = 'Reload player';
     reload.addEventListener('click', () => {
       player.setAttribute('src', player.src);
+      setPlayerVisible(true);
     });
-    helpActions.append(signIn, reload);
+    helpActions.append(signIn, reload, toggle);
     help.append(helpText, helpActions);
-    video.append(help, player);
+    playerFrame.append(player);
+    video.append(help, playerFrame);
     stage.append(video);
     if (details.children.length) stage.append(details);
     surface.append(stage);
@@ -1344,7 +1369,6 @@ async function renderTalkDetail(block, data, talk) {
   block.replaceChildren(article);
   article.addEventListener('click', (event) => {
     const link = event.target.closest('.recordings-transcript-timestamp');
-    const player = article.querySelector('.recordings-detail-video iframe');
     if (!link || !player || event.button !== 0
       || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -1352,6 +1376,7 @@ async function renderTalkDetail(block, data, talk) {
     const seconds = parseRecordingTime(time);
     if (seconds === null) return;
     player.src = withPlaybackStartTime(getRecordingEmbedUrl(row.embedurl), seconds);
+    if (!player.parentElement) article.querySelector('.recordings-player-toggle').click();
     article.querySelector('.recordings-player-sign-in').href = player.src;
     const watch = article.querySelector('.recordings-detail-actions .button:not(.secondary)');
     if (watch) watch.href = withPlaybackStartTime(normalizeField(row.recordinglink), seconds);

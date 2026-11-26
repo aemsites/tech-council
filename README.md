@@ -84,6 +84,9 @@ Both preserve the selected timestamp. SharePoint authentication is separate from
 Tech Council sign-in; private windows need their own Microsoft 365 session.
 The page cannot reliably inspect cross-origin login failures, so these controls
 remain available even when the player works. They do not bypass file permissions.
+**Hide player** removes the embedded frame, including any active playback.
+**Show player**, reloading, or choosing a transcript timestamp restores it at the
+selected link time. Hiding is user-controlled, not inferred from iframe events.
 The AI service must supply a timestamp in its citation URL or source hit to link
 to a particular snippet; the frontend does not infer it from prose.
 AI Sources and result cards display supplied timestamps alongside the talk title.
