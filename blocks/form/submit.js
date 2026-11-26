@@ -62,6 +62,9 @@ function getFieldValue(fe, payload) {
       return fe.value;
     }
   } else if (fe.type !== 'file') {
+    if (fe.name === 'tags') {
+      return fe.value.split(',').map((tag) => tag.trim()).filter(Boolean).join(', ');
+    }
     return fe.value;
   }
   return null;

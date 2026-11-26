@@ -6,6 +6,7 @@
  */
 import { readBlockConfig } from '../../scripts/aem.js';
 import normalizeSheetRow from '../../utils/sheet.js';
+import { getRecordingCategory, getRecordingTags } from '../../utils/recording-fields.js';
 import parseRecordingTime, { getRecordingTime, formatRecordingTime } from '../../utils/recording-time.js';
 
 let instance = 0;
@@ -87,7 +88,8 @@ function buildSourcePages(recordings) {
       description: description === '0' ? '' : description,
       type: 'recording',
       speaker: row.speaker,
-      tag: row.tag,
+      category: getRecordingCategory(row),
+      tags: getRecordingTags(row),
       date: row.date,
     };
     const recordingKey = sourceKey(url.href);
@@ -316,7 +318,8 @@ function normalizeResult(item, sourcePages, query = '') {
     image: safeUrl(meta.image || meta.meta?.image),
     type: page?.type || type,
     speakers,
-    tag: metadataText(page?.tag || meta.tag),
+    category: page?.category ?? metadataText(meta.category ?? meta.tag),
+    tags: page?.tags ?? getRecordingTags({ tags: meta.tags }),
     date: resultDate(page?.date || meta.date),
     startSeconds: time,
   };
@@ -339,7 +342,8 @@ function resultCard(result) {
   body.append(element('h3', '', result.title));
   const details = [
     result.speakers.join(', '),
-    result.tag,
+    result.category,
+    result.tags.join(', '),
     result.date === null ? '' : new Date(result.date).toLocaleDateString(),
     result.startSeconds === null ? '' : `At ${formatRecordingTime(result.startSeconds)}`,
   ].filter(Boolean);
@@ -606,14 +610,26 @@ export default function decorate(block) {
   }
 
   function renderResults() {
-    ['speaker', 'tag'].forEach((key) => {
+    const legacyCategory = filterControls.tag?.value;
+    if (filterControls.category?.value === 'all' && legacyCategory !== 'all'
+      && results.some((result) => result.category === legacyCategory)
+      && !results.some((result) => result.tags.includes(legacyCategory))) {
+      const option = element('option', '', legacyCategory);
+      option.value = legacyCategory;
+      filterControls.category.append(option);
+      filterControls.category.value = legacyCategory;
+      filterControls.tag.value = 'all';
+      updateUrl();
+    }
+    ['speaker', 'category', 'tag'].forEach((key) => {
       const select = filterControls[key];
       if (!select) return;
       const selected = select.value;
       const values = new Set();
       results.forEach((result) => {
         if (key === 'speaker') result.speakers.forEach((speaker) => values.add(speaker));
-        else if (result.tag) values.add(result.tag);
+        else if (key === 'category' && result.category) values.add(result.category);
+        else if (key === 'tag') result.tags.forEach((tag) => values.add(tag));
       });
       if (selected !== 'all') values.add(selected);
       const first = select.firstElementChild;
@@ -633,7 +649,8 @@ export default function decorate(block) {
     const visible = results.filter((result) => (
       (!state.type || state.type === 'all' || result.type === state.type)
       && (!state.speaker || state.speaker === 'all' || result.speakers.includes(state.speaker))
-      && (!state.tag || state.tag === 'all' || result.tag === state.tag)
+      && (!state.category || state.category === 'all' || result.category === state.category)
+      && (!state.tag || state.tag === 'all' || result.tags.includes(state.tag))
       && (cutoff === null || (result.date !== null && result.date >= cutoff))
     ));
     resultsList.replaceChildren(...visible.map(resultCard));
@@ -659,7 +676,8 @@ export default function decorate(block) {
     [
       ['type', 'Type', [['all', 'All types'], ['recording', 'Recordings'], ['event', 'Events'], ['page', 'Other pages']]],
       ['speaker', 'Speaker', [['all', 'All speakers']]],
-      ['tag', 'Tag', [['all', 'All tags']]],
+      ['category', 'Category', [['all', 'All categories']]],
+      ['tag', 'Tags', [['all', 'All tags']]],
       ['period', 'Date', [['all', 'All time'], ['1m', 'Last month'], ['3m', 'Last 3 months'], ['1y', 'Last year']]],
     ].forEach(([key, labelText, options]) => {
       const field = element('div', 'filter');
@@ -674,7 +692,7 @@ export default function decorate(block) {
         select.append(option);
       });
       const selected = params.get(key);
-      if (selected && ['speaker', 'tag'].includes(key) && selected !== 'all') {
+      if (selected && ['speaker', 'category', 'tag'].includes(key) && selected !== 'all') {
         const option = element('option', '', selected);
         option.value = selected;
         select.append(option);

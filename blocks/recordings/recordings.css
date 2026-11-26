@@ -28,6 +28,20 @@
   border-bottom: 1px solid rgb(226 232 240 / 70%);
 }
 
+fieldset.recordings-filter-group {
+  min-width: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+  border: 0;
+  border-bottom: 1px solid rgb(226 232 240 / 70%);
+}
+
+.recordings-tag-options {
+  max-height: 18rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .recordings-filter-group:last-child {
   margin-bottom: 0;
   padding-bottom: 0;
@@ -315,7 +329,8 @@
 .recordings .recordings-card-body .recordings-title,
 .recordings .recordings-card-body .recordings-speaker,
 .recordings .recordings-card-body .recordings-date,
-.recordings .recordings-card-body .recordings-tag {
+.recordings .recordings-card-body .recordings-category,
+.recordings .recordings-card-body .recordings-tags {
   margin: 0;
   line-height: 1.5;
 }
@@ -1281,12 +1296,27 @@
   font-weight: 500;
 }
 
-.recordings .recordings-card-body .recordings-tag {
+.recordings .recordings-card-body .recordings-category {
   font-size: 0.6875rem;
   color: rgb(106 56 255 / 85%);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.recordings .recordings-card-body .recordings-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recordings .recordings-card-body .recordings-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-tint-light, #f3efff);
+  color: var(--text-muted, #475569);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
 }
 
 /* Responsive: sidebar above content on smaller screens */

@@ -3,9 +3,10 @@ import {
 } from '../../scripts/aem.js';
 import createTag from '../../utils/tag.js';
 import normalizeSheetRow from '../../utils/sheet.js';
+import { getRecordingCategory, getRecordingTags } from '../../utils/recording-fields.js';
 
 const CURSOR_BLINK = 580; // in milliseconds
-const RECORDINGS_SOURCE = '/forms/recording-form/recordings-data.json';
+const RECORDINGS_SOURCE = '/forms/recording-form/recordings.json?sheet=recordings';
 const EVENTS_SOURCE = '/forms/events-form/events-data.json';
 const DEFAULT_IMAGE = '/icons/genai-doc.svg';
 const RECENT_SEARCHES_KEY = 'tc-recent-searches';
@@ -118,10 +119,11 @@ function mapRecordingToSearchDoc(row) {
   if (!title) return null;
   const speaker = String(row.speaker || '').trim();
   const date = String(row.date || '').trim();
-  const tag = String(row.tag || '').trim();
+  const category = getRecordingCategory(row);
+  const tags = getRecordingTags(row).join(', ');
   const recordingLink = String(row.recordinglink || '').trim();
   const presentationLink = String(row.presentationlink || '').trim();
-  const description = [speaker, tag].filter(Boolean).join(' | ') || 'Recording';
+  const description = [speaker, category, tags].filter(Boolean).join(' | ') || 'Recording';
   // Keep destination on /recordings while making each entry unique for de-dupe.
   const path = '/recordings';
   return {
@@ -129,7 +131,7 @@ function mapRecordingToSearchDoc(row) {
     description,
     path,
     image: DEFAULT_IMAGE,
-    content: `${title} ${speaker} ${date} ${tag} ${recordingLink} ${presentationLink}`.toLowerCase(),
+    content: `${title} ${speaker} ${date} ${category} ${tags} ${recordingLink} ${presentationLink}`.toLowerCase(),
     source: 'recordings',
   };
 }

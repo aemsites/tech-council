@@ -1,5 +1,7 @@
 import normalizeSheetRow from '../../utils/sheet.js';
 import parseRecordingTime, { getRecordingTime } from '../../utils/recording-time.js';
+import { getRecordingCategory, getRecordingTags } from '../../utils/recording-fields.js';
+import updatePageMetadata, { canonicalPageUrl, metadataDate, metadataList } from '../../utils/metadata.js';
 
 let playerSequence = 0;
 
@@ -125,7 +127,7 @@ function getRecordingsSheetUrl() {
 
 /**
  * Fetches the recordings sheet and returns the "data" array.
- * @returns {Promise<Array>} Array of { title, speaker, recordingLink, presentationLink, date, tag }
+ * @returns {Promise<Array>} Recording rows with category and comma-separated tags.
  */
 async function fetchRecordingsData() {
   const url = getRecordingsSheetUrl();
@@ -303,33 +305,36 @@ const DATE_RANGES = [
   { value: '1y', label: 'Last year', msAgo: 365 * 24 * 60 * 60 * 1000 },
 ];
 
-/** Normalized tag for filtering: empty string becomes "Other" for display. */
-const TAG_OTHER = 'Other';
+const CATEGORY_OTHER = 'Other';
 const RECORDINGS_RETURN_KEY = 'recordings-return';
 
 function updateRecordingsUrl(block) {
   const url = new URL(window.location.href);
-  ['q', 'sort', 'period', 'tag'].forEach((key) => url.searchParams.delete(key));
+  ['q', 'sort', 'period', 'category', 'tag'].forEach((key) => url.searchParams.delete(key));
   if (block.recordingsSearchQuery) url.searchParams.set('q', block.recordingsSearchQuery);
   if (block.recordingsSortBy !== 'date-desc') url.searchParams.set('sort', block.recordingsSortBy);
   if (block.recordingsDateRange !== 'all') url.searchParams.set('period', block.recordingsDateRange);
+  block.recordingsSelectedCategories.forEach((category) => url.searchParams.append('category', category));
   block.recordingsSelectedTags.forEach((tag) => url.searchParams.append('tag', tag));
   window.history.replaceState(window.history.state, '', url);
 }
 
-function getRowTag(row) {
-  const t = normalizeField(row.tag);
-  return t === '' ? TAG_OTHER : t;
+function getRowCategory(row) {
+  return getRecordingCategory(row) || CATEGORY_OTHER;
 }
 
-/** Collect unique tags from data (including "Other" if any row has no tag). */
-function getUniqueTags(data) {
-  const set = new Set();
-  data.forEach((row) => set.add(getRowTag(row)));
-  const list = [...set];
-  // eslint-disable-next-line no-nested-ternary -- pre-existing, TECHCOM-104
-  list.sort((a, b) => (a === TAG_OTHER ? 1 : b === TAG_OTHER ? -1 : a.localeCompare(b)));
+function getUniqueCategories(data) {
+  const list = [...new Set(data.map(getRowCategory))];
+  list.sort((a, b) => {
+    if (a === CATEGORY_OTHER) return 1;
+    if (b === CATEGORY_OTHER) return -1;
+    return a.localeCompare(b);
+  });
   return list;
+}
+
+function getUniqueTags(data) {
+  return [...new Set(data.flatMap(getRecordingTags))].sort((a, b) => a.localeCompare(b));
 }
 
 /** Sort and filter data based on sidebar state. */
@@ -338,16 +343,18 @@ function getFilteredAndSortedData(block) {
   const query = (block.recordingsSearchQuery || '').trim().toLowerCase();
   const sortBy = block.recordingsSortBy || 'date-desc';
   const dateRange = block.recordingsDateRange || 'all';
+  const selectedCategories = block.recordingsSelectedCategories || new Set();
   const selectedTags = block.recordingsSelectedTags || new Set();
 
   let list = [...data];
 
-  /* Text search (title / speaker) */
+  /* Text search includes both classification fields. */
   if (query) {
     list = list.filter((row) => {
       const title = normalizeField(row.title).toLowerCase();
       const speaker = normalizeField(row.speaker).toLowerCase();
-      return title.includes(query) || speaker.includes(query);
+      return [title, speaker, getRecordingCategory(row), ...getRecordingTags(row)]
+        .some((value) => value.toLowerCase().includes(query));
     });
   }
 
@@ -363,9 +370,12 @@ function getFilteredAndSortedData(block) {
     }
   }
 
-  /* Tag filter: if any tag selected, keep only rows whose tag is in selected set */
+  if (selectedCategories.size > 0) {
+    list = list.filter((row) => selectedCategories.has(getRowCategory(row)));
+  }
+
   if (selectedTags.size > 0) {
-    list = list.filter((row) => selectedTags.has(getRowTag(row)));
+    list = list.filter((row) => getRecordingTags(row).some((tag) => selectedTags.has(tag)));
   }
 
   /* Sort: by date (items with date first, then no-date at end) or by title */
@@ -422,7 +432,7 @@ function buildRecordingsCard(row, rowIdx) {
 
   const speaker = normalizeField(row.speaker);
   const dateStr = formatSheetDate(row.date);
-  const tagRaw = normalizeField(row.tag);
+  const category = getRecordingCategory(row);
 
   const titleEl = document.createElement('h3');
   titleEl.className = 'recordings-title';
@@ -442,11 +452,24 @@ function buildRecordingsCard(row, rowIdx) {
   if (!dateStr) dateEl.classList.add('is-empty');
   body.append(dateEl);
 
-  if (tagRaw !== '') {
-    const tagEl = document.createElement('p');
-    tagEl.className = 'recordings-tag';
-    tagEl.textContent = tagRaw;
-    body.append(tagEl);
+  if (category) {
+    const categoryEl = document.createElement('p');
+    categoryEl.className = 'recordings-category';
+    categoryEl.textContent = category;
+    body.append(categoryEl);
+  }
+  const tags = getRecordingTags(row);
+  if (tags.length) {
+    const tagList = document.createElement('p');
+    tagList.className = 'recordings-tags';
+    tagList.setAttribute('aria-label', 'Tags');
+    tags.forEach((tag) => {
+      const tagEl = document.createElement('span');
+      tagEl.className = 'recordings-tag';
+      tagEl.textContent = tag;
+      tagList.append(tagEl);
+    });
+    body.append(tagList);
   }
 
   card.append(body);
@@ -478,7 +501,7 @@ function updateRecordingsList(block) {
   updateRecordingsUrl(block);
   const rows = getFilteredAndSortedData(block);
   const filterToggle = block.querySelector('.recordings-advanced-filters > summary');
-  const activeFilters = block.recordingsSelectedTags.size
+  const activeFilters = block.recordingsSelectedTags.size + block.recordingsSelectedCategories.size
     + Number(block.recordingsDateRange !== 'all') + Number(block.recordingsSortBy !== 'date-desc');
   if (filterToggle) filterToggle.textContent = activeFilters ? `Filters (${activeFilters})` : 'Filters';
   const status = block.querySelector('.recordings-status');
@@ -514,7 +537,7 @@ function createSidebar(block, data) {
   search.type = 'search';
   search.id = searchId;
   search.className = 'recordings-search';
-  search.placeholder = 'Title or speaker…';
+  search.placeholder = 'Title, speaker, category or tag…';
   search.setAttribute('aria-label', 'Search recordings');
   search.value = block.recordingsSearchQuery;
   searchWrap.append(searchLabel, search);
@@ -565,27 +588,35 @@ function createSidebar(block, data) {
   });
   dateRangeWrap.append(dateRangeList);
 
-  const tags = getUniqueTags(data);
-  const tagWrap = document.createElement('div');
-  tagWrap.className = 'recordings-filter-group';
-  const tagLabel = document.createElement('span');
-  tagLabel.className = 'recordings-filter-label';
-  tagLabel.textContent = 'Tag';
-  tagWrap.append(tagLabel);
-  const tagList = document.createElement('div');
-  tagList.className = 'recordings-filter-options';
-  tags.forEach((tag) => {
-    const label = document.createElement('label');
-    label.className = 'recordings-filter-option';
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.value = tag;
-    input.checked = block.recordingsSelectedTags.has(tag);
-    input.setAttribute('aria-label', tag);
-    label.append(input, document.createTextNode(` ${tag}`));
-    tagList.append(label);
-  });
-  tagWrap.append(tagList);
+  const createClassificationFilter = (title, values, stateKey, name) => {
+    const group = document.createElement('fieldset');
+    group.className = 'recordings-filter-group';
+    const legend = document.createElement('legend');
+    legend.className = 'recordings-filter-label';
+    legend.textContent = title;
+    const options = document.createElement('div');
+    options.className = `recordings-filter-options recordings-${name}-options`;
+    values.forEach((value) => {
+      const label = document.createElement('label');
+      label.className = 'recordings-filter-option';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = name;
+      input.value = value;
+      input.checked = block[stateKey].has(value);
+      input.addEventListener('change', () => {
+        if (input.checked) block[stateKey].add(value);
+        else block[stateKey].delete(value);
+        updateRecordingsList(block);
+      });
+      label.append(input, document.createTextNode(` ${value}`));
+      options.append(label);
+    });
+    group.append(legend, options);
+    return group;
+  };
+  const categoryWrap = createClassificationFilter('Category', getUniqueCategories(data), 'recordingsSelectedCategories', 'category');
+  const tagWrap = createClassificationFilter('Tags', getUniqueTags(data), 'recordingsSelectedTags', 'tag');
 
   const advanced = document.createElement('details');
   advanced.className = 'recordings-advanced-filters';
@@ -593,7 +624,7 @@ function createSidebar(block, data) {
   toggle.textContent = 'Filters';
   const filters = document.createElement('div');
   filters.className = 'recordings-advanced-filter-fields';
-  filters.append(sortWrap, dateRangeWrap, tagWrap);
+  filters.append(sortWrap, dateRangeWrap, categoryWrap, tagWrap);
   const clear = document.createElement('button');
   clear.type = 'button';
   clear.className = 'recordings-clear-filters';
@@ -602,13 +633,16 @@ function createSidebar(block, data) {
     block.recordingsSearchQuery = '';
     block.recordingsSortBy = 'date-desc';
     block.recordingsDateRange = 'all';
+    block.recordingsSelectedCategories = new Set();
     block.recordingsSelectedTags = new Set();
     search.value = '';
     sortSelect.value = 'date-desc';
     dateRangeList.querySelectorAll('input').forEach((input) => {
       input.checked = input.value === 'all';
     });
-    tagList.querySelectorAll('input').forEach((input) => { input.checked = false; });
+    [categoryWrap, tagWrap].forEach((group) => {
+      group.querySelectorAll('input').forEach((input) => { input.checked = false; });
+    });
     updateRecordingsList(block);
     search.focus();
   });
@@ -641,23 +675,13 @@ function createSidebar(block, data) {
     });
   });
 
-  tagList.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-    cb.addEventListener('change', () => {
-      const set = new Set(block.recordingsSelectedTags || []);
-      if (cb.checked) set.add(cb.value);
-      else set.delete(cb.value);
-      block.recordingsSelectedTags = set;
-      updateRecordingsList(block);
-    });
-  });
-
   return sidebar;
 }
 
 /**
  * Renders recordings from EDS sheet data with left sidebar (filters + sort) and list.
  * @param {HTMLElement} block
- * @param {Array} data - Array of { title, speaker, recordingLink, presentationLink, date, tag }
+ * @param {Array} data - Recording rows with category and comma-separated tags.
  */
 function renderFromSheet(block, data) {
   const params = new URLSearchParams(window.location.search);
@@ -669,6 +693,12 @@ function renderFromSheet(block, data) {
   const period = params.get('period');
   block.recordingsDateRange = DATE_RANGES.some((range) => range.value === period) ? period : 'all';
   const tags = getUniqueTags(data);
+  const categories = getUniqueCategories(data);
+  const legacyCategories = params.getAll('tag')
+    .filter((value) => !tags.includes(value) && categories.includes(value));
+  block.recordingsSelectedCategories = new Set(
+    [...params.getAll('category'), ...legacyCategories].filter((value) => categories.includes(value)),
+  );
   block.recordingsSelectedTags = new Set(params.getAll('tag').filter((tag) => tags.includes(tag)));
 
   block.textContent = '';
@@ -1217,25 +1247,52 @@ async function renderTalkDetail(block, data, talk) {
   const pageTitle = `${title} | Recordings`;
   const pageDescription = talkDescription
     || `Watch the Tech Council recording of ${title}${speaker ? ` by ${speaker}` : ''}.`;
-  document.title = pageTitle;
-  [
-    ['name', 'description', pageDescription],
-    ['property', 'og:title', pageTitle],
-    ['property', 'og:description', pageDescription],
-    ['name', 'twitter:title', pageTitle],
-    ['name', 'twitter:description', pageDescription],
-  ].forEach(([attribute, key, value]) => {
-    let meta = document.head.querySelector(`meta[${attribute}="${key}"]`);
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute(attribute, key);
-      document.head.append(meta);
-    }
-    meta.setAttribute('content', value);
+  const canonical = new URL('/recordings', window.location.origin);
+  canonical.searchParams.set('talk', title);
+  const canonicalUrl = canonicalPageUrl(canonical);
+  const category = getRecordingCategory(row);
+  const tags = getRecordingTags(row);
+  const speakers = metadataList(speaker);
+  const recordingDate = metadataDate(row.date, true);
+  const baseEmbedUrl = getRecordingEmbedUrl(row.embedurl);
+  const videoSchema = {
+    '@type': 'VideoObject',
+    '@id': `${canonicalUrl}#video`,
+    name: title,
+    description: pageDescription,
+    url: canonicalUrl,
+    inLanguage: document.documentElement.lang || 'en',
+    mainEntityOfPage: { '@id': `${canonicalUrl}#webpage` },
+  };
+  if (baseEmbedUrl) {
+    videoSchema.embedUrl = baseEmbedUrl;
+    videoSchema.potentialAction = {
+      '@type': 'SeekToAction',
+      target: `${canonicalUrl}&t={seek_to_second_number}`,
+      'startOffset-input': 'required name=seek_to_second_number',
+    };
+  }
+  if (recordingDate) videoSchema.dateCreated = recordingDate;
+  if (category) videoSchema.genre = category;
+  if (tags.length) videoSchema.keywords = tags;
+  if (speakers.length) videoSchema.contributor = speakers.map((name) => ({ '@type': 'Person', name }));
+  updatePageMetadata({
+    title: pageTitle,
+    description: pageDescription,
+    canonical: canonicalUrl,
+    speakers,
+    category,
+    tags,
+    keywords: [title, category, ...tags, ...speakers],
+    recordingDate,
+    contentType: 'recording',
+    ogType: 'video.other',
+    pageType: 'WebPage',
+    entity: videoSchema,
   });
 
   const startTime = getRecordingTime(new URL(window.location.href));
-  const embedUrl = withPlaybackStartTime(getRecordingEmbedUrl(row.embedurl), startTime);
+  const embedUrl = withPlaybackStartTime(baseEmbedUrl, startTime);
   const details = embedUrl ? document.createElement('div') : intro;
   if (embedUrl) {
     article.classList.add('recordings-detail-embedded');
@@ -1247,7 +1304,8 @@ async function renderTalkDetail(block, data, talk) {
   [
     ['Speaker', normalizeField(row.speaker)],
     ['Date', formatSheetDate(row.date)],
-    ['Tag', normalizeField(row.tag)],
+    ['Category', category],
+    ['Tags', tags.join(', ')],
   ].forEach(([label, value]) => {
     if (!value) return;
     const item = document.createElement('div');
