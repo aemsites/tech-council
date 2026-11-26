@@ -6,6 +6,7 @@
  */
 import { readBlockConfig } from '../../scripts/aem.js';
 import normalizeSheetRow from '../../utils/sheet.js';
+import parseRecordingTime, { getRecordingTime } from '../../utils/recording-time.js';
 
 let instance = 0;
 const MAX_TOP_UP_REQUESTS = 3;
@@ -82,10 +83,12 @@ function buildSourcePages(recordings) {
     const page = { url: url.href, title, description: description === '0' ? '' : description };
     const recordingKey = sourceKey(url.href);
     if (!pages.has(recordingKey)) pages.set(recordingKey, page);
-    const summaryKey = sourceKey(row.summary);
-    if (summaryKey.startsWith('/fragments/tech-talks-summary/') && !pages.has(summaryKey)) {
-      pages.set(summaryKey, page);
-    }
+    [row.summary, row.transcript].forEach((fragment) => {
+      const key = sourceKey(fragment);
+      if (key.startsWith('/fragments/tech-talks-summary/') && !pages.has(key)) {
+        pages.set(key, page);
+      }
+    });
   });
   return pages;
 }
@@ -126,7 +129,15 @@ function pageUrl(value, sourcePages) {
   const extension = file.match(/\.([a-z][a-z\d]*)$/i)?.[1].toLowerCase();
   if (extension && !PAGE_EXTENSIONS.has(extension)) return '';
   const page = sourcePage(url, sourcePages);
-  if (page) return page.url;
+  if (page) {
+    const mapped = new URL(page.url);
+    const original = new URL(url);
+    const time = getRecordingTime(original);
+    if (time !== null && mapped.pathname === '/recordings') {
+      mapped.searchParams.set('t', String(time));
+    }
+    return mapped.href;
+  }
   return /\/fragments(?:\/|\.html?$|$)/i.test(path) ? '' : url;
 }
 
@@ -231,6 +242,12 @@ function normalizeResult(item, sourcePages) {
   const url = pageUrl(source, sourcePages);
   if (!url) return null;
   const parsed = new URL(url);
+  const time = getRecordingTime(parsed)
+    ?? parseRecordingTime(data.startSeconds)
+    ?? parseRecordingTime(meta.startSeconds);
+  if (time !== null && sourceKey(url).startsWith('/recordings?talk=')) {
+    parsed.searchParams.set('t', String(time));
+  }
   parsed.hash = '';
   parsed.pathname = parsed.pathname.replace(/\/+$/, '') || '/';
   let label = decodedPath(parsed.pathname).split('/').filter(Boolean).pop() || '';
@@ -249,7 +266,7 @@ function normalizeResult(item, sourcePages) {
     .join(' ').replace(/\s+/g, ' ').trim();
   return {
     key: parsed.href,
-    url,
+    url: parsed.href,
     title: page?.title || meta.title || data.title || label,
     description: authoredDescription ? description : description.replace(/[#*_`]/g, '').slice(0, 180),
     image: safeUrl(meta.image || meta.meta?.image),

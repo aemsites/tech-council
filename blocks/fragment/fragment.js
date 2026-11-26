@@ -15,11 +15,12 @@ import {
 /**
  * Loads a fragment.
  * @param {string} path The path to the fragment
+ * @param {object} options Optional fetch cancellation signal
  * @returns {HTMLElement} The root element of the fragment
  */
-export async function loadFragment(path) {
+export async function loadFragment(path, { signal } = {}) {
   if (path && path.startsWith('/')) {
-    const resp = await fetch(`${path}.plain.html`);
+    const resp = await fetch(`${path}.plain.html`, { signal });
     if (resp.ok) {
       const main = document.createElement('main');
       main.innerHTML = await resp.text();

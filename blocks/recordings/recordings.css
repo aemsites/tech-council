@@ -621,10 +621,29 @@
   padding: 10px 12px;
 }
 
-.recordings-detail-summary {
+.recordings-detail-summary,
+.recordings-detail-transcript {
   margin-top: var(--space-l);
   padding-top: var(--space-ml);
   border-top: 1px solid var(--border-subtle);
+}
+
+.recordings-transcript-toggle {
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.recordings-transcript-toggle:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 4px;
+}
+
+.recordings-transcript-content {
+  margin-top: var(--space-ml);
+  overflow-wrap: anywhere;
+  line-height: 1.7;
 }
 
 .recordings-summary-title {

@@ -51,6 +51,26 @@ and, when available, description instead of generic indexed "Recordings" metadat
 The same mapping applies to both AI Sources and search results. Opening a talk
 updates its browser title, description, and Open Graph/Twitter title and description.
 These browser-side changes do not update metadata already stored in the AI index.
+The sheet's optional `Transcript` fragment is loaded into each recording page
+inside a **Full transcript** disclosure, collapsed by default. The complete text
+is present in the DOM before the disclosure is opened; it is not fetched on click.
+Transcript fragments also resolve to their owning recording in AI Sources and
+search results. Publish the fragments and recrawl the recording pages to make the
+new content available to a JavaScript-rendering indexer; non-rendering indexers
+must index the published fragments directly.
+Recording deep links accept `t` in seconds, `MM:SS`, or `HH:MM:SS`, for example
+`/recordings?talk=Example&t=152`. Valid times set the SharePoint embed's
+`nav.playbackOptions.startTimeInSeconds` without forcing autoplay. Transcript
+timestamps link to the same recording at that time; clicking one with an embedded
+player seeks by reloading only the player and updates the shareable page URL.
+AI source mapping preserves explicit `t` query parameters or `#t=...` fragments
+from indexed citations. Source hits may alternatively provide `startSeconds`
+on their data object or metadata, as a nonnegative integer or supported time string.
+URL timestamps take precedence. Missing, malformed, negative, and overflowing
+times do not override normal playback. The Watch recording link remains available
+alongside the embed and carries valid start times for supported SharePoint links.
+The AI service must supply a timestamp in its citation URL or source hit to link
+to a particular snippet; the frontend does not infer it from prose.
 Event fragments link to their owning `/events` page. Indexed sign-in captures
 are excluded rather than being presented as event or recording content.
 If matches exist but none have usable page links, the results explain that rather

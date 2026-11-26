@@ -1,4 +1,5 @@
 import normalizeSheetRow from '../../utils/sheet.js';
+import parseRecordingTime, { getRecordingTime } from '../../utils/recording-time.js';
 
 /** A field is considered empty when it's null/undefined, blank, or the number/string 0. */
 function isEmptyField(value) {
@@ -41,6 +42,33 @@ function isSafeUrl(url) {
     return u.protocol === 'http:' || u.protocol === 'https:';
   } catch {
     return false;
+  }
+}
+
+function withPlaybackStartTime(value, startTime) {
+  if (startTime === null) return value;
+  try {
+    const url = new URL(value, window.location.origin);
+    const allowedHosts = ['adobe.sharepoint.com', 'adobe-my.sharepoint.com'];
+    if (url.protocol !== 'https:' || !allowedHosts.includes(url.hostname)
+      || url.username || url.password) return value;
+    let nav;
+    try {
+      nav = JSON.parse(url.searchParams.get('nav'));
+    } catch {
+      nav = null;
+    }
+    const options = nav && typeof nav === 'object' && !Array.isArray(nav) ? nav : {};
+    const playback = options.playbackOptions;
+    const playbackOptions = playback && typeof playback === 'object' && !Array.isArray(playback)
+      ? playback : {};
+    url.searchParams.set('nav', JSON.stringify({
+      ...options,
+      playbackOptions: { ...playbackOptions, startTimeInSeconds: startTime },
+    }));
+    return url.href;
+  } catch {
+    return value;
   }
 }
 
@@ -757,33 +785,67 @@ function createSummaryReader(content, heading) {
   return [slot, dialog];
 }
 
-async function renderTalkSummary(article, value) {
-  const summary = normalizeField(value);
-  if (!summary) return;
+function linkTranscriptTimestamps(content, title) {
+  const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!node.parentElement.closest('a, code, pre, script, style')) nodes.push(node);
+  }
+  nodes.forEach((node) => {
+    const matches = [...node.textContent.matchAll(/(?<![\d:])\b\d+(?::[0-5]\d){1,2}\b(?![\d:])/g)];
+    if (!matches.length) return;
+    const fragment = document.createDocumentFragment();
+    let offset = 0;
+    matches.forEach((match) => {
+      const [timestamp] = match;
+      const seconds = parseRecordingTime(timestamp);
+      if (seconds === null) return;
+      fragment.append(document.createTextNode(node.textContent.slice(offset, match.index)));
+      const link = document.createElement('a');
+      link.className = 'recordings-transcript-timestamp';
+      link.href = `/recordings?${new URLSearchParams({ talk: title, t: String(seconds) })}`;
+      link.textContent = timestamp;
+      link.setAttribute('aria-label', `Watch ${title} at ${timestamp}`);
+      fragment.append(link);
+      offset = match.index + timestamp.length;
+    });
+    fragment.append(document.createTextNode(node.textContent.slice(offset)));
+    node.replaceWith(fragment);
+  });
+}
 
-  const section = document.createElement('section');
-  section.className = 'recordings-detail-summary';
-  const heading = document.createElement(article.querySelector('h1') ? 'h2' : 'h3');
-  heading.className = 'recordings-summary-title';
-  heading.textContent = 'Summary';
+async function renderTalkContent(article, value, type = 'summary') {
+  const pathValue = normalizeField(value);
+  if (!pathValue) return;
+  const isTranscript = type === 'transcript';
+  const label = isTranscript ? 'Transcript' : 'Summary';
+  const headingLevel = article.querySelector('h1') ? 2 : 3;
+
+  const section = document.createElement(isTranscript ? 'details' : 'section');
+  section.className = `recordings-detail-${type}`;
+  const heading = document.createElement(isTranscript ? 'summary' : `h${headingLevel}`);
+  heading.className = isTranscript ? 'recordings-transcript-toggle' : 'recordings-summary-title';
+  heading.textContent = isTranscript ? 'Full transcript' : label;
   section.append(heading);
   article.append(section);
 
   try {
-    const url = new URL(summary, `${window.location.origin}/`);
-    if (url.origin !== window.location.origin) throw new Error('Summary must be a local fragment');
+    const url = new URL(pathValue, `${window.location.origin}/`);
+    if (url.origin !== window.location.origin) throw new Error(`${label} must be a local fragment`);
     const path = url.pathname.replace(/(?:\.plain)?\.html$/, '');
     const { loadFragment } = await import('../fragment/fragment.js');
-    const fragment = await loadFragment(path);
-    if (!fragment) throw new Error('Summary fragment could not be loaded');
+    const fragment = await loadFragment(path, { signal: AbortSignal.timeout(10000) });
+    if (!fragment) throw new Error(`${label} fragment could not be loaded`);
     const content = document.createElement('div');
-    content.className = 'recordings-summary-content';
-    content.tabIndex = 0;
-    content.setAttribute('role', 'region');
-    content.setAttribute('aria-label', 'Talk summary');
+    content.className = `recordings-${type}-content`;
+    if (!isTranscript) {
+      content.tabIndex = 0;
+      content.setAttribute('role', 'region');
+      content.setAttribute('aria-label', 'Talk summary');
+    }
     const headings = [...fragment.querySelectorAll('h1, h2, h3, h4, h5, h6')];
     const firstLevel = Math.min(...headings.map((item) => Number(item.tagName[1])));
-    const baseLevel = Number(heading.tagName[1]) + 1;
+    const baseLevel = isTranscript ? headingLevel : headingLevel + 1;
     headings.forEach((item) => {
       const level = Math.min(6, baseLevel + Number(item.tagName[1]) - firstLevel);
       const replacement = document.createElement(`h${level}`);
@@ -794,13 +856,16 @@ async function renderTalkSummary(article, value) {
       item.replaceWith(replacement);
     });
     const body = document.createElement('div');
-    body.className = 'recordings-summary-body';
+    body.className = `recordings-${type}-body`;
     body.append(...fragment.childNodes);
     content.append(body);
-    section.append(...createSummaryReader(content, heading));
+    if (isTranscript) {
+      linkTranscriptTimestamps(content, article.querySelector('.recordings-detail-title').textContent);
+      section.append(content);
+    } else section.append(...createSummaryReader(content, heading));
   } catch {
     const message = document.createElement('p');
-    message.textContent = 'Summary is currently unavailable.';
+    message.textContent = `${label} is currently unavailable.`;
     section.append(message);
   }
 }
@@ -862,7 +927,8 @@ async function renderTalkDetail(block, data, talk) {
     meta.setAttribute('content', value);
   });
 
-  const embedUrl = getRecordingEmbedUrl(row.embedurl);
+  const startTime = getRecordingTime(new URL(window.location.href));
+  const embedUrl = withPlaybackStartTime(getRecordingEmbedUrl(row.embedurl), startTime);
   const details = embedUrl ? document.createElement('div') : intro;
   if (embedUrl) {
     article.classList.add('recordings-detail-embedded');
@@ -907,7 +973,7 @@ async function renderTalkDetail(block, data, talk) {
   const actions = document.createElement('div');
   actions.className = 'recordings-detail-actions';
   [
-    ['Watch recording', embedUrl ? '' : normalizeField(row.recordinglink), 'play'],
+    ['Watch recording', withPlaybackStartTime(normalizeField(row.recordinglink), startTime), 'play'],
     ['View presentation', normalizeField(row.presentationlink), 'slides'],
   ].forEach(([label, url, icon]) => {
     if (!isSafeUrl(url)) return;
@@ -948,7 +1014,27 @@ async function renderTalkDetail(block, data, talk) {
   }
 
   block.replaceChildren(article);
-  await renderTalkSummary(surface, row.summary);
+  article.addEventListener('click', (event) => {
+    const link = event.target.closest('.recordings-transcript-timestamp');
+    const player = article.querySelector('.recordings-detail-video iframe');
+    if (!link || !player || event.button !== 0
+      || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const time = new URL(link.href).searchParams.get('t');
+    const seconds = parseRecordingTime(time);
+    if (seconds === null) return;
+    player.src = withPlaybackStartTime(getRecordingEmbedUrl(row.embedurl), seconds);
+    const watch = article.querySelector('.recordings-detail-actions .button:not(.secondary)');
+    if (watch) watch.href = withPlaybackStartTime(normalizeField(row.recordinglink), seconds);
+    const url = new URL(window.location.href);
+    url.searchParams.set('t', time);
+    if (url.hash.startsWith('#t=')) url.hash = '';
+    window.history.replaceState(null, '', url);
+  });
+  await Promise.all([
+    renderTalkContent(surface, row.summary),
+    renderTalkContent(surface, row.transcript, 'transcript'),
+  ]);
 }
 
 /**
