@@ -37,6 +37,10 @@ the answer, a collapsed Sources accordion, and Copy answer action above the resu
 The Sources control shows the source count and reveals the list on activation. Clearing the
 query hides both sections. API keys stay in the server-side proxy, never in the
 block or authored page.
+The All Results panel supports type, speaker, tag, and date filters for the
+Tech Council contract. These filters operate on the returned batch, not the
+entire index or AI answer; the UI states this explicitly. Filter state is kept
+in the search URL, and Clear filters restores the full returned batch.
 The results list scrolls within a viewport-bounded area and supports native keyboard scrolling.
 
 Results, AI sources, and links inside AI answers exclude non-page files and
@@ -58,6 +62,11 @@ Transcript fragments also resolve to their owning recording in AI Sources and
 search results. Publish the fragments and recrawl the recording pages to make the
 new content available to a JavaScript-rendering indexer; non-rendering indexers
 must index the published fragments directly.
+The transcript disclosure includes phrase search, match navigation, and copyable
+moment links. Search spans inline formatting and preserves timestamp links.
+Highlighting uses CSS Custom Highlights with a `<mark>` fallback, and blocked
+clipboard access reveals a selectable link. Failed summary/transcript loads
+offer a retry action; retrying does not publish unpublished content.
 Recording deep links accept `t` in seconds, `MM:SS`, or `HH:MM:SS`, for example
 `/recordings?talk=Example&t=152`. Valid times set the SharePoint embed's
 `nav.playbackOptions.startTimeInSeconds` without forcing autoplay. Transcript
@@ -71,6 +80,14 @@ times do not override normal playback. The Watch recording link remains availabl
 alongside the embed and carries valid start times for supported SharePoint links.
 The AI service must supply a timestamp in its citation URL or source hit to link
 to a particular snippet; the frontend does not infer it from prose.
+AI Sources and result cards display supplied timestamps alongside the talk title.
+When a recording lacks an authored description and the index supplies generic
+Recordings metadata, results prefer an excerpt near the query terms.
+
+The recordings listing keeps its search, sort, date period, and tags in the URL.
+Talk links retain that state, and returning to the listing restores its scroll
+position when session storage is available. Advanced filters collapse on mobile;
+search and the result count stay visible.
 Event fragments link to their owning `/events` page. Indexed sign-in captures
 are excluded rather than being presented as event or recording content.
 If matches exist but none have usable page links, the results explain that rather

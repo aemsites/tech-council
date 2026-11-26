@@ -6,7 +6,7 @@
  */
 import { readBlockConfig } from '../../scripts/aem.js';
 import normalizeSheetRow from '../../utils/sheet.js';
-import parseRecordingTime, { getRecordingTime } from '../../utils/recording-time.js';
+import parseRecordingTime, { getRecordingTime, formatRecordingTime } from '../../utils/recording-time.js';
 
 let instance = 0;
 const MAX_TOP_UP_REQUESTS = 3;
@@ -67,7 +67,7 @@ function sourcePage(value, sourcePages) {
   if (!sourcePages) return undefined;
   const key = sourceKey(value);
   if (/^\/fragments\/(?:communities\/(?:[^/]+\/)?)?events-fragment$/i.test(key)) {
-    return { url: `${TECH_COUNCIL_ORIGIN}/events`, title: 'Events' };
+    return { url: `${TECH_COUNCIL_ORIGIN}/events`, title: 'Events', type: 'event' };
   }
   return sourcePages.get(key);
 }
@@ -75,12 +75,21 @@ function sourcePage(value, sourcePages) {
 function buildSourcePages(recordings) {
   const pages = new Map();
   recordings.map(normalizeSheetRow).forEach((row) => {
+    if (!row || typeof row !== 'object') return;
     const title = typeof row.title === 'string' ? row.title.trim() : '';
     if (!title || title === '0') return;
     const url = new URL('/recordings', TECH_COUNCIL_ORIGIN);
     url.searchParams.set('talk', title);
     const description = typeof row.description === 'string' ? row.description.trim() : '';
-    const page = { url: url.href, title, description: description === '0' ? '' : description };
+    const page = {
+      url: url.href,
+      title,
+      description: description === '0' ? '' : description,
+      type: 'recording',
+      speaker: row.speaker,
+      tag: row.tag,
+      date: row.date,
+    };
     const recordingKey = sourceKey(url.href);
     if (!pages.has(recordingKey)) pages.set(recordingKey, page);
     [row.summary, row.transcript].forEach((fragment) => {
@@ -231,7 +240,29 @@ function renderAnswer(container, text, sourcePages) {
   });
 }
 
-function normalizeResult(item, sourcePages) {
+function metadataText(value) {
+  return typeof value === 'string' && value.trim() !== '0' ? value.trim() : '';
+}
+
+function resultDate(value) {
+  if (value == null || value === '' || value === '0' || value === 0) return null;
+  const number = Number(value);
+  const date = Number.isFinite(number) ? (number - 25569) * 86400000 : Date.parse(value);
+  return Number.isFinite(date) && Math.abs(date) <= 8640000000000000 ? date : null;
+}
+
+function searchExcerpt(text, query) {
+  const terms = query.toLowerCase().split(/\s+/).filter((term) => term.length > 2)
+    .sort((a, b) => b.length - a.length);
+  const lower = text.toLowerCase();
+  const match = terms.map((term) => lower.indexOf(term)).find((index) => index >= 0) ?? 0;
+  let start = Math.max(0, match - 60);
+  if (start) start = text.indexOf(' ', start) + 1 || start;
+  const excerpt = text.slice(start, start + 180).trim();
+  return `${start ? '…' : ''}${excerpt}${start + 180 < text.length ? '…' : ''}`;
+}
+
+function normalizeResult(item, sourcePages, query = '') {
   const data = item.data || item;
   const meta = data.metadata || {};
   if (/^(?:Adobe Inc\s*-\s*)?Sign In$/i.test(String(meta.title || data.title || '').trim())) return null;
@@ -254,22 +285,40 @@ function normalizeResult(item, sourcePages) {
   label = (label || parsed.hostname).replace(/[-_]/g, ' ');
   label = label.charAt(0).toUpperCase() + label.slice(1);
   const page = sourcePage(source, sourcePages);
+  const recording = sourceKey(url).startsWith('/recordings?talk=');
+  const talkTitle = recording ? parsed.searchParams.get('talk') : '';
+  const title = page?.title || talkTitle || meta.title || data.title || label;
+  const genericDescription = recording && metadataText(meta.title).toLowerCase() === 'recordings';
   const authoredDescription = page?.description
-    || (typeof meta.description === 'string' ? meta.description : '');
+    || (!genericDescription ? metadataText(meta.description) : '');
   const preview = element('div');
   renderAnswer(
     preview,
-    authoredDescription || (typeof data.text === 'string' ? data.text : ''),
+    authoredDescription || metadataText(data.text),
     sourcePages,
   );
-  const description = Array.from(preview.querySelectorAll('p, li'), (node) => node.textContent)
+  let description = Array.from(preview.querySelectorAll('p, li'), (node) => node.textContent)
     .join(' ').replace(/\s+/g, ' ').trim();
+  if (genericDescription && description === metadataText(meta.description)) description = '';
+  const speakers = metadataText(page?.speaker || meta.speaker).split(/[,;]/)
+    .map((speaker) => speaker.trim()).filter(Boolean);
+  if (!description && recording) {
+    description = `Watch ${title}${speakers.length ? ` by ${speakers.join(', ')}` : ''}.`;
+  }
+  let type = 'page';
+  if (recording) type = 'recording';
+  else if (/(?:^|\/)events(?:\/|$)/i.test(sourceKey(url))) type = 'event';
   return {
     key: parsed.href,
     url: parsed.href,
-    title: page?.title || meta.title || data.title || label,
-    description: authoredDescription ? description : description.replace(/[#*_`]/g, '').slice(0, 180),
+    title,
+    description: authoredDescription ? description : searchExcerpt(description.replace(/[#*_`]/g, ''), query),
     image: safeUrl(meta.image || meta.meta?.image),
+    type: page?.type || type,
+    speakers,
+    tag: metadataText(page?.tag || meta.tag),
+    date: resultDate(page?.date || meta.date),
+    startSeconds: time,
   };
 }
 
@@ -288,6 +337,13 @@ function resultCard(result) {
   const body = element('div', 'result-body');
   body.append(element('span', 'result-source', new URL(result.url).hostname.replace(/^www\./, '')));
   body.append(element('h3', '', result.title));
+  const details = [
+    result.speakers.join(', '),
+    result.tag,
+    result.date === null ? '' : new Date(result.date).toLocaleDateString(),
+    result.startSeconds === null ? '' : `At ${formatRecordingTime(result.startSeconds)}`,
+  ].filter(Boolean);
+  if (details.length) body.append(element('span', 'result-meta', details.join(' · ')));
   if (result.description) body.append(element('p', '', result.description));
   link.append(body);
   item.append(link);
@@ -536,6 +592,113 @@ export default function decorate(block) {
   let results = [];
   let resultsController;
   let answerController;
+  const filterControls = {};
+
+  function updateUrl() {
+    const url = new URL(window.location.href);
+    if (query) url.searchParams.set('q', query);
+    else url.searchParams.delete('q');
+    Object.entries(filterControls).forEach(([key, select]) => {
+      if (select.value === 'all') url.searchParams.delete(key);
+      else url.searchParams.set(key, select.value);
+    });
+    window.history.replaceState(window.history.state, '', url);
+  }
+
+  function renderResults() {
+    ['speaker', 'tag'].forEach((key) => {
+      const select = filterControls[key];
+      if (!select) return;
+      const selected = select.value;
+      const values = new Set();
+      results.forEach((result) => {
+        if (key === 'speaker') result.speakers.forEach((speaker) => values.add(speaker));
+        else if (result.tag) values.add(result.tag);
+      });
+      if (selected !== 'all') values.add(selected);
+      const first = select.firstElementChild;
+      select.replaceChildren(first);
+      [...values].sort((a, b) => a.localeCompare(b)).forEach((value) => {
+        const option = element('option', '', value);
+        option.value = value;
+        select.append(option);
+      });
+      select.value = selected;
+    });
+    const state = Object.fromEntries(
+      Object.entries(filterControls).map(([key, select]) => [key, select.value]),
+    );
+    const days = { '1m': 30, '3m': 90, '1y': 365 }[state.period];
+    const cutoff = days ? Date.now() - days * 86400000 : null;
+    const visible = results.filter((result) => (
+      (!state.type || state.type === 'all' || result.type === state.type)
+      && (!state.speaker || state.speaker === 'all' || result.speakers.includes(state.speaker))
+      && (!state.tag || state.tag === 'all' || result.tag === state.tag)
+      && (cutoff === null || (result.date !== null && result.date >= cutoff))
+    ));
+    resultsList.replaceChildren(...visible.map(resultCard));
+    resultsList.tabIndex = visible.length ? 0 : -1;
+    if (results.length && !visible.length) {
+      resultsStatus.textContent = 'No results match these filters. Clear filters to see the returned results.';
+    } else if (visible.length) {
+      const filtered = Object.values(state).some((value) => value !== 'all');
+      resultsStatus.textContent = filtered
+        ? `${visible.length} of ${results.length} returned results shown.`
+        : `${visible.length} result${visible.length === 1 ? '' : 's'} shown.`;
+    } else resultsStatus.textContent = 'No results found. Try a different query.';
+  }
+
+  if (techCouncilProxy) {
+    const filters = element('div', 'filters');
+    const filterNote = element(
+      'p',
+      'filter-note',
+      'Filter these returned results. Filters do not change the AI answer.',
+    );
+    const params = new URLSearchParams(window.location.search);
+    [
+      ['type', 'Type', [['all', 'All types'], ['recording', 'Recordings'], ['event', 'Events'], ['page', 'Other pages']]],
+      ['speaker', 'Speaker', [['all', 'All speakers']]],
+      ['tag', 'Tag', [['all', 'All tags']]],
+      ['period', 'Date', [['all', 'All time'], ['1m', 'Last month'], ['3m', 'Last 3 months'], ['1y', 'Last year']]],
+    ].forEach(([key, labelText, options]) => {
+      const field = element('div', 'filter');
+      const label = element('label', '', labelText);
+      label.htmlFor = `${prefix}-filter-${key}`;
+      const select = element('select');
+      select.id = label.htmlFor;
+      select.name = key;
+      options.forEach(([value, text]) => {
+        const option = element('option', '', text);
+        option.value = value;
+        select.append(option);
+      });
+      const selected = params.get(key);
+      if (selected && ['speaker', 'tag'].includes(key) && selected !== 'all') {
+        const option = element('option', '', selected);
+        option.value = selected;
+        select.append(option);
+      }
+      select.value = selected || 'all';
+      if (!select.value) select.value = 'all';
+      filterControls[key] = select;
+      select.addEventListener('change', () => {
+        updateUrl();
+        renderResults();
+      });
+      field.append(label, select);
+      filters.append(field);
+    });
+    const clearFilters = element('button', 'clear-filters', 'Clear filters');
+    clearFilters.type = 'button';
+    clearFilters.addEventListener('click', () => {
+      Object.values(filterControls).forEach((select) => { select.value = 'all'; });
+      updateUrl();
+      renderResults();
+    });
+    filters.append(clearFilters, filterNote);
+    resultsList.before(filters);
+  }
 
   async function request(route, body, signal) {
     const action = techCouncilProxy
@@ -558,6 +721,7 @@ export default function decorate(block) {
   async function loadResults(append = false) {
     if (resultsController || !query) return;
     const currentVersion = version;
+    const currentQuery = query;
     const controller = new AbortController();
     resultsController = controller;
     const timeout = setTimeout(() => controller.abort(), 60000);
@@ -573,8 +737,8 @@ export default function decorate(block) {
       let next = append ? cursor : null;
       for (let page = 0; page < MAX_TOP_UP_REQUESTS; page += 1) {
         // eslint-disable-next-line no-await-in-loop
-        const data = await request('search', techCouncilProxy ? { query } : {
-          query: hybridQuery(query),
+        const data = await request('search', techCouncilProxy ? { query: currentQuery } : {
+          query: hybridQuery(currentQuery),
           queryOptions: {
             resultFields: { includes: RESULT_FIELDS },
             pagination: { limit: size, ...(next ? { cursor: next } : {}) },
@@ -586,7 +750,7 @@ export default function decorate(block) {
         const sourcePages = techCouncilProxy ? await loadSourcePages(data.results) : undefined;
         if (currentVersion !== version) return;
         hasMatches ||= data.results.some(Boolean);
-        data.results.filter(Boolean).map((item) => normalizeResult(item, sourcePages))
+        data.results.filter(Boolean).map((item) => normalizeResult(item, sourcePages, currentQuery))
           .filter(Boolean).forEach((item) => {
             if (!seen.has(item.key)) {
               seen.add(item.key);
@@ -601,12 +765,8 @@ export default function decorate(block) {
       }
       results = nextResults;
       cursor = next;
-      resultsList.replaceChildren(...results.map(resultCard));
-      resultsList.tabIndex = results.length ? 0 : -1;
-      resultsStatus.textContent = 'No results found. Try a different query.';
-      if (results.length) {
-        resultsStatus.textContent = `${results.length} result${results.length === 1 ? '' : 's'} shown.`;
-      } else if (hasMatches) {
+      renderResults();
+      if (!results.length && hasMatches) {
         resultsStatus.textContent = 'Matching content was found, but its page links are unavailable.';
       }
       more.hidden = !cursor;
@@ -648,15 +808,21 @@ export default function decorate(block) {
       sources.replaceChildren();
       const seen = new Set();
       hits.forEach((hit) => {
-        const result = normalizeResult(hit, sourcePages);
+        const result = normalizeResult(hit, sourcePages, query);
         if (!result || seen.has(result.key)) return;
         seen.add(result.key);
         const item = element('li');
         const link = element('a', '', result.title);
+        if (result.startSeconds !== null) {
+          link.append(element('span', 'source-time', formatRecordingTime(result.startSeconds)));
+        }
         link.href = result.url;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         item.append(link);
+        if (result.speakers.length) {
+          item.append(element('span', 'source-context', result.speakers.join(', ')));
+        }
         sources.append(item);
       });
       sourceDisclosure.hidden = !sources.children.length;
@@ -710,13 +876,6 @@ export default function decorate(block) {
     answerStatus.textContent = 'Enter a query to generate an answer.';
     modes.forEach((mode) => panels[mode].setAttribute('aria-busy', 'false'));
     updateVisibility();
-  }
-
-  function updateUrl() {
-    const url = new URL(window.location.href);
-    if (query) url.searchParams.set('q', query);
-    else url.searchParams.delete('q');
-    window.history.replaceState(null, '', url);
   }
 
   function search() {

@@ -269,6 +269,7 @@ function createDetailIcon(name) {
     slides: '<rect x="3" y="3" width="18" height="14" rx="2"/><path d="M12 17v4m-4 0h8M7 8h10M7 12h6"/>',
     expand: '<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/>',
     collapse: '<path d="M3 8h5V3m8 0v5h5M8 21v-5H3m18 0h-5v5"/>',
+    copy: '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3"/>',
   };
   icon.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">${paths[name]}</svg>`;
   return icon;
@@ -302,6 +303,17 @@ const DATE_RANGES = [
 
 /** Normalized tag for filtering: empty string becomes "Other" for display. */
 const TAG_OTHER = 'Other';
+const RECORDINGS_RETURN_KEY = 'recordings-return';
+
+function updateRecordingsUrl(block) {
+  const url = new URL(window.location.href);
+  ['q', 'sort', 'period', 'tag'].forEach((key) => url.searchParams.delete(key));
+  if (block.recordingsSearchQuery) url.searchParams.set('q', block.recordingsSearchQuery);
+  if (block.recordingsSortBy !== 'date-desc') url.searchParams.set('sort', block.recordingsSortBy);
+  if (block.recordingsDateRange !== 'all') url.searchParams.set('period', block.recordingsDateRange);
+  block.recordingsSelectedTags.forEach((tag) => url.searchParams.append('tag', tag));
+  window.history.replaceState(window.history.state, '', url);
+}
 
 function getRowTag(row) {
   const t = normalizeField(row.tag);
@@ -394,7 +406,13 @@ function buildRecordingsCard(row, rowIdx) {
   const title = normalizeField(row.title);
   const card = document.createElement(title ? 'a' : 'div');
   card.className = 'recordings-card-link';
-  if (title) card.href = `/recordings?${new URLSearchParams({ talk: title })}`;
+  if (title) {
+    const url = new URL(window.location.href);
+    url.pathname = '/recordings';
+    url.searchParams.set('talk', title);
+    url.hash = '';
+    card.href = url.href;
+  }
   card.append(createRecordingsCardIcon());
 
   const body = document.createElement('div');
@@ -455,7 +473,14 @@ function updateRecordingsList(block) {
   const emptyEl = block.querySelector('.recordings-empty');
   if (!listContainer) return;
 
+  updateRecordingsUrl(block);
   const rows = getFilteredAndSortedData(block);
+  const filterToggle = block.querySelector('.recordings-advanced-filters > summary');
+  const activeFilters = block.recordingsSelectedTags.size
+    + Number(block.recordingsDateRange !== 'all') + Number(block.recordingsSortBy !== 'date-desc');
+  if (filterToggle) filterToggle.textContent = activeFilters ? `Filters (${activeFilters})` : 'Filters';
+  const status = block.querySelector('.recordings-status');
+  if (status) status.textContent = `${rows.length} of ${block.recordingsData.length} recordings`;
   listContainer.innerHTML = '';
 
   if (rows.length === 0) {
@@ -489,6 +514,7 @@ function createSidebar(block, data) {
   search.className = 'recordings-search';
   search.placeholder = 'Title or speaker…';
   search.setAttribute('aria-label', 'Search recordings');
+  search.value = block.recordingsSearchQuery;
   searchWrap.append(searchLabel, search);
 
   const sortWrap = document.createElement('div');
@@ -512,6 +538,7 @@ function createSidebar(block, data) {
     o.textContent = opt.label;
     sortSelect.append(o);
   });
+  sortSelect.value = block.recordingsSortBy;
   sortWrap.append(sortLabel, sortSelect);
 
   const dateRangeWrap = document.createElement('div');
@@ -530,7 +557,7 @@ function createSidebar(block, data) {
     input.name = 'recordings-date-range';
     input.value = r.value;
     input.setAttribute('aria-label', r.label);
-    if (r.value === 'all') input.checked = true;
+    input.checked = r.value === block.recordingsDateRange;
     label.append(input, document.createTextNode(` ${r.label}`));
     dateRangeList.append(label);
   });
@@ -551,17 +578,51 @@ function createSidebar(block, data) {
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.value = tag;
+    input.checked = block.recordingsSelectedTags.has(tag);
     input.setAttribute('aria-label', tag);
     label.append(input, document.createTextNode(` ${tag}`));
     tagList.append(label);
   });
   tagWrap.append(tagList);
 
-  sidebar.append(searchWrap, sortWrap, dateRangeWrap, tagWrap);
+  const advanced = document.createElement('details');
+  advanced.className = 'recordings-advanced-filters';
+  const toggle = document.createElement('summary');
+  toggle.textContent = 'Filters';
+  const filters = document.createElement('div');
+  filters.className = 'recordings-advanced-filter-fields';
+  filters.append(sortWrap, dateRangeWrap, tagWrap);
+  const clear = document.createElement('button');
+  clear.type = 'button';
+  clear.className = 'recordings-clear-filters';
+  clear.textContent = 'Clear filters';
+  clear.addEventListener('click', () => {
+    block.recordingsSearchQuery = '';
+    block.recordingsSortBy = 'date-desc';
+    block.recordingsDateRange = 'all';
+    block.recordingsSelectedTags = new Set();
+    search.value = '';
+    sortSelect.value = 'date-desc';
+    dateRangeList.querySelectorAll('input').forEach((input) => {
+      input.checked = input.value === 'all';
+    });
+    tagList.querySelectorAll('input').forEach((input) => { input.checked = false; });
+    updateRecordingsList(block);
+    search.focus();
+  });
+  filters.append(clear);
+  advanced.append(toggle, filters);
+  const mobile = window.matchMedia('(width <= 768px)');
+  const updateLayout = () => { advanced.open = !mobile.matches; };
+  updateLayout();
+  mobile.addEventListener('change', updateLayout);
+  block.recordingsLayoutCleanup?.();
+  block.recordingsLayoutCleanup = () => mobile.removeEventListener('change', updateLayout);
+  sidebar.append(searchWrap, advanced);
 
   /* Wire events */
   const applySearch = debounce(() => {
-    block.recordingsSearchQuery = search.value;
+    block.recordingsSearchQuery = search.value.trim();
     updateRecordingsList(block);
   }, 180);
   search.addEventListener('input', () => applySearch());
@@ -597,11 +658,16 @@ function createSidebar(block, data) {
  * @param {Array} data - Array of { title, speaker, recordingLink, presentationLink, date, tag }
  */
 function renderFromSheet(block, data) {
+  const params = new URLSearchParams(window.location.search);
   block.recordingsData = data;
-  block.recordingsSearchQuery = '';
-  block.recordingsSortBy = 'date-desc';
-  block.recordingsDateRange = 'all';
-  block.recordingsSelectedTags = new Set();
+  block.recordingsSearchQuery = params.get('q')?.trim() || '';
+  const sort = params.get('sort');
+  block.recordingsSortBy = ['date-desc', 'date-asc', 'title-asc', 'title-desc'].includes(sort)
+    ? sort : 'date-desc';
+  const period = params.get('period');
+  block.recordingsDateRange = DATE_RANGES.some((range) => range.value === period) ? period : 'all';
+  const tags = getUniqueTags(data);
+  block.recordingsSelectedTags = new Set(params.getAll('tag').filter((tag) => tags.includes(tag)));
 
   block.textContent = '';
 
@@ -613,6 +679,10 @@ function renderFromSheet(block, data) {
 
   const main = document.createElement('div');
   main.className = 'recordings-main';
+  const status = document.createElement('p');
+  status.className = 'recordings-status';
+  status.setAttribute('role', 'status');
+  main.append(status);
 
   const listContainer = document.createElement('ul');
   listContainer.className = 'recordings-list';
@@ -628,6 +698,27 @@ function renderFromSheet(block, data) {
   block.append(wrapper);
 
   updateRecordingsList(block);
+  listContainer.addEventListener('click', (event) => {
+    if (!event.target.closest('a.recordings-card-link') || event.button !== 0
+      || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    try {
+      window.sessionStorage.setItem(RECORDINGS_RETURN_KEY, JSON.stringify({
+        url: window.location.href,
+        scroll: window.scrollY,
+      }));
+    } catch {
+      // Filter URLs still work when session storage is unavailable.
+    }
+  });
+  try {
+    const saved = JSON.parse(window.sessionStorage.getItem(RECORDINGS_RETURN_KEY));
+    if (saved?.url === window.location.href && Number.isFinite(saved.scroll)) {
+      window.sessionStorage.removeItem(RECORDINGS_RETURN_KEY);
+      requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, saved.scroll)));
+    }
+  } catch {
+    // Scroll restoration is optional.
+  }
 }
 
 function createSummaryReader(content, heading) {
@@ -785,12 +876,13 @@ function createSummaryReader(content, heading) {
   return [slot, dialog];
 }
 
-function linkTranscriptTimestamps(content, title) {
+function linkTranscriptTimestamps(content, title, prefix) {
   const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
   const nodes = [];
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     if (!node.parentElement.closest('a, code, pre, script, style')) nodes.push(node);
   }
+  let count = 0;
   nodes.forEach((node) => {
     const matches = [...node.textContent.matchAll(/(?<![\d:])\b\d+(?::[0-5]\d){1,2}\b(?![\d:])/g)];
     if (!matches.length) return;
@@ -803,10 +895,21 @@ function linkTranscriptTimestamps(content, title) {
       fragment.append(document.createTextNode(node.textContent.slice(offset, match.index)));
       const link = document.createElement('a');
       link.className = 'recordings-transcript-timestamp';
+      link.id = `${prefix}-moment-${count += 1}`;
       link.href = `/recordings?${new URLSearchParams({ talk: title, t: String(seconds) })}`;
       link.textContent = timestamp;
       link.setAttribute('aria-label', `Watch ${title} at ${timestamp}`);
-      fragment.append(link);
+      const moment = document.createElement('span');
+      moment.className = 'recordings-transcript-moment';
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'recordings-transcript-copy';
+      copy.setAttribute('aria-label', `Copy link to moment ${timestamp}`);
+      copy.setAttribute('command', '--copy-recording-link');
+      copy.setAttribute('commandfor', link.id);
+      copy.append(createDetailIcon('copy'));
+      moment.append(link, copy);
+      fragment.append(moment);
       offset = match.index + timestamp.length;
     });
     fragment.append(document.createTextNode(node.textContent.slice(offset)));
@@ -814,9 +917,183 @@ function linkTranscriptTimestamps(content, title) {
   });
 }
 
+function createTranscriptTools(content, title) {
+  const prefix = `recordings-transcript-${recordingsBlockCount += 1}`;
+  linkTranscriptTimestamps(content, title, prefix);
+  const toolbar = document.createElement('div');
+  toolbar.className = 'recordings-transcript-tools';
+  const label = document.createElement('label');
+  label.htmlFor = `${prefix}-search`;
+  label.textContent = 'Search transcript';
+  const search = document.createElement('input');
+  search.id = label.htmlFor;
+  search.type = 'search';
+  search.maxLength = 200;
+  search.placeholder = 'Find a word or phrase…';
+  const previous = document.createElement('button');
+  previous.type = 'button';
+  previous.textContent = 'Previous';
+  const next = document.createElement('button');
+  next.type = 'button';
+  next.textContent = 'Next';
+  const matchesStatus = document.createElement('span');
+  matchesStatus.className = 'recordings-transcript-match-status';
+  matchesStatus.setAttribute('role', 'status');
+  const copyStatus = document.createElement('span');
+  copyStatus.className = 'recordings-transcript-copy-status';
+  copyStatus.setAttribute('role', 'status');
+  const copyFallback = document.createElement('input');
+  copyFallback.type = 'text';
+  copyFallback.readOnly = true;
+  copyFallback.hidden = true;
+  copyFallback.setAttribute('aria-label', 'Recording moment link to copy');
+  toolbar.append(label, search, previous, next, matchesStatus, copyStatus, copyFallback);
+
+  const nativeHighlights = !!(window.CSS?.highlights && window.Highlight);
+  const highlightName = 'recordings-transcript-matches';
+  const readNodes = () => {
+    const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.parentElement.closest('button, script, style')) nodes.push(node);
+    }
+    return nodes;
+  };
+  let nodes = readNodes();
+  let ranges = [];
+  let current = -1;
+  let appliedQuery = null;
+  const updateSearch = () => {
+    const query = search.value.trim();
+    if (query === appliedQuery) return;
+    appliedQuery = query;
+    if (nativeHighlights) CSS.highlights.delete(highlightName);
+    else {
+      content.querySelectorAll('mark.recordings-transcript-match').forEach((mark) => {
+        mark.replaceWith(...mark.childNodes);
+      });
+      content.normalize();
+      nodes = readNodes();
+    }
+    ranges = [];
+    current = -1;
+    if (query) {
+      const pattern = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'giu');
+      let text = '';
+      let previousBlock;
+      const segments = nodes.map((node) => {
+        const block = node.parentElement.closest('p, li, h1, h2, h3, h4, h5, h6');
+        if (previousBlock && block !== previousBlock) text += '\n';
+        previousBlock = block;
+        const start = text.length;
+        text += node.textContent;
+        return { node, start, end: text.length };
+      });
+      const matches = [...text.matchAll(pattern)];
+      if (nativeHighlights) {
+        matches.forEach((match) => {
+          const start = segments.find((segment) => segment.end > match.index);
+          const endIndex = match.index + match[0].length;
+          const end = segments.find((segment) => segment.end >= endIndex);
+          const range = document.createRange();
+          range.setStart(start.node, match.index - start.start);
+          range.setEnd(end.node, endIndex - end.start);
+          ranges.push(range);
+        });
+      } else {
+        const marks = matches.map(() => []);
+        segments.forEach((segment) => {
+          const fragment = document.createDocumentFragment();
+          let offset = 0;
+          matches.forEach((match, index) => {
+            const start = Math.max(segment.start, match.index) - segment.start;
+            const end = Math.min(segment.end, match.index + match[0].length) - segment.start;
+            if (end <= start) return;
+            fragment.append(document.createTextNode(segment.node.textContent.slice(offset, start)));
+            const mark = document.createElement('mark');
+            mark.className = 'recordings-transcript-match';
+            mark.textContent = segment.node.textContent.slice(start, end);
+            fragment.append(mark);
+            marks[index].push(mark);
+            offset = end;
+          });
+          if (offset) {
+            fragment.append(document.createTextNode(segment.node.textContent.slice(offset)));
+            segment.node.replaceWith(fragment);
+          }
+        });
+        marks.forEach((parts) => {
+          const first = parts[0];
+          const last = parts[parts.length - 1];
+          const range = document.createRange();
+          range.setStart(first.firstChild, 0);
+          range.setEnd(last.firstChild, last.textContent.length);
+          ranges.push(range);
+        });
+      }
+      if (nativeHighlights && ranges.length) {
+        const highlight = new window.Highlight(...ranges);
+        CSS.highlights.set(highlightName, highlight);
+      }
+    }
+    previous.disabled = !ranges.length;
+    next.disabled = !ranges.length;
+    matchesStatus.textContent = query ? `${ranges.length} matches` : '';
+  };
+  const goToMatch = (direction) => {
+    if (!ranges.length) return;
+    if (current < 0) current = direction > 0 ? 0 : ranges.length - 1;
+    else current = (current + direction + ranges.length) % ranges.length;
+    ranges[current].startContainer.parentElement.scrollIntoView({ block: 'center' });
+    matchesStatus.textContent = `Match ${current + 1} of ${ranges.length}`;
+  };
+  search.addEventListener('input', debounce(updateSearch, 180));
+  search.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.isComposing) return;
+    event.preventDefault();
+    updateSearch();
+    goToMatch(event.shiftKey ? -1 : 1);
+  });
+  previous.addEventListener('click', () => goToMatch(-1));
+  next.addEventListener('click', () => goToMatch(1));
+  updateSearch();
+
+  let lastCopyMessage = '';
+  const reportCopy = (message) => {
+    copyStatus.textContent = message === lastCopyMessage ? `${message}\u00a0` : message;
+    lastCopyMessage = copyStatus.textContent;
+  };
+  const copyLink = async (target) => {
+    if (!target?.matches('.recordings-transcript-timestamp')) return;
+    copyStatus.textContent = '';
+    copyFallback.hidden = true;
+    try {
+      await navigator.clipboard.writeText(target.href);
+      reportCopy('Moment link copied.');
+    } catch {
+      reportCopy('Could not copy. Select and copy the link below.');
+      copyFallback.value = target.href;
+      copyFallback.hidden = false;
+      copyFallback.focus();
+      copyFallback.select();
+    }
+  };
+  if ('CommandEvent' in window) {
+    content.addEventListener('command', (event) => {
+      if (event.command === '--copy-recording-link') copyLink(event.target);
+    }, true);
+  } else {
+    content.addEventListener('click', (event) => {
+      const copy = event.target.closest('.recordings-transcript-copy');
+      if (copy) copyLink(document.getElementById(copy.getAttribute('commandfor')));
+    });
+  }
+  return toolbar;
+}
+
 async function renderTalkContent(article, value, type = 'summary') {
   const pathValue = normalizeField(value);
-  if (!pathValue) return;
+  if (!pathValue) return null;
   const isTranscript = type === 'transcript';
   const label = isTranscript ? 'Transcript' : 'Summary';
   const headingLevel = article.querySelector('h1') ? 2 : 3;
@@ -828,6 +1105,10 @@ async function renderTalkContent(article, value, type = 'summary') {
   heading.textContent = isTranscript ? 'Full transcript' : label;
   section.append(heading);
   article.append(section);
+  const loading = document.createElement('p');
+  loading.setAttribute('role', 'status');
+  loading.textContent = `Loading ${label.toLowerCase()}…`;
+  section.append(loading);
 
   try {
     const url = new URL(pathValue, `${window.location.origin}/`);
@@ -859,15 +1140,35 @@ async function renderTalkContent(article, value, type = 'summary') {
     body.className = `recordings-${type}-body`;
     body.append(...fragment.childNodes);
     content.append(body);
+    loading.remove();
     if (isTranscript) {
-      linkTranscriptTimestamps(content, article.querySelector('.recordings-detail-title').textContent);
+      section.append(createTranscriptTools(
+        content,
+        article.querySelector('.recordings-detail-title').textContent,
+      ));
       section.append(content);
     } else section.append(...createSummaryReader(content, heading));
   } catch {
     const message = document.createElement('p');
+    message.setAttribute('role', 'status');
     message.textContent = `${label} is currently unavailable.`;
+    loading.remove();
     section.append(message);
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'recordings-content-retry';
+    retry.textContent = `Retry ${label.toLowerCase()}`;
+    retry.addEventListener('click', async () => {
+      retry.disabled = true;
+      message.textContent = `Loading ${label.toLowerCase()}…`;
+      const replacement = await renderTalkContent(article, value, type);
+      if (isTranscript) replacement.open = section.open;
+      section.replaceWith(replacement);
+      replacement.querySelector(isTranscript ? 'summary' : 'button')?.focus();
+    });
+    section.append(retry);
   }
+  return section;
 }
 
 async function renderTalkDetail(block, data, talk) {
@@ -876,9 +1177,13 @@ async function renderTalkDetail(block, data, talk) {
   article.className = 'recordings-detail';
 
   const back = document.createElement('a');
-  back.href = '/recordings';
+  const returnUrl = new URL(window.location.href);
+  returnUrl.pathname = '/recordings';
+  ['talk', 't'].forEach((key) => returnUrl.searchParams.delete(key));
+  returnUrl.hash = '';
+  back.href = returnUrl.href;
   back.className = 'recordings-back';
-  back.textContent = 'Back to all recordings';
+  back.textContent = 'Back to recordings';
   back.prepend(createDetailIcon('back'));
   article.append(back);
 

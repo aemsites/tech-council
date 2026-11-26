@@ -16,3 +16,12 @@ export function getRecordingTime(url) {
     return null;
   }
 }
+
+export function formatRecordingTime(value) {
+  const seconds = parseRecordingTime(value);
+  if (seconds === null) return '';
+  const parts = [Math.floor(seconds / 60) % 60, seconds % 60];
+  const hours = Math.floor(seconds / 3600);
+  if (hours) parts.unshift(hours);
+  return parts.map((part) => String(part).padStart(2, '0')).join(':');
+}
