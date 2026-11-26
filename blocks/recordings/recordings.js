@@ -1132,6 +1132,7 @@ async function renderTalkContent(article, value, type = 'summary') {
 
   const section = document.createElement(isTranscript ? 'details' : 'section');
   section.className = `recordings-detail-${type}`;
+  section.hidden = isTranscript;
   const heading = document.createElement(isTranscript ? 'summary' : `h${headingLevel}`);
   heading.className = isTranscript ? 'recordings-transcript-toggle' : 'recordings-summary-title';
   heading.textContent = isTranscript ? 'Full transcript' : label;
@@ -1148,7 +1149,9 @@ async function renderTalkContent(article, value, type = 'summary') {
     const path = url.pathname.replace(/(?:\.plain)?\.html$/, '');
     const { loadFragment } = await import('../fragment/fragment.js');
     const fragment = await loadFragment(path, { signal: AbortSignal.timeout(10000) });
-    if (!fragment) throw new Error(`${label} fragment could not be loaded`);
+    if (!fragment || (isTranscript && !fragment.textContent.trim())) {
+      throw new Error(`${label} fragment could not be loaded`);
+    }
     const content = document.createElement('div');
     content.className = `recordings-${type}-content`;
     if (!isTranscript) {
@@ -1179,8 +1182,13 @@ async function renderTalkContent(article, value, type = 'summary') {
         article.querySelector('.recordings-detail-title').textContent,
       ));
       section.append(content);
+      section.hidden = false;
     } else section.append(...createSummaryReader(content, heading));
   } catch {
+    if (isTranscript) {
+      section.remove();
+      return null;
+    }
     const message = document.createElement('p');
     message.setAttribute('role', 'status');
     message.textContent = `${label} is currently unavailable.`;
@@ -1194,9 +1202,8 @@ async function renderTalkContent(article, value, type = 'summary') {
       retry.disabled = true;
       message.textContent = `Loading ${label.toLowerCase()}…`;
       const replacement = await renderTalkContent(article, value, type);
-      if (isTranscript) replacement.open = section.open;
       section.replaceWith(replacement);
-      replacement.querySelector(isTranscript ? 'summary' : 'button')?.focus();
+      replacement.querySelector('button')?.focus();
     });
     section.append(retry);
   }
