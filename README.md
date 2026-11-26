@@ -78,6 +78,12 @@ on their data object or metadata, as a nonnegative integer or supported time str
 URL timestamps take precedence. Missing, malformed, negative, and overflowing
 times do not override normal playback. The Watch recording link remains available
 alongside the embed and carries valid start times for supported SharePoint links.
+Every embedded player includes sign-in help and a **Sign in to SharePoint** link
+that opens outside the iframe, plus **Reload player** to retry after signing in.
+Both preserve the selected timestamp. SharePoint authentication is separate from
+Tech Council sign-in; private windows need their own Microsoft 365 session.
+The page cannot reliably inspect cross-origin login failures, so these controls
+remain available even when the player works. They do not bypass file permissions.
 The AI service must supply a timestamp in its citation URL or source hit to link
 to a particular snippet; the frontend does not infer it from prose.
 AI Sources and result cards display supplied timestamps alongside the talk title.

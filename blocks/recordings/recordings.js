@@ -1312,7 +1312,30 @@ async function renderTalkDetail(block, data, talk) {
     player.height = '450';
     player.allow = 'fullscreen; picture-in-picture';
     player.allowFullscreen = true;
-    video.append(player);
+    const help = document.createElement('aside');
+    help.className = 'recordings-player-help';
+    help.setAttribute('aria-label', 'Recording sign-in help');
+    const helpText = document.createElement('p');
+    helpText.textContent = 'Player not loading? Sign in to SharePoint in a new tab, '
+      + 'then return here and reload the player. Use the same browser or private window.';
+    const helpActions = document.createElement('div');
+    helpActions.className = 'recordings-player-help-actions';
+    const signIn = document.createElement('a');
+    signIn.className = 'button recordings-player-sign-in';
+    signIn.href = embedUrl;
+    signIn.textContent = 'Sign in to SharePoint';
+    signIn.target = '_blank';
+    signIn.rel = 'noopener';
+    const reload = document.createElement('button');
+    reload.type = 'button';
+    reload.className = 'button secondary';
+    reload.textContent = 'Reload player';
+    reload.addEventListener('click', () => {
+      player.setAttribute('src', player.src);
+    });
+    helpActions.append(signIn, reload);
+    help.append(helpText, helpActions);
+    video.append(help, player);
     stage.append(video);
     if (details.children.length) stage.append(details);
     surface.append(stage);
@@ -1329,6 +1352,7 @@ async function renderTalkDetail(block, data, talk) {
     const seconds = parseRecordingTime(time);
     if (seconds === null) return;
     player.src = withPlaybackStartTime(getRecordingEmbedUrl(row.embedurl), seconds);
+    article.querySelector('.recordings-player-sign-in').href = player.src;
     const watch = article.querySelector('.recordings-detail-actions .button:not(.secondary)');
     if (watch) watch.href = withPlaybackStartTime(normalizeField(row.recordinglink), seconds);
     const url = new URL(window.location.href);
