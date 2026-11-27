@@ -33,16 +33,17 @@ class SummaryGenerationTest(unittest.TestCase):
             topic = document.tables[2]
             fields = {row.cells[0].text: row.cells[1] for row in topic.rows[1:]}
             self.assertEqual(fields["Start"].text, "00:30")
-            self.assertEqual(fields["Timing confidence"].text, "segment")
+            self.assertNotIn("Timing confidence", fields)
             self.assertTrue(all(
                 paragraph.style.name == "List Bullet"
                 for paragraph in fields["Key points"].paragraphs
             ))
-            self.assertIn("Unresolved", html.read_text())
+            self.assertNotIn("Unresolved", html.read_text())
+            self.assertNotIn("Timing confidence", html.read_text())
             self.assertFalse(any(paragraph.text.strip() for paragraph in document.paragraphs))
 
     def test_invalid_times_and_wrong_block_fields_are_rejected_before_writing(self):
-        for change in ("reversed", "wrong-field", "unknown-confidence"):
+        for change in ("reversed", "wrong-field", "removed-confidence"):
             with self.subTest(change=change), tempfile.TemporaryDirectory() as directory:
                 data = json.loads(SAMPLE.read_text())
                 fields = data["blocks"][2]["fields"]
@@ -51,7 +52,7 @@ class SummaryGenerationTest(unittest.TestCase):
                 elif change == "wrong-field":
                     fields["Answer"] = "This field belongs on a question, not a topic."
                 else:
-                    fields["Timing confidence"] = "probably"
+                    fields["Timing confidence"] = "exact"
                 source = Path(directory) / "summary.json"
                 output = Path(directory) / "summary.docx"
                 source.write_text(json.dumps(data))
@@ -91,7 +92,7 @@ class SummaryGenerationTest(unittest.TestCase):
                 data = json.loads(SAMPLE.read_text())
                 fields = {
                     "Start": None, "End": None,
-                    "Timing confidence": "unverified", "Tags": [],
+                    "Tags": [],
                     **extra_fields,
                 }
                 data["blocks"].append({"block": name, "fields": fields})
@@ -103,10 +104,43 @@ class SummaryGenerationTest(unittest.TestCase):
                 self.assertFalse(output.exists())
 
     def test_excluded_question_statuses_are_rejected(self):
-        for status in ("Deferred", "Partially answered"):
+        for status in ("Deferred", "Partially answered", "Unresolved"):
             with self.subTest(status=status), tempfile.TemporaryDirectory() as directory:
                 data = json.loads(SAMPLE.read_text())
                 data["blocks"][4]["fields"]["Status"] = status
+                source = Path(directory) / "summary.json"
+                output = Path(directory) / "summary.docx"
+                source.write_text(json.dumps(data))
+                result = self.run_generator(source, output)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(output.exists())
+
+    def test_missing_values_remain_blank(self):
+        for value in (None, ""):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as directory:
+                data = json.loads(SAMPLE.read_text())
+                for block in data["blocks"]:
+                    block["fields"].update({"Start": value, "End": value, "Tags": []})
+                data["blocks"][0]["fields"]["Audience"] = value
+                source = Path(directory) / "summary.json"
+                output = Path(directory) / "summary.docx"
+                source.write_text(json.dumps(data))
+                result = self.run_generator(source, output)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                for table in Document(output).tables:
+                    fields = {row.cells[0].text: row.cells[1].text for row in table.rows[1:]}
+                    self.assertEqual(fields["Start"], "")
+                    self.assertEqual(fields["End"], "")
+                    self.assertEqual(fields["Tags"], "")
+                    self.assertNotIn("Timing confidence", fields)
+                    if "Audience" in fields:
+                        self.assertEqual(fields["Audience"], "")
+
+    def test_questions_without_answers_are_rejected(self):
+        for answer in (None, "", " "):
+            with self.subTest(answer=answer), tempfile.TemporaryDirectory() as directory:
+                data = json.loads(SAMPLE.read_text())
+                data["blocks"][4]["fields"]["Answer"] = answer
                 source = Path(directory) / "summary.json"
                 output = Path(directory) / "summary.docx"
                 source.write_text(json.dumps(data))

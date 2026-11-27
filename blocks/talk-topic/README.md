@@ -15,9 +15,9 @@ Use at most 10 **Talk Topic** tables, in recording order. Combine related
 ideas into substantial themes with detailed explanations and supporting points;
 do not make every short paragraph a separate topic.
 Use one **Talk Question** table per included audience question. Question statuses
-are Answered or Unresolved. Omit deferred and partially answered questions;
-the renderer also hides these questions in existing documents.
-Do not invent answers to unresolved questions. All blocks except questions
+are Answered only. Omit unanswered, unresolved, deferred, and partially answered
+questions; the renderer also hides these statuses and empty answers in existing
+documents. All blocks except questions
 also accept an optional Title.
 
 Generate only these four block types. Do not add Follow-ups, Open points,
@@ -32,22 +32,20 @@ Include these rows in every table, leaving unknown values blank:
 | --- | --- |
 | Start | Nonnegative integer seconds, MM:SS, or HH:MM:SS |
 | End | Same format; must be later than Start |
-| Timing confidence | `exact`, `segment`, or `unverified` |
 | Tags | Comma-separated topic labels |
 
-`exact` means the content boundary was checked. `segment` means the
-range identifies a broader transcript segment containing the topic,
-possibly shared by several topics. It is not a precise topic duration. Never estimate missing
-boundaries solely to fill the template.
+Use only checked topic/question boundaries. Unknown times remain blank, with no
+Unknown, Unverified, or Not found label. Do not add a Timing confidence row or
+use broad multi-topic speaker segments as individual topic ranges. Missing
+Audience remains blank and missing Tags remains empty.
 
-Missing/invalid confidence defaults to `unverified`. Timing fields are metadata
-backed: headings display known times in small brackets; durations and confidence
-labels are not displayed. Segment ranges identify enclosing passages, not exact topic boundaries.
+Headings display known times in small brackets; unknown times have no label.
 Invalid starts are omitted; an end without a start or not later than the
 start does not create a range. A start of zero is valid.
 
 Rendered blocks expose validated `data-start`, `data-end`, `data-duration`
-(seconds), `data-timing-confidence`, and normalized `data-tags` attributes.
+(seconds) and normalized `data-tags` attributes when available. Legacy
+timing-confidence metadata remains readable for existing documents only.
 Tags remain visible text;
 they do not introduce filtering or modify the recording sheet.
 

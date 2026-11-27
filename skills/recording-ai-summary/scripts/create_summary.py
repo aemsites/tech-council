@@ -30,11 +30,11 @@ BLOCK_FIELDS = {
     "Talk Topic": ("Summary", "Key points"),
     "Talk Question": ("Question", "Status", "Answer"),
 }
-METADATA = ("Start", "End", "Timing confidence", "Tags")
+METADATA = ("Start", "End", "Tags")
 
 
 def seconds(value):
-    if value is None:
+    if value is None or value == "":
         return None
     result = 0
     for part in str(value).split(":"):
@@ -69,8 +69,6 @@ def validate_summary(data):
         start, end = seconds(fields["Start"]), seconds(fields["End"])
         if end is not None and (start is None or end <= start):
             raise ValueError(f"Block {index}: End must be later than a known Start.")
-        if fields["Timing confidence"] != "unverified" and start is None:
-            raise ValueError(f"Block {index}: verified/segment timing needs a known Start.")
         if block["block"] == "Talk Topic" and start is not None:
             if start < previous_topic_start:
                 raise ValueError(f"Block {index}: topic starts must remain in recording order.")

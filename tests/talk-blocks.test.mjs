@@ -17,12 +17,15 @@ test('talk metadata accepts zero starts and calculates a validated range', () =>
 
 test('unknown timing is not inferred and an end alone is not a range', () => {
   assert.deepEqual(getTalkTiming({}), {
-    start: null, end: null, duration: null, confidence: 'unverified',
+    start: null, end: null, duration: null, confidence: null,
   });
   assert.deepEqual(getTalkTiming({ end: '55:08' }), {
-    start: null, end: null, duration: null, confidence: 'unverified',
+    start: null, end: null, duration: null, confidence: null,
   });
-  assert.equal(getTalkTiming({ start: '10' }).confidence, 'unverified');
+  assert.equal(getTalkTiming({ start: '10' }).confidence, null);
+  assert.deepEqual(getTalkTiming({ start: '', end: '' }), {
+    start: null, end: null, duration: null, confidence: null,
+  });
 });
 
 test('invalid ranges do not create negative, zero, or overflowing durations', () => {

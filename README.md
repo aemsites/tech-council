@@ -31,8 +31,9 @@ Structured recording summaries use the `talk-overview`, `talk-takeaways`,
 `talk-topic`, and `talk-question` EDS blocks. Sections start expanded, remain
 collapsible, and provide direct section links, bracketed timestamps, and
 automatic topic/Q&A grouping. Legacy Follow-ups and Source Note blocks remain
-supported, but new summaries must not generate them or deferred/partially
-answered questions.
+supported, but new summaries must not generate them or unanswered, unresolved,
+deferred, or partially answered questions. New blocks have no Timing confidence
+field; missing timestamps and audience details stay blank.
 
 The shareable agent skill lives in
 [`skills/recording-ai-summary/`](skills/recording-ai-summary/SKILL.md), including
@@ -40,6 +41,102 @@ the schema, synthetic Word/JSON sample, generator, and tests. Share the whole
 folder. A small `.github/skills/recording-ai-summary/SKILL.md` entry lets Copilot
 discover the canonical package without duplicating it. New summaries must have
 at most ten substantial topics; never invent timing boundaries.
+
+### Use the skill with Copilot CLI
+
+1. Open this repository in your terminal and start `copilot`. Document generation
+   requires Python 3.10+ and the packages in the skill's `requirements.txt`.
+   Reuse an existing Python environment when available.
+2. In Copilot, refresh the skills catalog and confirm `recording-ai-summary`
+   appears:
+
+   ```text
+   /skills reload
+   /skills list
+   ```
+
+3. Invoke the skill:
+
+   ```text
+   /recording-ai-summary
+   ```
+
+   Before **every run**, the skill asks for the local transcript file path, then
+   the local folder where the summary should be generated. If you attach a
+   transcript using `@` or provide paths in your prompt, it still asks you to
+   confirm them. It does not assume a previous run's locations.
+4. Review the preflight plan: confirmed paths, proposed JSON/DOCX filenames,
+   optional HTML, existing-file conflicts, dependency needs, and content/timing
+   rules. Request changes or approve the plan before the agent reads the full
+   transcript and writes output. Folder creation and replacement of named
+   existing files require explicit approval.
+5. The agent explains its progress, authors the structured JSON, validates it,
+   and creates the Word document in your chosen folder. It then provides
+   deliverable links, topic/Q&A counts, source limitations, and check results,
+   and **asks you to review the generated draft**. Approve it, request changes,
+   or choose to review later; generation alone is not approval.
+
+Review the JSON and Word document against the transcript. Expect one Overview,
+one Takeaways block, up to ten detailed Topics, and actual audience Questions
+with a substantive recorded answer and Status set to Answered. Omit unanswered
+questions instead of showing Unresolved or "No answer recorded." Missing
+timestamps and audience details stay blank, and missing tags stay empty.
+Do not add Timing confidence or missing-data labels. Only checked topic/question
+boundaries may be used; broad multi-topic segments are not precise topic ranges.
+User-requested revisions repeat path confirmation, preflight approval, and
+post-generation review. Verbose guidance stays in the conversation, not extra
+sections in the Word summary.
+
+The JSON is the editable source. The DOCX contains upload-ready EDS tables, not
+the rendered website layout. The site supplies collapsible sections, group
+headings, navigation, and Copy link actions; do not author these into Word.
+
+### Validate or regenerate a document manually
+
+The generator does not call an AI model or summarize a transcript itself. It
+validates already-authored JSON and converts it to DOCX and optional plain HTML.
+These manual commands do not prompt for paths or review; an agent running the
+skill must still complete its interactive intake and approvals first.
+From the repository root, on macOS/Linux:
+
+```sh
+python3 -m venv .venv-summary
+.venv-summary/bin/python -m pip install -r skills/recording-ai-summary/requirements.txt
+.venv-summary/bin/python skills/recording-ai-summary/scripts/create_summary.py /path/to/output/talk-ai-summary.json --validate-only
+.venv-summary/bin/python skills/recording-ai-summary/scripts/create_summary.py /path/to/output/talk-ai-summary.json /path/to/output/talk-ai-summary.docx --html /path/to/output/talk-ai-summary.plain.html
+```
+
+Replace the example paths with your confirmed output paths.
+Reuse an existing environment instead of creating another when possible. On
+Windows, use the environment's `Scripts/python.exe` instead of `bin/python`.
+Existing output files are protected; use `--force` only when replacing them is
+intentional and authorized. Keep virtual environments and private transcripts
+or generated summaries out of commits.
+
+For a format-only trial, replace the input JSON with
+`skills/recording-ai-summary/assets/sample-summary.json` and choose new output
+filenames. This bundled example is **synthetic**, not a real recording summary.
+
+### Preview and share
+
+Upload the DOCX to an authorized EDS drafts folder, then refresh its EDS preview
+through the approved workflow. Uploading alone does not refresh preview.
+Approval of the local draft does not grant upload or publication permission;
+authorize those actions separately.
+Inspect the actual Word conversion: bullets, detailed topics, grouped Q&A,
+expanded/collapsible sections, bracketed times, and direct section links.
+The optional generated HTML is not a substitute for this conversion check.
+
+Only after approval, publish the summary fragment and set the recording's
+existing Summary field to its path. The skill must not publish content, replace
+an existing summary, or edit the recording sheet without authorization.
+
+To use the skill in another repository, copy the **entire**
+`skills/recording-ai-summary/` folder into that repository's
+`.github/skills/recording-ai-summary/`, then reload Copilot skills. Do not copy
+only this repository's small discovery entry: it depends on the canonical
+package. Other agents should receive the whole package in their supported
+Agent Skills directory.
 
 ## Local development
 

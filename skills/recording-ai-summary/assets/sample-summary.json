@@ -7,7 +7,6 @@
       "fields": {
         "Start": null,
         "End": null,
-        "Timing confidence": "unverified",
         "Tags": ["Retrieval", "Evaluation"],
         "Summary": "This synthetic example illustrates the summary format, not a real recording. Its imaginary session covers relevance assessment and regression testing for a retrieval assistant.",
         "Audience": "Engineers building retrieval and evaluation pipelines."
@@ -18,12 +17,11 @@
       "fields": {
         "Start": null,
         "End": null,
-        "Timing confidence": "unverified",
         "Tags": ["Evaluation"],
         "Takeaways": [
           "Assess whether retrieved passages actually support an answer.",
           "Compare changes against the same benchmark before claiming improvement.",
-          "Keep unanswered questions visible rather than inventing answers."
+          "Inspect individual failures as well as aggregate benchmark results."
         ]
       }
     },
@@ -33,7 +31,6 @@
         "Title": "Assessing evidence relevance",
         "Start": "00:30",
         "End": "02:00",
-        "Timing confidence": "segment",
         "Tags": ["Retrieval", "Relevance"],
         "Summary": "In this imaginary session, the presenter distinguishes retrieving a document from finding evidence that supports an answer. A passage may mention the right subject yet omit the specific condition or fact the user is asking about. The example therefore evaluates relevance at the passage level and inspects whether the cited evidence justifies the response. This separates successful retrieval from a well-supported answer instead of treating any matching document as sufficient.",
         "Key points": [
@@ -49,9 +46,8 @@
         "Title": "Comparing changes on a stable benchmark",
         "Start": "02:00",
         "End": null,
-        "Timing confidence": "exact",
         "Tags": ["Evaluation", "Regression testing"],
-        "Summary": "The imaginary presenter describes using the same evaluation set when comparing pipeline changes. Holding the questions and expected evidence steady makes it easier to connect a changed result to the pipeline revision rather than to a different workload. Aggregate results are useful for an overview, but individual failures reveal regressions that an average can hide. The example leaves the separate question of benchmark refresh frequency unanswered.",
+        "Summary": "The imaginary presenter describes using the same evaluation set when comparing pipeline changes. Holding the questions and expected evidence steady makes it easier to connect a changed result to the pipeline revision rather than to a different workload. Aggregate results are useful for an overview, but individual failures reveal regressions that an average can hide. Comparing individual cases helps distinguish broad gains from newly broken behavior.",
         "Key points": [
           "Changing the evaluation set at the same time can obscure the effect of a model change by introducing a second source of variation.",
           "Compare pipeline versions on the same cases before attributing a difference to the new implementation.",
@@ -64,23 +60,10 @@
       "fields": {
         "Start": null,
         "End": null,
-        "Timing confidence": "unverified",
         "Tags": ["Evaluation"],
         "Question": "Why keep the benchmark stable?",
         "Status": "Answered",
         "Answer": "In this synthetic example, the presenter says this makes comparisons between pipeline versions more meaningful."
-      }
-    },
-    {
-      "block": "Talk Question",
-      "fields": {
-        "Start": null,
-        "End": null,
-        "Timing confidence": "unverified",
-        "Tags": ["Open question"],
-        "Question": "How often should the benchmark be refreshed?",
-        "Status": "Unresolved",
-        "Answer": "No answer is included in this synthetic example."
       }
     }
   ]

@@ -29,7 +29,7 @@ export function getTalkTiming(fields) {
     start,
     end,
     duration: end === null ? null : end - start,
-    confidence: ['exact', 'segment'].includes(confidence) ? confidence : 'unverified',
+    confidence: ['exact', 'segment', 'unverified'].includes(confidence) ? confidence : null,
   };
 }
 
@@ -79,7 +79,7 @@ function appendMetadata(parent, block, fields) {
   ));
   const metadata = document.createElement('div');
   metadata.className = 'talk-block-meta';
-  block.dataset.timingConfidence = timing.confidence;
+  if (timing.confidence) block.dataset.timingConfidence = timing.confidence;
   if (timing.start !== null) {
     block.dataset.start = String(timing.start);
     if (timing.end !== null) {
@@ -239,7 +239,9 @@ export function decorateTalkOutline(main) {
 export function decorateTalkBlock(block, type) {
   const fields = readFields(block);
   if (type === 'question'
-      && ['deferred', 'partially answered'].includes(fieldText(fields, 'status').toLowerCase())) {
+      && (['deferred', 'partially answered', 'unresolved'].includes(
+        fieldText(fields, 'status').toLowerCase(),
+      ) || !fieldText(fields, 'answer'))) {
     block.hidden = true;
     if (block.parentElement?.classList.contains('talk-question-wrapper')) {
       block.parentElement.hidden = true;

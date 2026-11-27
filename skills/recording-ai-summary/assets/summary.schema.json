@@ -36,7 +36,7 @@
                     "properties": {
                       "Title": {"$ref": "#/$defs/text"},
                       "Summary": {"$ref": "#/$defs/text"},
-                      "Audience": {"$ref": "#/$defs/text"}
+                      "Audience": {"$ref": "#/$defs/optionalText"}
                     },
                     "required": ["Summary", "Audience"]
                   }
@@ -91,7 +91,7 @@
                   {
                     "properties": {
                       "Question": {"$ref": "#/$defs/text"},
-                      "Status": {"enum": ["Answered", "Unresolved"]},
+                      "Status": {"const": "Answered"},
                       "Answer": {"$ref": "#/$defs/text"}
                     },
                     "required": ["Question", "Status", "Answer"]
@@ -107,6 +107,12 @@
   },
   "$defs": {
     "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "optionalText": {
+      "anyOf": [
+        {"$ref": "#/$defs/text"},
+        {"enum": [null, ""]}
+      ]
+    },
     "list": {
       "type": "array",
       "minItems": 1,
@@ -114,18 +120,17 @@
     },
     "time": {
       "oneOf": [
-        {"type": "null"},
+        {"enum": [null, ""]},
         {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
         {"type": "string", "pattern": "^\\d+(?::[0-5]\\d){0,2}$"}
       ]
     },
     "metadata": {
       "type": "object",
-      "required": ["Start", "End", "Timing confidence", "Tags"],
+      "required": ["Start", "End", "Tags"],
       "properties": {
         "Start": {"$ref": "#/$defs/time"},
         "End": {"$ref": "#/$defs/time"},
-        "Timing confidence": {"enum": ["exact", "segment", "unverified"]},
         "Tags": {
           "type": "array",
           "items": {"type": "string", "minLength": 1, "pattern": "^[^,\\r\\n]+$"}
