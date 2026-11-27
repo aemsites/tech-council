@@ -93,9 +93,8 @@ function formatEventTime(date) {
   }).format(date);
 }
 
-function filterAndSortEvents(data) {
+function filterAndSortEvents(data, maxEvents = 10) {
   const now = new Date();
-  const maxEvents = 10;
 
   const parsed = data.map((row) => ({
     ...row,
@@ -328,9 +327,23 @@ export default async function decorate(block) {
     return;
   }
 
-  const { events, hasUpcoming } = filterAndSortEvents(data);
+  const isGrid = block.classList.contains('grid');
+  const { events, hasUpcoming } = filterAndSortEvents(data, isGrid ? Infinity : 10);
 
   const cards = events.map((row) => buildEventCard(row));
+
+  if (isGrid) {
+    const grid = document.createElement('ul');
+    grid.className = 'events-grid';
+    cards.forEach((card) => grid.append(card));
+
+    block.textContent = '';
+    if (!hasUpcoming) {
+      block.append(buildNoUpcomingBanner());
+    }
+    block.append(grid);
+    return;
+  }
 
   const cardsPerSlide = 3;
   const slides = [];
