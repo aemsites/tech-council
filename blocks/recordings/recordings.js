@@ -783,7 +783,8 @@ function createSummaryReader(content, heading) {
   stage.className = 'recordings-summary-stage';
   const sections = [...content.querySelectorAll('h3, h4, h5, h6')];
   const topLevel = Math.min(...sections.map((item) => Number(item.tagName[1])));
-  const targets = sections.filter((item) => Number(item.tagName[1]) === topLevel);
+  const targets = sections.filter((item) => Number(item.tagName[1]) === topLevel
+    || item.closest('.talk-block-topic'));
   const outline = document.createElement('nav');
   outline.className = 'recordings-summary-outline';
   outline.setAttribute('aria-label', 'Summary sections');

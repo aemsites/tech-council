@@ -36,6 +36,10 @@ export async function loadFragment(path, { signal } = {}) {
 
       decorateMain(main);
       await loadSections(main);
+      if (main.querySelector('.talk-block')) {
+        const { decorateTalkGroups } = await import('../../utils/talk-blocks.js');
+        decorateTalkGroups(main);
+      }
       return main;
     }
   }

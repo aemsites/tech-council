@@ -227,6 +227,11 @@ async function loadLazy(doc) {
     if (i === 0 && sampleRUM.enhance) sampleRUM.enhance();
   })));
 
+  if (main.querySelector('.talk-block')) {
+    const { decorateTalkOutline } = await import('../utils/talk-blocks.js');
+    decorateTalkOutline(main);
+  }
+
   // Highlight and optionally scroll to matches from ?highlight= query param
   if (main) highlightFromQuery(main);
 

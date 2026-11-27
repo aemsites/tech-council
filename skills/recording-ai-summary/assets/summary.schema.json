@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EDS recording AI summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "title", "blocks"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "title": {"$ref": "#/$defs/text"},
+    "blocks": {
+      "type": "array",
+      "minItems": 3,
+      "contains": {
+        "type": "object",
+        "required": ["block"],
+        "properties": {"block": {"const": "Talk Topic"}}
+      },
+      "minContains": 1,
+      "maxContains": 10,
+      "items": {
+        "type": "object",
+        "required": ["block", "fields"],
+        "additionalProperties": false,
+        "properties": {
+          "block": {"type": "string"},
+          "fields": {"type": "object"}
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "block": {"const": "Talk Overview"},
+              "fields": {
+                "allOf": [
+                  {"$ref": "#/$defs/metadata"},
+                  {
+                    "properties": {
+                      "Title": {"$ref": "#/$defs/text"},
+                      "Summary": {"$ref": "#/$defs/text"},
+                      "Audience": {"$ref": "#/$defs/text"}
+                    },
+                    "required": ["Summary", "Audience"]
+                  }
+                ],
+                "unevaluatedProperties": false
+              }
+            }
+          },
+          {
+            "properties": {
+              "block": {"const": "Talk Takeaways"},
+              "fields": {
+                "allOf": [
+                  {"$ref": "#/$defs/metadata"},
+                  {
+                    "properties": {
+                      "Title": {"$ref": "#/$defs/text"},
+                      "Takeaways": {"$ref": "#/$defs/list"}
+                    },
+                    "required": ["Takeaways"]
+                  }
+                ],
+                "unevaluatedProperties": false
+              }
+            }
+          },
+          {
+            "properties": {
+              "block": {"const": "Talk Topic"},
+              "fields": {
+                "allOf": [
+                  {"$ref": "#/$defs/metadata"},
+                  {
+                    "properties": {
+                      "Title": {"$ref": "#/$defs/text"},
+                      "Summary": {"$ref": "#/$defs/text"},
+                      "Key points": {"$ref": "#/$defs/list"}
+                    },
+                    "required": ["Title", "Summary", "Key points"]
+                  }
+                ],
+                "unevaluatedProperties": false
+              }
+            }
+          },
+          {
+            "properties": {
+              "block": {"const": "Talk Question"},
+              "fields": {
+                "allOf": [
+                  {"$ref": "#/$defs/metadata"},
+                  {
+                    "properties": {
+                      "Question": {"$ref": "#/$defs/text"},
+                      "Status": {"enum": ["Answered", "Unresolved"]},
+                      "Answer": {"$ref": "#/$defs/text"}
+                    },
+                    "required": ["Question", "Status", "Answer"]
+                  }
+                ],
+                "unevaluatedProperties": false
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "list": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/text"}
+    },
+    "time": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        {"type": "string", "pattern": "^\\d+(?::[0-5]\\d){0,2}$"}
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["Start", "End", "Timing confidence", "Tags"],
+      "properties": {
+        "Start": {"$ref": "#/$defs/time"},
+        "End": {"$ref": "#/$defs/time"},
+        "Timing confidence": {"enum": ["exact", "segment", "unverified"]},
+        "Tags": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "pattern": "^[^,\\r\\n]+$"}
+        }
+      }
+    }
+  }
+}

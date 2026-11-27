@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "title": "Synthetic example: evaluating a retrieval assistant",
+  "blocks": [
+    {
+      "block": "Talk Overview",
+      "fields": {
+        "Start": null,
+        "End": null,
+        "Timing confidence": "unverified",
+        "Tags": ["Retrieval", "Evaluation"],
+        "Summary": "This synthetic example illustrates the summary format, not a real recording. Its imaginary session covers relevance assessment and regression testing for a retrieval assistant.",
+        "Audience": "Engineers building retrieval and evaluation pipelines."
+      }
+    },
+    {
+      "block": "Talk Takeaways",
+      "fields": {
+        "Start": null,
+        "End": null,
+        "Timing confidence": "unverified",
+        "Tags": ["Evaluation"],
+        "Takeaways": [
+          "Assess whether retrieved passages actually support an answer.",
+          "Compare changes against the same benchmark before claiming improvement.",
+          "Keep unanswered questions visible rather than inventing answers."
+        ]
+      }
+    },
+    {
+      "block": "Talk Topic",
+      "fields": {
+        "Title": "Assessing evidence relevance",
+        "Start": "00:30",
+        "End": "02:00",
+        "Timing confidence": "segment",
+        "Tags": ["Retrieval", "Relevance"],
+        "Summary": "In this imaginary session, the presenter distinguishes retrieving a document from finding evidence that supports an answer. A passage may mention the right subject yet omit the specific condition or fact the user is asking about. The example therefore evaluates relevance at the passage level and inspects whether the cited evidence justifies the response. This separates successful retrieval from a well-supported answer instead of treating any matching document as sufficient.",
+        "Key points": [
+          "A document can match the subject without answering the specific question; matching vocabulary is not itself evidence for the answer.",
+          "Inspect the passages used in a response, not only whether the expected document appears among the search results.",
+          "Relevance checks provide a signal for assessing answer reliability, but an evidence gap still needs investigation rather than a guessed answer."
+        ]
+      }
+    },
+    {
+      "block": "Talk Topic",
+      "fields": {
+        "Title": "Comparing changes on a stable benchmark",
+        "Start": "02:00",
+        "End": null,
+        "Timing confidence": "exact",
+        "Tags": ["Evaluation", "Regression testing"],
+        "Summary": "The imaginary presenter describes using the same evaluation set when comparing pipeline changes. Holding the questions and expected evidence steady makes it easier to connect a changed result to the pipeline revision rather than to a different workload. Aggregate results are useful for an overview, but individual failures reveal regressions that an average can hide. The example leaves the separate question of benchmark refresh frequency unanswered.",
+        "Key points": [
+          "Changing the evaluation set at the same time can obscure the effect of a model change by introducing a second source of variation.",
+          "Compare pipeline versions on the same cases before attributing a difference to the new implementation.",
+          "Individual failures need inspection alongside aggregate results so a broad improvement does not conceal a newly broken case."
+        ]
+      }
+    },
+    {
+      "block": "Talk Question",
+      "fields": {
+        "Start": null,
+        "End": null,
+        "Timing confidence": "unverified",
+        "Tags": ["Evaluation"],
+        "Question": "Why keep the benchmark stable?",
+        "Status": "Answered",
+        "Answer": "In this synthetic example, the presenter says this makes comparisons between pipeline versions more meaningful."
+      }
+    },
+    {
+      "block": "Talk Question",
+      "fields": {
+        "Start": null,
+        "End": null,
+        "Timing confidence": "unverified",
+        "Tags": ["Open question"],
+        "Question": "How often should the benchmark be refreshed?",
+        "Status": "Unresolved",
+        "Answer": "No answer is included in this synthetic example."
+      }
+    }
+  ]
+}

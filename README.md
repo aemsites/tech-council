@@ -25,6 +25,22 @@ npm i
 npm run lint
 ```
 
+## Recording summary blocks and skill
+
+Structured recording summaries use the `talk-overview`, `talk-takeaways`,
+`talk-topic`, and `talk-question` EDS blocks. Sections start expanded, remain
+collapsible, and provide direct section links, bracketed timestamps, and
+automatic topic/Q&A grouping. Legacy Follow-ups and Source Note blocks remain
+supported, but new summaries must not generate them or deferred/partially
+answered questions.
+
+The shareable agent skill lives in
+[`skills/recording-ai-summary/`](skills/recording-ai-summary/SKILL.md), including
+the schema, synthetic Word/JSON sample, generator, and tests. Share the whole
+folder. A small `.github/skills/recording-ai-summary/SKILL.md` entry lets Copilot
+discover the canonical package without duplicating it. New summaries must have
+at most ten substantial topics; never invent timing boundaries.
+
 ## Local development
 
 ### Content AI search
